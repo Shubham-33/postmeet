@@ -1,26 +1,58 @@
+"""Postmeet — Flask backend.
+
+Extracts decisions and action items from meeting transcripts (or shared
+Google Doc URLs) using Gemini 2.5 Flash with structured output. Renders a
+single-page UI; dispatches per-action Calendar / Gmail prefills client-side
+via URL specs (no OAuth).
+
+Public surface:
+
+* GET  ``/``         — render the single-page UI (Cache-Control'd, gzipped)
+* POST ``/extract``  — accepts ``{"transcript": str}`` or ``{"doc_url": str}``,
+                       returns ``{"summary", "decisions", "action_items"}``
+"""
+from __future__ import annotations
+
 import gzip
 import json
 import os
 import re
 from datetime import date
 from pathlib import Path
+from typing import Any, Final, Pattern
 
 import requests
 from dotenv import load_dotenv
-from flask import Flask, jsonify, make_response, render_template, request
+from flask import Flask, Response, jsonify, make_response, render_template, request
+
+# ---------------------------------------------------------------------------
+# Config
+# ---------------------------------------------------------------------------
 
 load_dotenv(Path(__file__).resolve().parent.parent / ".env")
 
-API_KEY = os.environ.get("GOOGLE_API_KEY") or os.environ.get("GEMINI_API_KEY")
+API_KEY: Final[str | None] = os.environ.get("GOOGLE_API_KEY") or os.environ.get("GEMINI_API_KEY")
 if not API_KEY:
     raise RuntimeError("Set GOOGLE_API_KEY in .env")
 
-MODEL_NAME = "gemini-2.5-flash"
-GEMINI_URL = f"https://generativelanguage.googleapis.com/v1beta/models/{MODEL_NAME}:generateContent"
+MODEL_NAME: Final[str] = "gemini-2.5-flash"
+GEMINI_URL: Final[str] = (
+    f"https://generativelanguage.googleapis.com/v1beta/models/{MODEL_NAME}:generateContent"
+)
 
-DOC_ID_RE = re.compile(r"/document/d/([a-zA-Z0-9_-]+)")
+# HTTP / behavior tunables
+DOC_FETCH_TIMEOUT_S: Final[int] = 15
+GEMINI_TIMEOUT_S: Final[int] = 30
+MIN_TRANSCRIPT_LENGTH: Final[int] = 30
+GZIP_MIN_BYTES: Final[int] = 500
+GZIP_COMPRESS_LEVEL: Final[int] = 6
+INDEX_CACHE_SECONDS: Final[int] = 300
 
-RESPONSE_SCHEMA = {
+# Google Doc URL → Doc ID. Permits any of /edit, /view, /pub, /export.
+DOC_ID_RE: Final[Pattern[str]] = re.compile(r"/document/d/([a-zA-Z0-9_-]+)")
+
+# Gemini structured output schema — guarantees parseable JSON in responses.
+RESPONSE_SCHEMA: Final[dict[str, Any]] = {
     "type": "object",
     "properties": {
         "summary": {"type": "string"},
@@ -43,7 +75,13 @@ RESPONSE_SCHEMA = {
 }
 
 
+# ---------------------------------------------------------------------------
+# Pure helpers
+# ---------------------------------------------------------------------------
+
+
 def system_instruction() -> str:
+    """Return the system prompt for Gemini, with today's date inlined for relative-date resolution."""
     return f"""You extract structured outputs from meeting transcripts.
 
 Today's date is {date.today().isoformat()}. Use this when resolving relative dates (e.g. "Friday", "next Monday", "by end of month") to absolute YYYY-MM-DD.
@@ -68,26 +106,57 @@ Behavior:
 def fetch_google_doc_text(url: str) -> str:
     """Fetch plain text from a publicly-shared Google Doc.
 
-    Works for any Doc shared as 'Anyone with the link can view'. No OAuth needed —
-    Google's public export endpoint returns text/plain when ?format=txt is set.
+    Works for any Doc shared as ``Anyone with the link can view`` — Google's
+    public export endpoint returns ``text/plain`` when ``?format=txt`` is set.
+    No OAuth required.
+
+    :param url: Any Doc URL containing ``/document/d/<DOC_ID>/...``.
+    :returns: Plain-text contents of the Doc, stripped.
+    :raises ValueError: URL doesn't match the expected Doc URL shape.
+    :raises PermissionError: Doc is not publicly shared (401/403, or login redirect).
+    :raises RuntimeError: Any other non-2xx fetch result.
+    :raises requests.RequestException: Network error.
     """
-    m = DOC_ID_RE.search(url)
-    if not m:
-        raise ValueError("Could not find a Doc ID in that URL. Expected something like https://docs.google.com/document/d/DOC_ID/...")
-    doc_id = m.group(1)
+    match = DOC_ID_RE.search(url)
+    if not match:
+        raise ValueError(
+            "Could not find a Doc ID in that URL. "
+            "Expected something like https://docs.google.com/document/d/DOC_ID/..."
+        )
+    doc_id = match.group(1)
     export_url = f"https://docs.google.com/document/d/{doc_id}/export"
-    r = requests.get(export_url, params={"format": "txt"}, timeout=15, allow_redirects=True)
-    if r.status_code == 401 or r.status_code == 403:
-        raise PermissionError("This Google Doc isn't public. Set sharing to 'Anyone with the link can view' and try again.")
-    if not r.ok:
-        raise RuntimeError(f"Could not fetch Doc (HTTP {r.status_code}). Check the URL.")
-    text = r.text.strip()
-    if "<!DOCTYPE html>" in text[:200].lower() or "<html" in text[:200].lower():
-        raise PermissionError("That URL returned a login page — the Doc isn't shared publicly.")
+    response = requests.get(
+        export_url,
+        params={"format": "txt"},
+        timeout=DOC_FETCH_TIMEOUT_S,
+        allow_redirects=True,
+    )
+    if response.status_code in (401, 403):
+        raise PermissionError(
+            "This Google Doc isn't public. "
+            "Set sharing to 'Anyone with the link can view' and try again."
+        )
+    if not response.ok:
+        raise RuntimeError(f"Could not fetch Doc (HTTP {response.status_code}). Check the URL.")
+    text = response.text.strip()
+    if "<!doctype html>" in text[:200].lower() or "<html" in text[:200].lower():
+        raise PermissionError(
+            "That URL returned a login page — the Doc isn't shared publicly."
+        )
     return text
 
 
-def call_gemini(text: str) -> dict:
+def call_gemini(text: str) -> dict[str, Any]:
+    """Send ``text`` to Gemini 2.5 Flash and return the structured-JSON extraction.
+
+    Uses ``responseSchema`` so Gemini's output is guaranteed to match
+    :data:`RESPONSE_SCHEMA`. Temperature is 0 for determinism.
+
+    :raises RuntimeError: Non-2xx HTTP response from Gemini.
+    :raises KeyError, IndexError: Response shape missing ``candidates[0].content.parts[0].text``.
+    :raises json.JSONDecodeError: Inner text is not valid JSON.
+    :raises requests.RequestException: Network error.
+    """
     payload = {
         "contents": [{"parts": [{"text": text}]}],
         "systemInstruction": {"parts": [{"text": system_instruction()}]},
@@ -97,27 +166,34 @@ def call_gemini(text: str) -> dict:
             "temperature": 0,
         },
     }
-    r = requests.post(GEMINI_URL, params={"key": API_KEY}, json=payload, timeout=30)
-    if not r.ok:
-        raise RuntimeError(f"Gemini {r.status_code}: {r.text[:300]}")
-    body = r.json()
+    response = requests.post(
+        GEMINI_URL,
+        params={"key": API_KEY},
+        json=payload,
+        timeout=GEMINI_TIMEOUT_S,
+    )
+    if not response.ok:
+        raise RuntimeError(f"Gemini {response.status_code}: {response.text[:300]}")
+    body = response.json()
     raw = body["candidates"][0]["content"]["parts"][0]["text"]
     return json.loads(raw)
 
 
-app = Flask(__name__)
+# ---------------------------------------------------------------------------
+# Flask app + middleware
+# ---------------------------------------------------------------------------
 
-GZIP_MIN_BYTES = 500
-INDEX_CACHE_SECONDS = 300
+app = Flask(__name__)
+app.config["SEND_FILE_MAX_AGE_DEFAULT"] = 60 * 60 * 24  # 1 day cache for /static/*
 
 
 @app.after_request
-def gzip_response(response):
-    """Compress eligible responses if the client accepts gzip.
+def gzip_response(response: Response) -> Response:
+    """Compress eligible responses when the client advertises gzip support.
 
-    Skips: streamed responses (direct_passthrough), non-2xx, payloads under
-    GZIP_MIN_BYTES (compression overhead exceeds the win), already-encoded
-    responses (e.g. precompressed assets).
+    Skips: streamed responses (``direct_passthrough``), non-2xx, payloads
+    under :data:`GZIP_MIN_BYTES` (compression overhead beats the win), and
+    already-encoded responses (e.g. precompressed assets).
     """
     if response.direct_passthrough or response.status_code < 200 or response.status_code >= 300:
         return response
@@ -127,7 +203,7 @@ def gzip_response(response):
         return response
     if response.content_length is not None and response.content_length < GZIP_MIN_BYTES:
         return response
-    data = gzip.compress(response.get_data(), compresslevel=6)
+    data = gzip.compress(response.get_data(), compresslevel=GZIP_COMPRESS_LEVEL)
     response.set_data(data)
     response.headers["Content-Encoding"] = "gzip"
     response.headers["Content-Length"] = str(len(data))
@@ -135,18 +211,35 @@ def gzip_response(response):
     return response
 
 
+# ---------------------------------------------------------------------------
+# Routes
+# ---------------------------------------------------------------------------
+
+
 @app.route("/")
-def index():
+def index() -> Response:
+    """Render the single-page UI with a public 5-minute browser cache."""
     resp = make_response(render_template("index.html"))
     resp.headers["Cache-Control"] = f"public, max-age={INDEX_CACHE_SECONDS}"
     return resp
 
 
 @app.route("/extract", methods=["POST"])
-def extract():
+def extract() -> tuple[Response, int] | Response:
+    """Extract decisions and action items from a transcript or Doc URL.
+
+    Request body (JSON):
+
+    * ``{"transcript": str}`` — raw meeting transcript text, or
+    * ``{"doc_url": str}`` — public Google Doc URL (we fetch + use the text)
+
+    Returns ``200`` with ``{summary, decisions, action_items}`` on success,
+    or ``{error}`` with an appropriate 4xx/5xx status on validation or
+    upstream failure.
+    """
     data = request.get_json(silent=True) or {}
-    transcript = (data.get("transcript") or "").strip()
-    doc_url = (data.get("doc_url") or "").strip()
+    transcript: str = (data.get("transcript") or "").strip()
+    doc_url: str = (data.get("doc_url") or "").strip()
 
     if doc_url:
         try:
@@ -158,12 +251,13 @@ def extract():
         except (requests.RequestException, RuntimeError) as e:
             return jsonify({"error": f"Doc fetch failed: {e}"}), 502
 
-    if len(transcript) < 30:
-        return jsonify({"error": "Transcript is too short (need at least 30 characters)."}), 400
+    if len(transcript) < MIN_TRANSCRIPT_LENGTH:
+        return jsonify({
+            "error": f"Transcript is too short (need at least {MIN_TRANSCRIPT_LENGTH} characters)."
+        }), 400
 
     try:
-        result = call_gemini(transcript)
-        return jsonify(result)
+        return jsonify(call_gemini(transcript))
     except (KeyError, IndexError, json.JSONDecodeError) as e:
         return jsonify({"error": f"Model returned malformed output: {e}"}), 502
     except (requests.RequestException, RuntimeError) as e:
