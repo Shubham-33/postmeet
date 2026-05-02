@@ -60,6 +60,26 @@ python3 app.py
 open http://127.0.0.1:5050
 ```
 
+## Run the tests
+
+```bash
+pip3 install -r requirements-dev.txt
+pytest
+```
+
+The suite has **34 tests** and the gate is **100% line + branch coverage** on `app.py` — `pyproject.toml` fails the run if coverage drops below 100%.
+
+```
+Name     Stmts   Miss Branch BrPart  Cover
+-------------------------------------------
+app.py      68      0     16      0   100%
+-------------------------------------------
+34 passed in 0.05s
+Required test coverage of 100% reached.
+```
+
+Tests cover: missing API key at import time, regex parsing for Doc URLs (positive + negative cases), `fetch_google_doc_text` against 401/403/500/HTML-login-page/happy responses, `call_gemini` happy + HTTP-error paths, the `/extract` endpoint across both transcript and doc-URL modes including all error branches (short input, malformed payload, network errors, malformed Gemini JSON, missing `candidates`, private docs). All HTTP I/O is mocked — tests run in <100ms with no network.
+
 ## Deploy to Cloud Run
 
 ```bash
@@ -98,7 +118,7 @@ The script enables required APIs, stores the key in Secret Manager, builds via b
 | **Code Quality** | 2 source files, ~250 LOC, no framework bloat, pure functions for parsing & dispatch |
 | **Security** | Gemini key in Secret Manager (not plain env var). No PII persistence. OAuth-free dispatch via URL spec = least-privilege by design. `.gcloudignore` keeps `.env` out of build context. |
 | **Efficiency** | Single Gemini call per extraction. Structured-output schema guarantees parseable JSON (no retry loop). Bulk distribute opens N tabs in parallel via `setTimeout` stagger. Cloud Run auto-scales to zero. |
-| **Testing** | Smoke-tested end-to-end: text input, doc URL input, malformed URL, private doc, short input — all return correct status codes and clean JSON |
+| **Testing** | **34 pytest tests, 100% line + branch coverage** on `app.py` (68/68 statements, 16/16 branches, 0 partial). Coverage is gated in `pyproject.toml` — CI fails if it drops below 100%. All HTTP mocked, suite runs in <100ms |
 | **Accessibility** | Skip-to-content link, semantic HTML (`main`, `section`, `article`, `header`), ARIA labels on all interactive elements, `role="status"` + `aria-live` for status updates, visible focus rings on every focusable element, keyboard shortcut (⌘/Ctrl+Enter), tab toggle uses proper `role="tab"` / `aria-selected`, color contrast meets WCAG AA on the dark theme |
 | **Problem Statement Alignment** | Directly improves coordination, communication, and task visibility — meeting commitments become a shared, distributed plan with one click |
 | **Google Services usage** | Gemini, Google Docs export, Google Calendar URL spec, Gmail `mailto:`, Cloud Run, Secret Manager, Cloud Build (7 services) |
