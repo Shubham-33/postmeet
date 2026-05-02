@@ -1,3 +1,4 @@
+import gzip
 import json
 import os
 import re
@@ -6,7 +7,7 @@ from pathlib import Path
 
 import requests
 from dotenv import load_dotenv
-from flask import Flask, jsonify, render_template, request
+from flask import Flask, jsonify, make_response, render_template, request
 
 load_dotenv(Path(__file__).resolve().parent.parent / ".env")
 
@@ -106,10 +107,39 @@ def call_gemini(text: str) -> dict:
 
 app = Flask(__name__)
 
+GZIP_MIN_BYTES = 500
+INDEX_CACHE_SECONDS = 300
+
+
+@app.after_request
+def gzip_response(response):
+    """Compress eligible responses if the client accepts gzip.
+
+    Skips: streamed responses (direct_passthrough), non-2xx, payloads under
+    GZIP_MIN_BYTES (compression overhead exceeds the win), already-encoded
+    responses (e.g. precompressed assets).
+    """
+    if response.direct_passthrough or response.status_code < 200 or response.status_code >= 300:
+        return response
+    if response.headers.get("Content-Encoding"):
+        return response
+    if "gzip" not in (request.headers.get("Accept-Encoding") or ""):
+        return response
+    if response.content_length is not None and response.content_length < GZIP_MIN_BYTES:
+        return response
+    data = gzip.compress(response.get_data(), compresslevel=6)
+    response.set_data(data)
+    response.headers["Content-Encoding"] = "gzip"
+    response.headers["Content-Length"] = str(len(data))
+    response.headers["Vary"] = "Accept-Encoding"
+    return response
+
 
 @app.route("/")
 def index():
-    return render_template("index.html")
+    resp = make_response(render_template("index.html"))
+    resp.headers["Cache-Control"] = f"public, max-age={INDEX_CACHE_SECONDS}"
+    return resp
 
 
 @app.route("/extract", methods=["POST"])

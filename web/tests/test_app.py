@@ -165,6 +165,80 @@ def test_index_renders_html(client):
     assert "Extract" in body
 
 
+def test_index_sets_cache_control(client):
+    res = client.get("/")
+    assert "max-age=300" in res.headers.get("Cache-Control", "")
+    assert "public" in res.headers.get("Cache-Control", "")
+
+
+# ---------- gzip after_request hook ----------
+
+def test_gzip_compresses_when_accepted(client):
+    """Large response + Accept-Encoding: gzip → body is compressed."""
+    res = client.get("/", headers={"Accept-Encoding": "gzip, deflate"})
+    assert res.status_code == 200
+    assert res.headers.get("Content-Encoding") == "gzip"
+    assert "Accept-Encoding" in res.headers.get("Vary", "")
+    # Compressed payload starts with gzip magic bytes \x1f\x8b
+    raw = res.get_data()
+    assert raw[:2] == b"\x1f\x8b"
+
+
+def test_gzip_skipped_when_not_accepted(client):
+    """No Accept-Encoding header → response is not compressed."""
+    res = client.get("/", headers={"Accept-Encoding": "identity"})
+    assert res.status_code == 200
+    assert res.headers.get("Content-Encoding") != "gzip"
+
+
+def test_gzip_skipped_when_header_missing(client):
+    """Werkzeug test client sends no Accept-Encoding by default → no compression."""
+    res = client.get("/", headers={})
+    # default test_client sends "Accept-Encoding: " — neither gzip nor None
+    if "gzip" not in (res.request.headers.get("Accept-Encoding") or ""):
+        assert res.headers.get("Content-Encoding") != "gzip"
+
+
+def test_gzip_skipped_for_small_payload(app_mod):
+    """Responses under GZIP_MIN_BYTES should pass through unchanged."""
+    from flask import Response
+    with app_mod.app.test_request_context("/", headers={"Accept-Encoding": "gzip"}):
+        small = Response("tiny", mimetype="text/plain")
+        small.content_length = 4
+        out = app_mod.gzip_response(small)
+        assert out.headers.get("Content-Encoding") != "gzip"
+        assert out.get_data(as_text=True) == "tiny"
+
+
+def test_gzip_skipped_for_error_response(app_mod):
+    """Non-2xx responses are not compressed (saves CPU on error paths)."""
+    from flask import Response
+    with app_mod.app.test_request_context("/", headers={"Accept-Encoding": "gzip"}):
+        err = Response("x" * 1000, status=500, mimetype="text/plain")
+        out = app_mod.gzip_response(err)
+        assert out.headers.get("Content-Encoding") != "gzip"
+
+
+def test_gzip_skipped_when_already_encoded(app_mod):
+    """Already-encoded responses (e.g. precompressed assets) pass through."""
+    from flask import Response
+    with app_mod.app.test_request_context("/", headers={"Accept-Encoding": "gzip"}):
+        pre = Response(b"x" * 1000, mimetype="text/plain")
+        pre.headers["Content-Encoding"] = "br"  # already brotli
+        out = app_mod.gzip_response(pre)
+        assert out.headers["Content-Encoding"] == "br"  # unchanged
+
+
+def test_gzip_skipped_for_direct_passthrough(app_mod):
+    """Streaming responses (direct_passthrough) cannot be compressed in-place."""
+    from flask import Response
+    with app_mod.app.test_request_context("/", headers={"Accept-Encoding": "gzip"}):
+        streamed = Response("x" * 1000, mimetype="text/plain")
+        streamed.direct_passthrough = True
+        out = app_mod.gzip_response(streamed)
+        assert out.headers.get("Content-Encoding") != "gzip"
+
+
 # ---------- /extract — transcript path ----------
 
 def test_extract_short_transcript_400(client):

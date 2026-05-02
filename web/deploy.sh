@@ -42,7 +42,9 @@ gcloud run deploy "$SERVICE" \
   --allow-unauthenticated \
   --set-secrets "GOOGLE_API_KEY=${SECRET_NAME}:latest" \
   --memory 512Mi \
+  --min-instances 1 \
   --max-instances 3 \
+  --cpu-boost \
   --timeout 60 \
   --quiet
 
