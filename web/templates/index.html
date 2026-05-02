@@ -360,7 +360,8 @@ Carol: Sounds good.`;
       const to = item.owner_email || '';
       const subject = `Action item: ${item.task}`;
       const body = `Hi ${item.owner || 'there'},\n\nFrom our meeting — you're on the hook for:\n\n  • ${item.task}${item.due_date ? `\n  • Due: ${item.due_date}` : ''}\n\nSent via Postmeet.`;
-      return `mailto:${encodeURIComponent(to)}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+      const params = new URLSearchParams({view: 'cm', fs: '1', tf: '1', to, su: subject, body});
+      return `https://mail.google.com/mail/?${params.toString()}`;
     }
 
     function defaultDate() {

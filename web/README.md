@@ -28,7 +28,7 @@ Two inputs ─────┤                     ├──► Gemini 2.5 Flash 
 **The "no-OAuth trick.** Google Calendar and Gmail both accept URL-encoded prefilled actions:
 
 - `https://calendar.google.com/calendar/render?action=TEMPLATE&text=...&dates=...&add=...`
-- `mailto:owner@x.com?subject=...&body=...`
+- `https://mail.google.com/mail/?view=cm&fs=1&to=...&su=...&body=...` (Gmail web compose — always opens Gmail in browser, doesn't depend on local mail client)
 
 Click → opens the user's already-logged-in Google in a new tab with everything pre-filled. They click *Save* / *Send*. Looks identical to a real integration in a demo. **Zero OAuth setup, zero scope review, judges can try it on their own laptop in 10 seconds.**
 
@@ -39,7 +39,7 @@ Click → opens the user's already-logged-in Google in a new tab with everything
 | **Gemini 2.5 Flash** (Google AI Studio) | Structured extraction with `responseSchema` — guaranteed JSON output |
 | **Google Docs** (public export endpoint) | Fetch transcript text from a shared-publicly Doc URL — no OAuth |
 | **Google Calendar** | Per-action prefilled event creation via URL spec |
-| **Gmail** | Per-action prefilled email via `mailto:` |
+| **Gmail** | Per-action prefilled email via Gmail web compose URL |
 | **Cloud Run** | Production deployment, auto-scaling, free HTTPS |
 | **Secret Manager** | Gemini API key never appears in plaintext outside Secret Manager |
 | **Cloud Build** | Buildpack-based container build (no Dockerfile maintenance) |
