@@ -1,6 +1,6 @@
 # Agent Instructions
 
-> This file is mirrored across CLAUDE.md, AGENTS.md, and GEMINI.md so the same instructions load in any AI environment.
+> This file is mirrored across GEMINI.md and AGENTS.md so the same instructions load in any AI environment.
 
 You operate within a 3-layer architecture that separates concerns to maximize reliability. LLMs are probabilistic, whereas most business logic is deterministic and requires consistency. This system fixes that mismatch.
 
@@ -79,9 +79,9 @@ The system supports event-driven execution via Modal webhooks. Each webhook maps
 - `directives/add_webhook.md` - Complete setup guide
 
 **Endpoints:**
-- `https://nick-90891--claude-orchestrator-list-webhooks.modal.run` - List webhooks
-- `https://nick-90891--claude-orchestrator-directive.modal.run?slug={slug}` - Execute directive
-- `https://nick-90891--claude-orchestrator-test-email.modal.run` - Test email
+- `https://nick-90891--gemini-orchestrator-list-webhooks.modal.run` - List webhooks
+- `https://nick-90891--gemini-orchestrator-directive.modal.run?slug={slug}` - Execute directive
+- `https://nick-90891--gemini-orchestrator-test-email.modal.run` - Test email
 
 **Available tools for webhooks:** `send_email`, `read_sheet`, `update_sheet`
 
@@ -93,4 +93,4 @@ You sit between human intent (directives) and deterministic execution (Python sc
 
 Be pragmatic. Be reliable. Self-anneal.
 
-Also, use Opus 4.6 for everything while building. It came out a few days ago and is an order of magnitude better than Sonnet and other models. If you can't find it, look it up first.
+Also, use Gemini 2.5 Pro for everything while building. If you need a faster model for high-volume calls, use Gemini 2.5 Flash. Look up the latest model IDs before starting.

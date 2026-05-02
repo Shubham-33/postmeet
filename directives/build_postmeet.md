@@ -82,7 +82,7 @@ The web app (Next.js) lives at the project root or `web/` — it calls these scr
 
 1. **Web stack:** Next.js (TypeScript everywhere) vs. Python FastAPI + plain HTML? Next.js is faster to deploy and matches "vibe-coding" aesthetic. Python matches the project's existing `execution/` convention.
 2. **Auth model:** does the meeting *organizer* authenticate once and Postmeet writes to *attendees'* calendars (requires domain-wide delegation, complex), OR does each attendee authenticate themselves? MVP answer: organizer authenticates, action items dispatch as **calendar invites** (which puts events on attendees' calendars without needing their auth) + Gmail sends as the organizer.
-3. **LLM choice:** Claude Opus 4.7 (per project convention) vs. Gemini (closer Google integration story for judges)? Default to Claude unless judges weight Google heavily.
+3. **LLM choice:** Gemini 2.5 Flash — picked for the Google integration story (judges weight Google services) and for guaranteed JSON via `responseSchema`. Fast enough for live demos.
 4. **Persistence for shareable links:** in-memory + ephemeral, or one Google Sheet per session as the "database"? Sheet-as-DB matches the project's pattern and adds another Google Service to the rubric.
 
 ## Self-Annealing Notes
