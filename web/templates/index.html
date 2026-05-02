@@ -1,0 +1,377 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Postmeet — meeting → action items</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body { background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); min-height: 100vh; }
+    .col-scroll::-webkit-scrollbar { height: 10px; }
+    .col-scroll::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 6px; }
+    .card-hover:hover { transform: translateY(-2px); transition: transform 0.15s; }
+  </style>
+</head>
+<body class="text-slate-100">
+
+  <a href="#main" class="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:bg-indigo-600 focus:text-white focus:px-3 focus:py-2 focus:rounded">Skip to content</a>
+
+  <!-- Header -->
+  <header class="px-6 py-5 border-b border-white/5" role="banner">
+    <div class="max-w-7xl mx-auto flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <div class="w-9 h-9 rounded-lg bg-gradient-to-br from-indigo-500 to-fuchsia-500 flex items-center justify-center font-bold" aria-hidden="true">P</div>
+        <div>
+          <h1 class="text-xl font-bold tracking-tight">Postmeet</h1>
+          <p class="text-xs text-slate-300">Paste a meeting → get a board → distribute in one click.</p>
+        </div>
+      </div>
+      <span class="text-xs text-slate-300">PromptWars 2026</span>
+    </div>
+  </header>
+
+  <main id="main">
+  <!-- Input section -->
+  <section class="max-w-7xl mx-auto px-6 py-6" aria-labelledby="inputLabel">
+    <div class="bg-white/5 backdrop-blur rounded-xl border border-white/10 p-5">
+      <!-- Mode tabs -->
+      <div class="flex items-center gap-1 mb-4" role="tablist" aria-label="Input mode">
+        <button id="tabText" type="button" role="tab" aria-selected="true" aria-controls="textPanel"
+          class="text-xs px-3 py-1.5 rounded-md bg-white/10 text-slate-100 focus:outline-none focus:ring-2 focus:ring-indigo-400">Paste text</button>
+        <button id="tabDoc" type="button" role="tab" aria-selected="false" aria-controls="docPanel"
+          class="text-xs px-3 py-1.5 rounded-md text-slate-300 hover:bg-white/5 focus:outline-none focus:ring-2 focus:ring-indigo-400">📄 Google Doc URL</button>
+      </div>
+
+      <!-- Text panel -->
+      <div id="textPanel" role="tabpanel" aria-labelledby="tabText">
+        <div class="flex items-center justify-between mb-3">
+          <label id="inputLabel" for="transcript" class="text-sm font-medium text-slate-200">Meeting transcript or notes</label>
+          <button id="loadSample" type="button" class="text-xs text-indigo-300 hover:text-indigo-200 focus:outline-none focus:ring-2 focus:ring-indigo-400 rounded px-2 py-1" aria-label="Load sample transcript">Load sample</button>
+        </div>
+        <textarea id="transcript" rows="6"
+          aria-describedby="inputHint"
+          class="w-full bg-slate-900/60 border border-white/10 rounded-lg p-3 text-sm font-mono text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:border-indigo-400"
+          placeholder="Paste your meeting transcript here..."></textarea>
+      </div>
+
+      <!-- Doc URL panel -->
+      <div id="docPanel" role="tabpanel" aria-labelledby="tabDoc" class="hidden">
+        <label for="docUrl" class="block text-sm font-medium text-slate-200 mb-2">Google Doc URL</label>
+        <input id="docUrl" type="url"
+          placeholder="https://docs.google.com/document/d/..."
+          class="w-full bg-slate-900/60 border border-white/10 rounded-lg p-3 text-sm font-mono text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-400" />
+        <p class="text-xs text-slate-400 mt-2">Doc must be shared as <span class="text-slate-200">Anyone with the link can view</span>. No OAuth needed.</p>
+      </div>
+
+      <div class="flex items-center justify-between mt-3 gap-3">
+        <p id="status" class="text-xs text-slate-300 flex-1" role="status" aria-live="polite"></p>
+        <p id="inputHint" class="text-xs text-slate-400 hidden sm:block">Tip: ⌘/Ctrl + Enter to extract</p>
+        <button id="extractBtn" type="button"
+          aria-label="Extract decisions and action items"
+          class="px-4 py-2 rounded-lg bg-gradient-to-r from-indigo-500 to-fuchsia-500 hover:from-indigo-400 hover:to-fuchsia-400 text-white text-sm font-semibold shadow-lg shadow-indigo-500/30 disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-slate-900 focus:ring-indigo-400">
+          Extract →
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Summary + Distribute -->
+  <section id="summarySection" class="max-w-7xl mx-auto px-6 hidden" aria-label="Meeting summary and bulk actions">
+    <div class="bg-amber-400/10 border border-amber-400/20 rounded-xl p-4 mb-5 flex flex-col sm:flex-row sm:items-start gap-4">
+      <div class="flex-1">
+        <p class="text-xs uppercase tracking-wider text-amber-200 font-semibold mb-1">Summary</p>
+        <p id="summaryText" class="text-sm text-amber-50"></p>
+      </div>
+      <div class="flex gap-2 flex-shrink-0">
+        <button id="distributeCalBtn" type="button"
+          aria-label="Open Google Calendar prefill for every action item"
+          class="text-xs px-3 py-2 rounded-lg bg-indigo-500/30 hover:bg-indigo-500/50 text-indigo-100 font-semibold focus:outline-none focus:ring-2 focus:ring-indigo-400">
+          📅 All Calendars
+        </button>
+        <button id="distributeMailBtn" type="button"
+          aria-label="Open Gmail compose for every action item owner"
+          class="text-xs px-3 py-2 rounded-lg bg-fuchsia-500/30 hover:bg-fuchsia-500/50 text-fuchsia-100 font-semibold focus:outline-none focus:ring-2 focus:ring-fuchsia-400">
+          ✉️ All Emails
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Trello board -->
+  <section class="max-w-7xl mx-auto px-6 pb-12" aria-label="Action items board">
+    <div id="board" role="region" aria-live="polite" aria-label="Decisions and action items grouped by owner" class="flex gap-4 overflow-x-auto col-scroll pb-4 min-h-[300px]">
+      <div id="emptyState" class="w-full text-center text-slate-400 text-sm py-16">
+        Paste a transcript above and hit <span class="text-indigo-300">Extract</span> to see the board.
+      </div>
+    </div>
+  </section>
+  </main>
+
+  <script>
+    const SAMPLE = `Alice: Okay let's kick off. First, the migration deadline. Bob, can you finish the schema rewrite by Friday?
+Bob: Yeah I'll have the schema rewrite done by Friday May 9. I'll also send Carol a draft for review on Wednesday.
+Alice: Great. Carol, you'll need to update the API docs once Bob ships.
+Carol: Got it. I'll update the API docs by next Monday.
+Alice: Last thing — we agreed to deprecate the v1 endpoint by end of month. Bob will email customers about it tomorrow.
+Bob: I can send carol@example.com and alice@example.com on the deprecation notice draft tonight.
+Alice: Perfect. We also decided we're going to skip the staging environment for the v2 rollout — going straight to canary.
+Carol: Sounds good.`;
+
+    const $ = (id) => document.getElementById(id);
+
+    let lastData = null; // last successful extraction, for distribute-all
+    let mode = 'text'; // or 'doc'
+
+    $('loadSample').onclick = () => { $('transcript').value = SAMPLE; $('transcript').focus(); };
+
+    // Tabs
+    function setMode(next) {
+      mode = next;
+      const isText = next === 'text';
+      $('textPanel').classList.toggle('hidden', !isText);
+      $('docPanel').classList.toggle('hidden', isText);
+      $('tabText').setAttribute('aria-selected', String(isText));
+      $('tabDoc').setAttribute('aria-selected', String(!isText));
+      $('tabText').className = `text-xs px-3 py-1.5 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-400 ${isText ? 'bg-white/10 text-slate-100' : 'text-slate-300 hover:bg-white/5'}`;
+      $('tabDoc').className = `text-xs px-3 py-1.5 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-400 ${!isText ? 'bg-white/10 text-slate-100' : 'text-slate-300 hover:bg-white/5'}`;
+      (isText ? $('transcript') : $('docUrl')).focus();
+    }
+    $('tabText').onclick = () => setMode('text');
+    $('tabDoc').onclick = () => setMode('doc');
+
+    // Cmd/Ctrl + Enter triggers Extract from either input
+    function attachShortcut(el) {
+      el.addEventListener('keydown', (e) => {
+        if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') {
+          e.preventDefault();
+          $('extractBtn').click();
+        }
+      });
+    }
+    attachShortcut($('transcript'));
+    attachShortcut($('docUrl'));
+
+    $('extractBtn').onclick = async () => {
+      let body;
+      if (mode === 'text') {
+        const transcript = $('transcript').value.trim();
+        if (transcript.length < 30) {
+          setStatus('Need at least 30 characters.', 'error');
+          return;
+        }
+        body = {transcript};
+      } else {
+        const docUrl = $('docUrl').value.trim();
+        if (!docUrl.includes('docs.google.com/document/d/')) {
+          setStatus("That doesn't look like a Google Doc URL.", 'error');
+          return;
+        }
+        body = {doc_url: docUrl};
+      }
+      $('extractBtn').disabled = true;
+      $('extractBtn').textContent = 'Extracting…';
+      setStatus(mode === 'doc' ? 'Fetching Doc…' : 'Calling Gemini…', 'info');
+      renderSkeleton();
+
+      try {
+        const t0 = Date.now();
+        const res = await fetch('/extract', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify(body),
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || 'Failed');
+        const dt = ((Date.now() - t0) / 1000).toFixed(1);
+        const aiCount = (data.action_items || []).length;
+        const decCount = (data.decisions || []).length;
+        setStatus(`Extracted in ${dt}s · ${aiCount} action item${aiCount === 1 ? '' : 's'} · ${decCount} decision${decCount === 1 ? '' : 's'}`, 'success');
+        lastData = data;
+        renderBoard(data);
+      } catch (err) {
+        renderError(err.message);
+      } finally {
+        $('extractBtn').disabled = false;
+        $('extractBtn').textContent = 'Extract →';
+      }
+    };
+
+    // Distribute-all handlers
+    $('distributeCalBtn').onclick = () => openAll('calendar');
+    $('distributeMailBtn').onclick = () => openAll('mail');
+
+    function openAll(kind) {
+      if (!lastData || !(lastData.action_items || []).length) return;
+      const items = lastData.action_items;
+      const n = items.length;
+      const ok = confirm(`Open ${n} ${kind === 'calendar' ? 'Calendar' : 'Email'} tab${n === 1 ? '' : 's'}? Your browser may ask to allow popups.`);
+      if (!ok) return;
+      items.forEach((item, i) => {
+        const url = kind === 'calendar' ? calendarUrl(item) : mailUrl(item);
+        // Stagger slightly so popup blockers are friendlier
+        setTimeout(() => window.open(url, '_blank', 'noopener'), i * 80);
+      });
+      setStatus(`Opened ${n} ${kind} tab${n === 1 ? '' : 's'}.`, 'success');
+    }
+
+    function setStatus(msg, level) {
+      const colors = {info: 'text-slate-300', success: 'text-emerald-300', error: 'text-rose-300'};
+      $('status').textContent = msg;
+      $('status').className = `text-xs flex-1 ${colors[level] || colors.info}`;
+    }
+
+    function renderSkeleton() {
+      const board = $('board');
+      board.innerHTML = '';
+      for (let i = 0; i < 4; i++) {
+        const col = document.createElement('div');
+        col.className = 'flex-shrink-0 w-72 bg-white/5 border border-white/10 rounded-xl p-3 animate-pulse';
+        col.innerHTML = `
+          <div class="h-4 w-20 bg-white/10 rounded mb-3"></div>
+          <div class="space-y-2">
+            <div class="h-16 bg-white/5 rounded-lg"></div>
+            <div class="h-16 bg-white/5 rounded-lg"></div>
+          </div>
+        `;
+        board.appendChild(col);
+      }
+    }
+
+    function renderError(msg) {
+      $('summarySection').classList.add('hidden');
+      const board = $('board');
+      board.innerHTML = '';
+      const wrap = document.createElement('div');
+      wrap.className = 'w-full text-center py-16';
+      wrap.innerHTML = `
+        <p class="text-rose-300 text-sm mb-4">Something went wrong: ${escapeHtml(msg)}</p>
+        <button id="retryBtn" type="button" class="text-sm px-4 py-2 rounded-lg bg-rose-500/20 hover:bg-rose-500/30 text-rose-100 focus:outline-none focus:ring-2 focus:ring-rose-400">Try again</button>
+      `;
+      board.appendChild(wrap);
+      document.getElementById('retryBtn').onclick = () => $('extractBtn').click();
+      setStatus('Extraction failed.', 'error');
+    }
+
+    function renderBoard(data) {
+      $('summarySection').classList.remove('hidden');
+      $('summaryText').textContent = data.summary || '(no summary)';
+
+      const byOwner = {};
+      for (const a of data.action_items || []) {
+        const key = a.owner || 'Unassigned';
+        (byOwner[key] = byOwner[key] || []).push(a);
+      }
+
+      const board = $('board');
+      board.innerHTML = '';
+
+      board.appendChild(makeColumn(
+        '📋 Decisions',
+        'bg-amber-500/10 border-amber-500/30',
+        (data.decisions || []).map(d => makeDecisionCard(d)),
+        (data.decisions || []).length
+      ));
+
+      const owners = Object.keys(byOwner).sort((a, b) => {
+        if (a === 'Unassigned') return 1;
+        if (b === 'Unassigned') return -1;
+        return a.localeCompare(b);
+      });
+
+      const palettes = [
+        'bg-indigo-500/10 border-indigo-500/30',
+        'bg-emerald-500/10 border-emerald-500/30',
+        'bg-fuchsia-500/10 border-fuchsia-500/30',
+        'bg-cyan-500/10 border-cyan-500/30',
+        'bg-rose-500/10 border-rose-500/30',
+      ];
+      owners.forEach((owner, i) => {
+        const items = byOwner[owner];
+        const palette = owner === 'Unassigned' ? 'bg-slate-500/10 border-slate-500/30' : palettes[i % palettes.length];
+        const heading = owner === 'Unassigned' ? '❓ Unassigned' : `👤 ${owner}`;
+        board.appendChild(makeColumn(heading, palette, items.map(it => makeActionCard(it)), items.length));
+      });
+
+      if (!owners.length && !(data.decisions || []).length) {
+        board.innerHTML = '<div class="w-full text-center text-slate-500 text-sm py-16">No decisions or action items detected.</div>';
+      }
+    }
+
+    function makeColumn(title, paletteClass, cardEls, count) {
+      const col = document.createElement('section');
+      col.setAttribute('role', 'group');
+      col.setAttribute('aria-label', `${title}, ${count} item${count === 1 ? '' : 's'}`);
+      col.className = `flex-shrink-0 w-72 ${paletteClass} border rounded-xl p-3`;
+      col.innerHTML = `
+        <div class="flex items-center justify-between mb-3 px-1">
+          <h3 class="text-sm font-semibold text-slate-100">${title}</h3>
+          <span class="text-xs text-slate-300 bg-white/10 px-2 py-0.5 rounded-full" aria-hidden="true">${count}</span>
+        </div>
+        <div class="space-y-2"></div>
+      `;
+      const stack = col.querySelector('div.space-y-2');
+      cardEls.forEach(el => stack.appendChild(el));
+      return col;
+    }
+
+    function makeDecisionCard(text) {
+      const card = document.createElement('article');
+      card.className = 'card-hover bg-slate-900/70 border border-white/10 rounded-lg p-3 text-sm text-slate-100';
+      card.textContent = text;
+      return card;
+    }
+
+    function makeActionCard(item) {
+      const card = document.createElement('article');
+      card.setAttribute('aria-label', `Action: ${item.task}, owner ${item.owner || 'unassigned'}`);
+      card.className = 'card-hover bg-slate-900/70 border border-white/10 rounded-lg p-3 space-y-2';
+      const due = item.due_date ? `<span class="text-xs px-2 py-0.5 rounded bg-amber-400/20 text-amber-200">📅 ${item.due_date}</span>` : '';
+      const email = item.owner_email ? `<span class="text-xs text-slate-300">${escapeHtml(item.owner_email)}</span>` : '';
+      card.innerHTML = `
+        <p class="text-sm text-slate-100 leading-snug">${escapeHtml(item.task)}</p>
+        <div class="flex items-center gap-2 flex-wrap">${due}${email}</div>
+        <div class="flex gap-2 pt-1">
+          <a target="_blank" rel="noopener" href="${calendarUrl(item)}"
+             aria-label="Open Calendar prefill for: ${escapeHtml(item.task)}"
+             class="flex-1 text-center text-xs px-2 py-1.5 rounded bg-indigo-500/30 hover:bg-indigo-500/50 text-indigo-100 focus:outline-none focus:ring-2 focus:ring-indigo-400">📅 Calendar</a>
+          <a target="_blank" rel="noopener" href="${mailUrl(item)}"
+             aria-label="Open Gmail compose for: ${escapeHtml(item.task)}"
+             class="flex-1 text-center text-xs px-2 py-1.5 rounded bg-fuchsia-500/30 hover:bg-fuchsia-500/50 text-fuchsia-100 focus:outline-none focus:ring-2 focus:ring-fuchsia-400">✉️ Email</a>
+        </div>
+      `;
+      return card;
+    }
+
+    function calendarUrl(item) {
+      const date = item.due_date || defaultDate();
+      const start = date.replace(/-/g, '') + 'T090000Z';
+      const end = date.replace(/-/g, '') + 'T100000Z';
+      const params = new URLSearchParams({
+        action: 'TEMPLATE',
+        text: `[Postmeet] ${item.task}`,
+        dates: `${start}/${end}`,
+        details: `Action item assigned to ${item.owner || 'Unassigned'} via Postmeet.`,
+      });
+      if (item.owner_email) params.append('add', item.owner_email);
+      return `https://calendar.google.com/calendar/render?${params.toString()}`;
+    }
+
+    function mailUrl(item) {
+      const to = item.owner_email || '';
+      const subject = `Action item: ${item.task}`;
+      const body = `Hi ${item.owner || 'there'},\n\nFrom our meeting — you're on the hook for:\n\n  • ${item.task}${item.due_date ? `\n  • Due: ${item.due_date}` : ''}\n\nSent via Postmeet.`;
+      return `mailto:${encodeURIComponent(to)}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+    }
+
+    function defaultDate() {
+      const d = new Date();
+      d.setDate(d.getDate() + 7);
+      return d.toISOString().slice(0, 10);
+    }
+
+    function escapeHtml(s) {
+      return (s || '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+    }
+  </script>
+</body>
+</html>
