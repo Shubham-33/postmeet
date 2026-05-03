@@ -28,7 +28,13 @@ def gemini_success_body(summary="Summary.", decisions=None, action_items=None):
         "summary": summary,
         "decisions": decisions if decisions is not None else ["We agreed."],
         "action_items": action_items if action_items is not None else [
-            {"task": "Do X", "owner": "Alice", "owner_email": "", "due_date": "2026-12-01"}
+            {
+                "task": "Do X",
+                "owner": "Alice",
+                "owner_email": "",
+                "due_date": "2026-12-01",
+                "context": "Unblocks the v3 launch",
+            }
         ],
     }
     return {
@@ -62,6 +68,15 @@ def test_system_instruction_includes_today(app_mod):
     assert "summary" in s
     assert "decisions" in s
     assert "action_items" in s
+    # New: context field must be requested in the prompt
+    assert "context" in s
+
+
+def test_response_schema_includes_context(app_mod):
+    """Schema must require a context field on each action item."""
+    item_props = app_mod.RESPONSE_SCHEMA["properties"]["action_items"]["items"]
+    assert "context" in item_props["properties"]
+    assert "context" in item_props["required"]
 
 
 # ---------- DOC_ID_RE ----------

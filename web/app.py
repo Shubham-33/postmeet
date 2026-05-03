@@ -66,8 +66,9 @@ RESPONSE_SCHEMA: Final[dict[str, Any]] = {
                     "owner": {"type": "string"},
                     "owner_email": {"type": "string"},
                     "due_date": {"type": "string"},
+                    "context": {"type": "string"},
                 },
-                "required": ["task", "owner", "owner_email", "due_date"],
+                "required": ["task", "owner", "owner_email", "due_date", "context"],
             },
         },
     },
@@ -89,11 +90,12 @@ Today's date is {date.today().isoformat()}. Use this when resolving relative dat
 For each meeting, return:
 - summary: 1-2 sentence summary
 - decisions: explicit decisions made ("we decided X")
-- action_items: each with task, owner (first name or "Unassigned"), owner_email, due_date
+- action_items: each with task, owner (first name or "Unassigned"), owner_email, due_date, context
 
 Field rules:
 - owner_email: scan the entire transcript for any email address whose local-part (before @) matches or contains the owner's first name (case-insensitive). If found, use that email even if it appears elsewhere in the transcript than the action item itself. Otherwise empty string.
 - due_date: YYYY-MM-DD if stated or strongly implied. Empty string if no deadline.
+- context: ONE crisp sentence (max ~25 words) explaining WHY this task matters or what it depends on / unblocks. Pull from the surrounding discussion in the transcript. If genuinely no context exists, use empty string. Don't invent context.
 
 Behavior:
 - Only extract action items that are explicit commitments, not vague ideas
@@ -185,6 +187,14 @@ def call_gemini(text: str) -> dict[str, Any]:
 
 app = Flask(__name__)
 app.config["SEND_FILE_MAX_AGE_DEFAULT"] = 60 * 60 * 24  # 1 day cache for /static/*
+
+# Build ID injected into templates so cached JS/CSS busts on every restart.
+BUILD_ID: Final[str] = str(int(Path(__file__).stat().st_mtime))
+
+
+@app.context_processor
+def inject_build_id() -> dict[str, str]:
+    return {"build_id": BUILD_ID}
 
 
 @app.after_request

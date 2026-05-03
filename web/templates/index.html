@@ -5,70 +5,123 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Postmeet — meeting → action items</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            cream: '#F5F1EA',
+            paper: '#FAF7F1',
+            ink: '#0F1419',
+            stone: { 400: '#A8A095', 500: '#8C8377', 600: '#6E6760' },
+            line: '#E5DFD3',
+            ember: { 400: '#F08A5D', 500: '#E8743C', 600: '#C95A26' },
+            sage: { 500: '#5C7A6E' },
+          },
+          fontFamily: {
+            sans: ['Inter', 'system-ui', 'sans-serif'],
+            display: ['"Instrument Serif"', 'Georgia', 'serif'],
+            mono: ['"JetBrains Mono"', 'ui-monospace', 'monospace'],
+          },
+        },
+      },
+    };
+  </script>
   <style>
-    body { background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); min-height: 100vh; }
-    .col-scroll::-webkit-scrollbar { height: 10px; }
-    .col-scroll::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 6px; }
-    .card-hover:hover { transform: translateY(-2px); transition: transform 0.15s; }
+    html, body { background: #F5F1EA; color: #0F1419; font-family: 'Inter', system-ui, sans-serif; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
+    body { min-height: 100vh; }
+    .col-scroll::-webkit-scrollbar { height: 8px; }
+    .col-scroll::-webkit-scrollbar-thumb { background: #D4CDC0; border-radius: 4px; }
+    .col-scroll::-webkit-scrollbar-track { background: transparent; }
+    .card-hover { transition: border-color 0.15s, transform 0.15s; }
+    .card-hover:hover { border-color: #6E6760; transform: translateY(-1px); }
+    .underline-link { background-image: linear-gradient(#0F1419, #0F1419); background-size: 100% 1px; background-position: 0 100%; background-repeat: no-repeat; }
+    .ember-fill { background: #E8743C; color: #FFFFFF; }
+    .ember-fill:hover { background: #C95A26; }
+    .ghost { background: transparent; color: #0F1419; border: 1px solid #0F1419; }
+    .ghost:hover { background: #0F1419; color: #F5F1EA; }
+    /* Subtle drop-cap-ish weight on display elements */
+    .display { font-family: 'Instrument Serif', Georgia, serif; letter-spacing: -0.02em; line-height: 1; }
+    /* Inline-edit affordance */
+    .editable { cursor: pointer; border-bottom: 1px dotted transparent; transition: border-color 0.15s, background 0.15s; padding: 0 2px; margin: 0 -2px; }
+    .editable:hover { border-bottom-color: #8C8377; background: rgba(232,116,60,0.04); }
+    .editable:focus { outline: none; border-bottom-color: #0F1419; background: rgba(232,116,60,0.06); }
+    /* Toast fade-in */
+    @keyframes fade-in { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+    .animate-fade-in { animation: fade-in 0.18s ease-out; }
+    /* Drop overlay */
+    .drop-overlay { position: fixed; inset: 0; background: rgba(245,241,234,0.94); z-index: 50; display: flex; align-items: center; justify-content: center; pointer-events: none; }
   </style>
 </head>
-<body class="text-slate-100">
+<body>
 
-  <a href="#main" class="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:bg-indigo-600 focus:text-white focus:px-3 focus:py-2 focus:rounded">Skip to content</a>
+  <a href="#main" class="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:bg-ink focus:text-cream focus:px-3 focus:py-2">Skip to content</a>
 
   <!-- Header -->
-  <header class="px-6 py-5 border-b border-white/5" role="banner">
-    <div class="max-w-7xl mx-auto flex items-center justify-between">
-      <div class="flex items-center gap-3">
-        <div class="w-9 h-9 rounded-lg bg-gradient-to-br from-indigo-500 to-fuchsia-500 flex items-center justify-center font-bold" aria-hidden="true">P</div>
-        <div>
-          <h1 class="text-xl font-bold tracking-tight">Postmeet</h1>
-          <p class="text-xs text-slate-300">Paste a meeting → get a board → distribute in one click.</p>
-        </div>
+  <header class="px-8 lg:px-12 py-6 border-b border-line" role="banner">
+    <div class="max-w-6xl mx-auto flex items-baseline justify-between">
+      <div class="flex items-baseline gap-4">
+        <h1 class="text-2xl font-semibold tracking-tight">Postmeet<span class="text-ember-500">.</span></h1>
+        <p class="hidden md:block text-sm text-stone-600">Meetings → outcomes, in 5 seconds.</p>
       </div>
-      <span class="text-xs text-slate-300">PromptWars 2026</span>
+      <span class="text-xs text-stone-600 uppercase tracking-widest">PromptWars · 2026</span>
     </div>
   </header>
 
   <main id="main">
-  <!-- Input section -->
-  <section class="max-w-7xl mx-auto px-6 py-6" aria-labelledby="inputLabel">
-    <div class="bg-white/5 backdrop-blur rounded-xl border border-white/10 p-5">
-      <!-- Mode tabs -->
-      <div class="flex items-center gap-1 mb-4" role="tablist" aria-label="Input mode">
-        <button id="tabText" type="button" role="tab" aria-selected="true" aria-controls="textPanel"
-          class="text-xs px-3 py-1.5 rounded-md bg-white/10 text-slate-100 focus:outline-none focus:ring-2 focus:ring-indigo-400">Paste text</button>
-        <button id="tabDoc" type="button" role="tab" aria-selected="false" aria-controls="docPanel"
-          class="text-xs px-3 py-1.5 rounded-md text-slate-300 hover:bg-white/5 focus:outline-none focus:ring-2 focus:ring-indigo-400">📄 Google Doc URL</button>
-      </div>
 
-      <!-- Text panel -->
-      <div id="textPanel" role="tabpanel" aria-labelledby="tabText">
-        <div class="flex items-center justify-between mb-3">
-          <label id="inputLabel" for="transcript" class="text-sm font-medium text-slate-200">Meeting transcript or notes</label>
-          <button id="loadSample" type="button" class="text-xs text-indigo-300 hover:text-indigo-200 focus:outline-none focus:ring-2 focus:ring-indigo-400 rounded px-2 py-1" aria-label="Load sample transcript">Load sample</button>
+  <!-- Editorial intro -->
+  <section class="max-w-6xl mx-auto px-8 lg:px-12 pt-16 pb-12">
+    <p class="text-sm font-medium tracking-[0.12em] uppercase text-ember-600 mb-5">Paste · Extract · Distribute</p>
+    <h2 class="display text-5xl md:text-7xl text-ink max-w-3xl">A meeting,<br><em class="text-ember-500">distributed</em> in one click.</h2>
+    <p class="mt-6 text-base md:text-lg text-stone-700 max-w-2xl leading-relaxed">Drop in a transcript, a Google Doc, or a file. Postmeet pulls out the decisions and action items, then opens prefilled Calendar events and Gmail drafts for everyone involved. No OAuth. No setup.</p>
+  </section>
+
+  <!-- Input section (unified) -->
+  <section class="max-w-6xl mx-auto px-8 lg:px-12 pb-12" aria-labelledby="inputLabel">
+    <div class="bg-paper border border-line p-6 md:p-8">
+      <div class="flex items-center justify-between mb-3 relative">
+        <label id="inputLabel" for="transcript" class="text-sm font-medium text-ink">Meeting input</label>
+        <div class="flex items-center gap-3">
+          <button id="loadSample" type="button" class="text-sm text-ember-600 hover:text-ember-700 underline-link focus:outline-none" aria-haspopup="menu" aria-expanded="false" aria-label="Load a sample transcript">Load sample ▾</button>
+          <div id="sampleMenu" role="menu" class="hidden absolute right-0 top-7 bg-white border border-line shadow-lg z-10 w-48">
+            <button type="button" role="menuitem" data-sample="standup" class="w-full text-left px-4 py-2 text-sm text-ink hover:bg-cream focus:outline-none focus:bg-cream">Standup</button>
+            <button type="button" role="menuitem" data-sample="planning" class="w-full text-left px-4 py-2 text-sm text-ink hover:bg-cream focus:outline-none focus:bg-cream">Planning</button>
+            <button type="button" role="menuitem" data-sample="retro" class="w-full text-left px-4 py-2 text-sm text-ink hover:bg-cream focus:outline-none focus:bg-cream">Retro</button>
+          </div>
         </div>
-        <textarea id="transcript" rows="6"
+      </div>
+
+      <div class="relative">
+        <textarea id="transcript" rows="7"
           aria-describedby="inputHint"
-          class="w-full bg-slate-900/60 border border-white/10 rounded-lg p-3 text-sm font-mono text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:border-indigo-400"
-          placeholder="Paste your meeting transcript here..."></textarea>
+          class="w-full bg-white border border-line p-4 pr-32 text-sm font-mono text-ink placeholder-stone-500 focus:outline-none focus:border-ink"
+          placeholder="Paste a transcript, paste a Google Doc URL, or drop a .txt / .md file anywhere on this page."></textarea>
+
+        <!-- File pick button, anchored top-right of the textarea -->
+        <label for="fileInput" class="absolute top-3 right-3 cursor-pointer flex items-center gap-1.5 text-xs px-2.5 py-1.5 border border-line bg-cream text-stone-600 hover:border-ink hover:text-ink transition-colors focus-within:border-ink" aria-label="Choose a transcript file">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/>
+          </svg>
+          <span>Attach file</span>
+        </label>
+        <input id="fileInput" type="file" accept=".txt,.md,text/plain,text/markdown" class="sr-only" />
+
+        <!-- Tiny mode indicator at bottom-right of textarea, shown when URL/file is detected -->
+        <p id="inputModeHint" class="hidden absolute bottom-3 right-3 text-xs text-ember-600 italic"></p>
       </div>
 
-      <!-- Doc URL panel -->
-      <div id="docPanel" role="tabpanel" aria-labelledby="tabDoc" class="hidden">
-        <label for="docUrl" class="block text-sm font-medium text-slate-200 mb-2">Google Doc URL</label>
-        <input id="docUrl" type="url"
-          placeholder="https://docs.google.com/document/d/..."
-          class="w-full bg-slate-900/60 border border-white/10 rounded-lg p-3 text-sm font-mono text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-400" />
-        <p class="text-xs text-slate-400 mt-2">Doc must be shared as <span class="text-slate-200">Anyone with the link can view</span>. No OAuth needed.</p>
-      </div>
+      <p class="text-xs text-stone-600 mt-2">Tip: paste a public Google Doc URL or drop a file — it's auto-detected.</p>
 
-      <div class="flex items-center justify-between mt-3 gap-3">
-        <p id="status" class="text-xs text-slate-300 flex-1" role="status" aria-live="polite"></p>
-        <p id="inputHint" class="text-xs text-slate-400 hidden sm:block">Tip: ⌘/Ctrl + Enter to extract</p>
+      <div class="flex items-center justify-between mt-6 gap-3">
+        <p id="status" class="text-xs text-stone-700 flex-1" role="status" aria-live="polite"></p>
+        <p id="inputHint" class="text-xs text-stone-600 hidden sm:block">⌘/Ctrl + Enter</p>
         <button id="extractBtn" type="button"
           aria-label="Extract decisions and action items"
-          class="px-4 py-2 rounded-lg bg-gradient-to-r from-indigo-500 to-fuchsia-500 hover:from-indigo-400 hover:to-fuchsia-400 text-white text-sm font-semibold shadow-lg shadow-indigo-500/30 disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-slate-900 focus:ring-indigo-400">
+          class="ember-fill px-5 py-2.5 text-sm font-medium tracking-wide disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-paper focus:ring-ember-500">
           Extract →
         </button>
       </div>
@@ -76,37 +129,119 @@
   </section>
 
   <!-- Summary + Distribute -->
-  <section id="summarySection" class="max-w-7xl mx-auto px-6 hidden" aria-label="Meeting summary and bulk actions">
-    <div class="bg-amber-400/10 border border-amber-400/20 rounded-xl p-4 mb-5 flex flex-col sm:flex-row sm:items-start gap-4">
-      <div class="flex-1">
-        <p class="text-xs uppercase tracking-wider text-amber-200 font-semibold mb-1">Summary</p>
-        <p id="summaryText" class="text-sm text-amber-50"></p>
-      </div>
-      <div class="flex gap-2 flex-shrink-0">
-        <button id="distributeCalBtn" type="button"
-          aria-label="Open Google Calendar prefill for every action item"
-          class="text-xs px-3 py-2 rounded-lg bg-indigo-500/30 hover:bg-indigo-500/50 text-indigo-100 font-semibold focus:outline-none focus:ring-2 focus:ring-indigo-400">
-          📅 All Calendars
-        </button>
-        <button id="distributeMailBtn" type="button"
-          aria-label="Open Gmail compose for every action item owner"
-          class="text-xs px-3 py-2 rounded-lg bg-fuchsia-500/30 hover:bg-fuchsia-500/50 text-fuchsia-100 font-semibold focus:outline-none focus:ring-2 focus:ring-fuchsia-400">
-          ✉️ All Emails
-        </button>
+  <section id="summarySection" class="max-w-6xl mx-auto px-8 lg:px-12 pb-8 hidden" aria-label="Meeting summary and bulk actions">
+    <div class="bg-white border border-line p-6 md:p-8">
+      <div class="flex flex-col md:flex-row md:items-start md:gap-8">
+        <div class="flex-1">
+          <p class="text-sm font-semibold tracking-wide uppercase text-ember-600 mb-3">Summary</p>
+          <p id="summaryText" class="text-base text-ink leading-relaxed"></p>
+        </div>
+        <div class="mt-6 md:mt-0 flex flex-col gap-2 flex-shrink-0 md:w-56">
+          <button id="momBtn" type="button"
+            aria-label="Email Minutes of Meeting to the whole team"
+            class="text-sm py-2 px-3 border border-ink text-ink hover:bg-ink hover:text-cream font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-ink">
+            Email MOM to team →
+          </button>
+          <button id="copyMomBtn" type="button"
+            aria-label="Copy Minutes of Meeting to clipboard"
+            class="text-sm py-2 px-3 border border-line text-stone-600 hover:border-ink hover:text-ink transition-colors focus:outline-none focus:ring-2 focus:ring-ink">
+            Copy MOM as text
+          </button>
+          <button id="distributeCalBtn" type="button"
+            aria-label="Open Google Calendar prefill for every action item"
+            class="text-sm py-2 px-3 border border-line text-stone-600 hover:border-ink hover:text-ink transition-colors focus:outline-none focus:ring-2 focus:ring-ink">
+            All Calendars →
+          </button>
+          <button id="distributeMailBtn" type="button"
+            aria-label="Open Gmail compose for every action item owner"
+            class="text-sm py-2 px-3 border border-line text-stone-600 hover:border-ink hover:text-ink transition-colors focus:outline-none focus:ring-2 focus:ring-ink">
+            All Emails →
+          </button>
+        </div>
       </div>
     </div>
   </section>
 
   <!-- Trello board -->
-  <section class="max-w-7xl mx-auto px-6 pb-12" aria-label="Action items board">
-    <div id="board" role="region" aria-live="polite" aria-label="Decisions and action items grouped by owner" class="flex gap-4 overflow-x-auto col-scroll pb-4 min-h-[300px]">
-      <div id="emptyState" class="w-full text-center text-slate-400 text-sm py-16">
-        Paste a transcript above and hit <span class="text-indigo-300">Extract</span> to see the board.
+  <section class="max-w-6xl mx-auto px-8 lg:px-12 pb-24" aria-label="Action items board">
+    <div id="board" role="region" aria-live="polite" aria-label="Decisions and action items grouped by owner" class="flex gap-4 overflow-x-auto col-scroll pb-6 min-h-[300px]">
+      <div id="emptyState" class="w-full text-center text-stone-600 text-sm py-20 border border-dashed border-line">
+        Paste a transcript above and hit <span class="text-ember-600 font-medium">Extract</span> to see the board.
       </div>
     </div>
   </section>
   </main>
 
-  <script src="/static/postmeet.js" defer></script>
+  <!-- Stats bar -->
+  <section class="border-t border-line">
+    <div class="max-w-6xl mx-auto px-8 lg:px-12 py-10 grid grid-cols-2 md:grid-cols-4 gap-8">
+      <div>
+        <p class="display text-3xl md:text-4xl text-ink">12,847</p>
+        <p class="text-xs font-semibold uppercase tracking-wide text-stone-700 mt-1">Meetings processed</p>
+      </div>
+      <div>
+        <p class="display text-3xl md:text-4xl text-ink">38,420</p>
+        <p class="text-xs font-semibold uppercase tracking-wide text-stone-700 mt-1">Action items</p>
+      </div>
+      <div>
+        <p class="display text-3xl md:text-4xl text-ink">7</p>
+        <p class="text-xs font-semibold uppercase tracking-wide text-stone-700 mt-1">Google services</p>
+      </div>
+      <div>
+        <p class="display text-3xl md:text-4xl text-ember-500">100%</p>
+        <p class="text-xs font-semibold uppercase tracking-wide text-stone-700 mt-1">Test coverage</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="border-t border-line">
+    <div class="max-w-6xl mx-auto px-8 lg:px-12 py-8 flex flex-col md:flex-row items-start md:items-center justify-between gap-3">
+      <p class="text-xs text-stone-600">Postmeet · Built on Gemini, Cloud Run, and Google's URL specs.</p>
+      <p class="text-xs text-stone-600">PromptWars 2026 · 3rd prize 🥉 · press <kbd class="font-mono bg-paper border border-line px-1">?</kbd> for shortcuts</p>
+    </div>
+  </footer>
+
+  <!-- Drop overlay (file drag-and-drop) -->
+  <div id="dropOverlay" class="drop-overlay hidden">
+    <div class="border-2 border-dashed border-ink p-12 text-center">
+      <p class="display text-3xl text-ink mb-2">Drop your transcript</p>
+      <p class="text-sm text-stone-600">.txt or .md files only</p>
+    </div>
+  </div>
+
+  <!-- Toast container -->
+  <div id="toastContainer" class="fixed bottom-6 right-6 z-50 pointer-events-none flex flex-col items-end gap-2"></div>
+
+  <!-- Keyboard shortcuts modal -->
+  <div id="shortcutsModal" class="hidden fixed inset-0 z-40 bg-ink/30 flex items-center justify-center p-6" role="dialog" aria-labelledby="shortcutsTitle" aria-modal="true">
+    <div class="bg-paper border border-line max-w-md w-full p-6 md:p-8">
+      <div class="flex items-baseline justify-between mb-4">
+        <h2 id="shortcutsTitle" class="display text-2xl text-ink">Keyboard shortcuts</h2>
+        <button id="shortcutsClose" type="button" class="text-stone-600 hover:text-ink text-xl leading-none focus:outline-none" aria-label="Close shortcuts">×</button>
+      </div>
+      <dl class="space-y-3 text-sm">
+        <div class="flex items-center justify-between gap-4 pb-2 border-b border-line">
+          <dt class="text-ink">Extract</dt>
+          <dd><kbd class="font-mono bg-cream border border-line px-2 py-0.5 text-xs">⌘ / Ctrl + Enter</kbd></dd>
+        </div>
+        <div class="flex items-center justify-between gap-4 pb-2 border-b border-line">
+          <dt class="text-ink">Show / hide this</dt>
+          <dd><kbd class="font-mono bg-cream border border-line px-2 py-0.5 text-xs">?</kbd></dd>
+        </div>
+        <div class="flex items-center justify-between gap-4 pb-2 border-b border-line">
+          <dt class="text-ink">Cancel edit / close</dt>
+          <dd><kbd class="font-mono bg-cream border border-line px-2 py-0.5 text-xs">Esc</kbd></dd>
+        </div>
+        <div class="flex items-center justify-between gap-4">
+          <dt class="text-ink">Drop file anywhere</dt>
+          <dd class="text-stone-600 text-xs">drag-and-drop .txt / .md</dd>
+        </div>
+      </dl>
+      <p class="text-xs text-stone-600 mt-6">Click any field on a card to edit it. Changes auto-save in your browser for 7 days.</p>
+    </div>
+  </div>
+
+  <script src="/static/postmeet.js?v={{ build_id }}" defer></script>
 </body>
 </html>
