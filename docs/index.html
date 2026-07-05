@@ -519,8 +519,8 @@
     tb.textContent=(next==='dark'?'☾':'☀')+' '+next;
   };
 
-  // live demo link: set DEMO_URL once the app is deployed (e.g. Render URL)
-  var DEMO_URL="";
+  // live demo link (Render deployment)
+  var DEMO_URL="https://postmeet.onrender.com/";
   if(DEMO_URL){
     ['demolink','demolink2'].forEach(function(id){var el=document.getElementById(id);if(el)el.href=DEMO_URL;});
   }else{

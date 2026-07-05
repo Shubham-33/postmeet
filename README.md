@@ -2,8 +2,9 @@
 
 **Paste a meeting transcript → get a clean board of decisions and action items → push each one to Google Calendar / Gmail in one click.** No sign-in, no OAuth.
 
-> 🔗 **Live demo:** _<!-- REPLACE with your Streamlit URL, e.g. https://postmeet.streamlit.app -->_
-> ⏱️ Try it in 30s: open the link → pick a **sample** from the dropdown → press **Extract** → click **📅 Calendar** on any card.
+> 🔗 **Live demo:** **[postmeet.onrender.com](https://postmeet.onrender.com/)** · 📊 **[Product case study / pitch deck](https://shubham-33.github.io/postmeet/)**
+> ⏱️ Try it in 30s: open the demo → **Load sample** → press **Extract** → click **📅 Calendar** on any card.
+> _(Free-tier host — the first load after idle may take ~40s to wake, then it's fast.)_
 
 Meeting commitments get forgotten because they live in someone's notes. Postmeet turns a raw transcript into a shared, distributable plan in a few seconds — extract the decisions and per-owner action items with an LLM, then hand each person a prefilled calendar event or email they just click *Save* / *Send* on.
 
