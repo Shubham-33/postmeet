@@ -63,18 +63,19 @@ cd web && pip install -r requirements-dev.txt && pytest      # 69 tests, 100% co
 | [`web/deploy.sh`](web/deploy.sh) | One-shot Cloud Run deploy |
 | [`web/README.md`](web/README.md) | Deeper technical notes, architecture, and rubric mapping |
 
-## Deploy your own (free, ~4 clicks)
+## Deploy your own (free)
 
-Streamlit Community Cloud hosts straight from this repo:
+Hosted on **Render** via the [`render.yaml`](render.yaml) blueprint — a genuinely public URL, no viewer login:
 
 1. Push to GitHub (already done if you're reading this here).
-2. Go to **[share.streamlit.io](https://share.streamlit.io)** → sign in with GitHub → **New app**.
-3. Pick this repo, branch `main`, **Main file path: `web/streamlit_app.py`**.
-4. **Advanced settings → Secrets**, add:
-   ```toml
-   NVIDIA_API_KEY = "nvapi-...your key..."
+2. Go to **[dashboard.render.com](https://dashboard.render.com)** → **New → Blueprint** → connect this repo.
+3. Render reads `render.yaml` and provisions the web service. Set the one secret it asks for:
    ```
-   Deploy → you get a public `https://<name>.streamlit.app` URL. Paste it into the **Live demo** line at the top of this file.
+   NVIDIA_API_KEY = nvapi-...your key...
+   ```
+4. Deploy → you get a public `https://<name>.onrender.com` URL. Paste it into the **Live demo** line at the top of this file.
+
+> The Streamlit app (`web/streamlit_app.py`) also runs locally, but **Streamlit Community Cloud now gates every app behind a mandatory viewer sign-in**, so it isn't used for the public demo.
 
 ---
 

@@ -1,0 +1,14 @@
+# Render.com blueprint — one-click deploy of the Postmeet Flask app.
+# In Render: New → Blueprint → connect this repo → set the NVIDIA_API_KEY value.
+services:
+  - type: web
+    name: postmeet
+    runtime: python
+    plan: free
+    rootDir: web
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn -b 0.0.0.0:$PORT --workers 2 --timeout 60 app:app
+    healthCheckPath: /
+    envVars:
+      - key: NVIDIA_API_KEY
+        sync: false   # set this secret in the Render dashboard, never commit it
