@@ -9,7 +9,6 @@ from unittest.mock import MagicMock, patch
 import pytest
 import requests
 
-
 # ---------- helpers ----------
 
 def make_response(status_code=200, json_body=None, text="", ok=None):
@@ -22,41 +21,44 @@ def make_response(status_code=200, json_body=None, text="", ok=None):
     return r
 
 
-def gemini_success_body(summary="Summary.", decisions=None, action_items=None):
-    """Shape of a real Gemini generateContent response with valid extraction JSON."""
-    payload = {
-        "summary": summary,
-        "decisions": decisions if decisions is not None else ["We agreed."],
-        "action_items": action_items if action_items is not None else [
-            {
-                "task": "Do X",
-                "owner": "Alice",
-                "owner_email": "",
-                "due_date": "2026-12-01",
-                "context": "Unblocks the v3 launch",
-            }
-        ],
-    }
-    return {
-        "candidates": [{"content": {"parts": [{"text": json.dumps(payload)}]}}],
-    }
+def nim_success_body(summary="Summary.", decisions=None, action_items=None, content=None):
+    """Shape of a real NVIDIA NIM chat-completions response with valid extraction JSON.
+
+    Pass ``content`` to override the raw message text (e.g. for fenced / malformed cases).
+    """
+    if content is None:
+        payload = {
+            "summary": summary,
+            "decisions": decisions if decisions is not None else ["We agreed."],
+            "action_items": action_items if action_items is not None else [
+                {
+                    "task": "Do X",
+                    "owner": "Alice",
+                    "owner_email": "",
+                    "due_date": "2026-12-01",
+                    "context": "Unblocks the v3 launch",
+                }
+            ],
+        }
+        content = json.dumps(payload)
+    return {"choices": [{"message": {"role": "assistant", "content": content}}]}
 
 
 # ---------- module-level: missing API key ----------
 
 def test_missing_api_key_raises(monkeypatch):
-    """Reimporting app.py without GOOGLE_API_KEY/GEMINI_API_KEY must raise RuntimeError."""
-    monkeypatch.delenv("GOOGLE_API_KEY", raising=False)
-    monkeypatch.delenv("GEMINI_API_KEY", raising=False)
+    """Reimporting app.py without NVIDIA_API_KEY/NIM_API_KEY must raise RuntimeError."""
+    monkeypatch.delenv("NVIDIA_API_KEY", raising=False)
+    monkeypatch.delenv("NIM_API_KEY", raising=False)
     # Block dotenv from re-loading the project's .env (which would set the key back).
     with patch("dotenv.load_dotenv", lambda *a, **kw: None):
         # Drop cached module so the top-level guard runs again.
         sys.modules.pop("app", None)
-        with pytest.raises(RuntimeError, match="GOOGLE_API_KEY"):
+        with pytest.raises(RuntimeError, match="NVIDIA_API_KEY"):
             importlib.import_module("app")
     # Restore the module for downstream tests.
     sys.modules.pop("app", None)
-    os.environ["GOOGLE_API_KEY"] = "test-key-fixture"
+    os.environ["NVIDIA_API_KEY"] = "test-key-fixture"
     importlib.import_module("app")
 
 
@@ -154,20 +156,86 @@ def test_fetch_doc_html_lowercase_login_page(app_mod):
             app_mod.fetch_google_doc_text("https://docs.google.com/document/d/abc/edit")
 
 
-# ---------- call_gemini ----------
+# ---------- parse_extraction ----------
 
-def test_call_gemini_happy(app_mod):
-    body = gemini_success_body()
+def test_parse_extraction_happy(app_mod):
+    assert app_mod.parse_extraction('{"a": 1}') == {"a": 1}
+
+
+def test_parse_extraction_strips_fences_and_prose(app_mod):
+    """Model may wrap JSON in ```json fences or add chatter — we slice { … }."""
+    raw = 'Sure! ```json\n{"a": 1, "b": [2]}\n``` done'
+    assert app_mod.parse_extraction(raw) == {"a": 1, "b": [2]}
+
+
+def test_parse_extraction_no_object_raises(app_mod):
+    """No braces at all → JSONDecodeError (surfaces as 502 'malformed' upstream)."""
+    with pytest.raises(json.JSONDecodeError):
+        app_mod.parse_extraction("just some text, no json here")
+
+
+def test_parse_extraction_open_brace_only_raises(app_mod):
+    """Opening brace but no closing brace → JSONDecodeError."""
+    with pytest.raises(json.JSONDecodeError):
+        app_mod.parse_extraction("not json{")
+
+
+# ---------- call_llm ----------
+
+def test_call_llm_happy(app_mod):
+    body = nim_success_body()
     with patch("app.requests.post", return_value=make_response(200, json_body=body)):
-        result = app_mod.call_gemini("transcript text")
+        result = app_mod.call_llm("transcript text")
     assert "summary" in result
     assert result["decisions"] == ["We agreed."]
 
 
-def test_call_gemini_http_error(app_mod):
+def test_call_llm_http_error(app_mod):
+    """Every model in the chain returns 5xx → the last error propagates."""
     with patch("app.requests.post", return_value=make_response(500, text="quota")):
-        with pytest.raises(RuntimeError, match="Gemini 500"):
-            app_mod.call_gemini("transcript text")
+        with pytest.raises(RuntimeError, match="NVIDIA API 500"):
+            app_mod.call_llm("transcript text")
+
+
+def test_call_llm_falls_back_on_primary_timeout(app_mod):
+    """Primary model times out → the fallback model is tried and succeeds."""
+    good = make_response(200, json_body=nim_success_body(summary="via fallback"))
+    with patch("app.requests.post", side_effect=[requests.Timeout("cold"), good]) as mp:
+        result = app_mod.call_llm("transcript text")
+    assert result["summary"] == "via fallback"
+    assert mp.call_count == 2
+    assert mp.call_args_list[0].kwargs["json"]["model"] == app_mod.PRIMARY_MODEL
+    assert mp.call_args_list[1].kwargs["json"]["model"] == app_mod.FALLBACK_MODEL
+
+
+def test_call_llm_all_models_fail_raises_last(app_mod):
+    """When every model errors transiently, the final exception is re-raised."""
+    with patch("app.requests.post", side_effect=requests.ConnectionError("down")):
+        with pytest.raises(requests.ConnectionError):
+            app_mod.call_llm("transcript text")
+
+
+def test_call_llm_malformed_content_not_retried(app_mod):
+    """A parse error is the model's, not transient — do NOT waste the fallback on it."""
+    bad = make_response(200, json_body=nim_success_body(content="no json here"))
+    with patch("app.requests.post", return_value=bad) as mp:
+        with pytest.raises(json.JSONDecodeError):
+            app_mod.call_llm("transcript text")
+    assert mp.call_count == 1  # stopped at the first model
+
+
+def test_nim_model_env_override_pins_single_model(monkeypatch):
+    """Setting NIM_MODEL pins exactly that model and disables the fallback chain."""
+    monkeypatch.setenv("NIM_MODEL", "meta/custom-model")
+    with patch("dotenv.load_dotenv", lambda *a, **kw: None):
+        sys.modules.pop("app", None)
+        mod = importlib.import_module("app")
+    assert mod.MODEL_NAME == "meta/custom-model"
+    assert mod.MODEL_CHAIN == ("meta/custom-model",)
+    # Restore the shared (no-override) module for downstream tests.
+    monkeypatch.delenv("NIM_MODEL", raising=False)
+    sys.modules.pop("app", None)
+    importlib.import_module("app")
 
 
 # ---------- / (index) ----------
@@ -274,7 +342,7 @@ def test_extract_non_json_payload_400(client):
 
 
 def test_extract_transcript_happy(client):
-    body = gemini_success_body()
+    body = nim_success_body()
     with patch("app.requests.post", return_value=make_response(200, json_body=body)):
         res = client.post("/extract", json={"transcript": "Alice will do X by tomorrow morning."})
     assert res.status_code == 200
@@ -283,34 +351,34 @@ def test_extract_transcript_happy(client):
     assert out["action_items"][0]["owner"] == "Alice"
 
 
-# ---------- /extract — gemini failure modes ----------
+# ---------- /extract — model failure modes ----------
 
-def test_extract_gemini_runtime_error_502(client):
+def test_extract_model_runtime_error_502(client):
     with patch("app.requests.post", return_value=make_response(500, text="quota exceeded")):
         res = client.post("/extract", json={"transcript": "Alice will do X by tomorrow morning."})
     assert res.status_code == 502
-    assert "Gemini 500" in res.get_json()["error"]
+    assert "NVIDIA API 500" in res.get_json()["error"]
 
 
-def test_extract_gemini_network_error_502(client):
+def test_extract_model_network_error_502(client):
     with patch("app.requests.post", side_effect=requests.ConnectionError("boom")):
         res = client.post("/extract", json={"transcript": "Alice will do X by tomorrow morning."})
     assert res.status_code == 502
     assert "boom" in res.get_json()["error"]
 
 
-def test_extract_gemini_malformed_json_502(client):
-    """Gemini returns a 200 but its inner text is not valid JSON."""
-    bad_body = {"candidates": [{"content": {"parts": [{"text": "not json{"}]}}]}
+def test_extract_model_malformed_json_502(client):
+    """Model returns a 200 but its message content is not valid JSON."""
+    bad_body = nim_success_body(content="not json{")
     with patch("app.requests.post", return_value=make_response(200, json_body=bad_body)):
         res = client.post("/extract", json={"transcript": "Alice will do X by tomorrow morning."})
     assert res.status_code == 502
     assert "malformed" in res.get_json()["error"]
 
 
-def test_extract_gemini_missing_candidates_502(client):
-    """Gemini response is missing the 'candidates' key entirely."""
-    bad_body = {"promptFeedback": {"blockReason": "SAFETY"}}
+def test_extract_model_missing_choices_502(client):
+    """Model response is missing the 'choices' key entirely (e.g. a content filter)."""
+    bad_body = {"error": {"message": "content filtered"}}
     with patch("app.requests.post", return_value=make_response(200, json_body=bad_body)):
         res = client.post("/extract", json={"transcript": "Alice will do X by tomorrow morning."})
     assert res.status_code == 502
@@ -349,7 +417,7 @@ def test_extract_doc_url_network_error_502(client):
 def test_extract_doc_url_happy(client):
     transcript_text = "Alice: I will ship the migration by Friday May 29."
     fetch = make_response(200, text=transcript_text)
-    body = gemini_success_body(summary="Migration discussion.")
+    body = nim_success_body(summary="Migration discussion.")
     with patch("app.requests.get", return_value=fetch), \
          patch("app.requests.post", return_value=make_response(200, json_body=body)):
         res = client.post("/extract", json={"doc_url": "https://docs.google.com/document/d/abc/edit"})

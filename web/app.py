@@ -1,9 +1,9 @@
 """Postmeet — Flask backend.
 
 Extracts decisions and action items from meeting transcripts (or shared
-Google Doc URLs) using Gemini 2.5 Flash with structured output. Renders a
-single-page UI; dispatches per-action Calendar / Gmail prefills client-side
-via URL specs (no OAuth).
+Google Doc URLs) using NVIDIA NIM's Llama 3.1 (8B primary + 70B fallback,
+OpenAI-compatible endpoint, JSON response mode). Renders a single-page UI;
+dispatches per-action Calendar / Gmail prefills client-side via URL specs (no OAuth).
 
 Public surface:
 
@@ -19,7 +19,7 @@ import os
 import re
 from datetime import date
 from pathlib import Path
-from typing import Any, Final, Pattern
+from typing import Any, Final
 
 import requests
 from dotenv import load_dotenv
@@ -31,27 +31,35 @@ from flask import Flask, Response, jsonify, make_response, render_template, requ
 
 load_dotenv(Path(__file__).resolve().parent.parent / ".env")
 
-API_KEY: Final[str | None] = os.environ.get("GOOGLE_API_KEY") or os.environ.get("GEMINI_API_KEY")
+API_KEY: Final[str | None] = os.environ.get("NVIDIA_API_KEY") or os.environ.get("NIM_API_KEY")
 if not API_KEY:
-    raise RuntimeError("Set GOOGLE_API_KEY in .env")
+    raise RuntimeError("Set NVIDIA_API_KEY in .env")
 
-MODEL_NAME: Final[str] = "gemini-2.5-flash"
-GEMINI_URL: Final[str] = (
-    f"https://generativelanguage.googleapis.com/v1beta/models/{MODEL_NAME}:generateContent"
+# Fast primary for low, predictable latency (~2-3s), with a higher-capacity
+# fallback tried only if the primary errors — keeps the app responsive for
+# anyone testing it, even months later. Override with NIM_MODEL to pin one model.
+PRIMARY_MODEL: Final[str] = "meta/llama-3.1-8b-instruct"
+FALLBACK_MODEL: Final[str] = "meta/llama-3.1-70b-instruct"
+MODEL_NAME: Final[str] = os.environ.get("NIM_MODEL", "").strip() or PRIMARY_MODEL
+# If the user pinned a model, honor only that; otherwise try primary then fallback.
+MODEL_CHAIN: Final[tuple[str, ...]] = (
+    (MODEL_NAME,) if os.environ.get("NIM_MODEL", "").strip() else (PRIMARY_MODEL, FALLBACK_MODEL)
 )
+NIM_URL: Final[str] = "https://integrate.api.nvidia.com/v1/chat/completions"
 
 # HTTP / behavior tunables
 DOC_FETCH_TIMEOUT_S: Final[int] = 15
-GEMINI_TIMEOUT_S: Final[int] = 30
+NIM_TIMEOUT_S: Final[int] = 30
 MIN_TRANSCRIPT_LENGTH: Final[int] = 30
 GZIP_MIN_BYTES: Final[int] = 500
 GZIP_COMPRESS_LEVEL: Final[int] = 6
 INDEX_CACHE_SECONDS: Final[int] = 300
 
 # Google Doc URL → Doc ID. Permits any of /edit, /view, /pub, /export.
-DOC_ID_RE: Final[Pattern[str]] = re.compile(r"/document/d/([a-zA-Z0-9_-]+)")
+DOC_ID_RE: Final[re.Pattern[str]] = re.compile(r"/document/d/([a-zA-Z0-9_-]+)")
 
-# Gemini structured output schema — guarantees parseable JSON in responses.
+# Extraction contract — inlined into the system prompt so the model returns
+# exactly this shape (NIM JSON mode guarantees the output is a JSON object).
 RESPONSE_SCHEMA: Final[dict[str, Any]] = {
     "type": "object",
     "properties": {
@@ -82,7 +90,7 @@ RESPONSE_SCHEMA: Final[dict[str, Any]] = {
 
 
 def system_instruction() -> str:
-    """Return the system prompt for Gemini, with today's date inlined for relative-date resolution."""
+    """Return the system prompt for the model, with today's date inlined for relative-date resolution."""
     return f"""You extract structured outputs from meeting transcripts.
 
 Today's date is {date.today().isoformat()}. Use this when resolving relative dates (e.g. "Friday", "next Monday", "by end of month") to absolute YYYY-MM-DD.
@@ -102,6 +110,9 @@ Behavior:
 - One assignee per action item — split if multiple people share ownership
 - Use the speaker's first name when 'I will...' is said
 - Empty arrays if no transcript content
+
+Output ONLY a single JSON object (no markdown fences, no prose) with exactly these keys:
+{{"summary": string, "decisions": [string], "action_items": [{{"task": string, "owner": string, "owner_email": string, "due_date": string, "context": string}}]}}
 """
 
 
@@ -148,37 +159,76 @@ def fetch_google_doc_text(url: str) -> str:
     return text
 
 
-def call_gemini(text: str) -> dict[str, Any]:
-    """Send ``text`` to Gemini 2.5 Flash and return the structured-JSON extraction.
+def parse_extraction(raw: str) -> dict[str, Any]:
+    """Parse the model's text output into a dict, tolerating stray prose / fences.
 
-    Uses ``responseSchema`` so Gemini's output is guaranteed to match
-    :data:`RESPONSE_SCHEMA`. Temperature is 0 for determinism.
+    Slices from the first ``{`` to the last ``}`` before parsing, so a response
+    wrapped in ```` ```json ```` fences or accompanied by chatter still decodes.
 
-    :raises RuntimeError: Non-2xx HTTP response from Gemini.
-    :raises KeyError, IndexError: Response shape missing ``candidates[0].content.parts[0].text``.
-    :raises json.JSONDecodeError: Inner text is not valid JSON.
-    :raises requests.RequestException: Network error.
+    :raises json.JSONDecodeError: No JSON object present, or the slice isn't valid JSON.
+    """
+    start = raw.find("{")
+    end = raw.rfind("}")
+    if start == -1 or end == -1:
+        raise json.JSONDecodeError("No JSON object in model output", raw, 0)
+    return json.loads(raw[start : end + 1])
+
+
+def complete(model: str, text: str) -> dict[str, Any]:
+    """Run one extraction against a single NVIDIA NIM ``model``.
+
+    Uses the OpenAI-compatible chat-completions endpoint in JSON response mode.
+    Temperature is 0 for determinism; the system prompt pins the exact JSON shape.
+
+    :raises RuntimeError: Non-2xx HTTP response from NVIDIA.
+    :raises KeyError, IndexError: Response shape missing ``choices[0].message.content``.
+    :raises json.JSONDecodeError: Model output contains no valid JSON object.
+    :raises requests.RequestException: Network / timeout error.
     """
     payload = {
-        "contents": [{"parts": [{"text": text}]}],
-        "systemInstruction": {"parts": [{"text": system_instruction()}]},
-        "generationConfig": {
-            "responseMimeType": "application/json",
-            "responseSchema": RESPONSE_SCHEMA,
-            "temperature": 0,
-        },
+        "model": model,
+        "messages": [
+            {"role": "system", "content": system_instruction()},
+            {"role": "user", "content": text},
+        ],
+        "temperature": 0,
+        "max_tokens": 2048,
+        "response_format": {"type": "json_object"},
     }
     response = requests.post(
-        GEMINI_URL,
-        params={"key": API_KEY},
+        NIM_URL,
+        headers={"Authorization": f"Bearer {API_KEY}", "Accept": "application/json"},
         json=payload,
-        timeout=GEMINI_TIMEOUT_S,
+        timeout=NIM_TIMEOUT_S,
     )
     if not response.ok:
-        raise RuntimeError(f"Gemini {response.status_code}: {response.text[:300]}")
+        raise RuntimeError(f"NVIDIA API {response.status_code}: {response.text[:300]}")
     body = response.json()
-    raw = body["candidates"][0]["content"]["parts"][0]["text"]
-    return json.loads(raw)
+    raw = body["choices"][0]["message"]["content"]
+    return parse_extraction(raw)
+
+
+def call_llm(text: str) -> dict[str, Any]:
+    """Extract structured output, trying each model in :data:`MODEL_CHAIN` in order.
+
+    Transient failures (timeouts, connection errors, upstream 5xx) on one model
+    fall through to the next — so a cold or overloaded primary model degrades to
+    a faster fallback instead of failing the request. Malformed *content* from a
+    model is NOT retried (a fresh model won't fix a parsing contract issue); it
+    propagates so the caller returns a clear 502.
+
+    :raises requests.RequestException, RuntimeError: All models in the chain failed.
+    :raises KeyError, IndexError, json.JSONDecodeError: The reached model returned
+        an unparseable response.
+    """
+    last_transient: Exception | None = None
+    for model in MODEL_CHAIN:
+        try:
+            return complete(model, text)
+        except (requests.RequestException, RuntimeError) as e:
+            last_transient = e
+            continue
+    raise last_transient  # type: ignore[misc]  # chain is non-empty, so this is set
 
 
 # ---------------------------------------------------------------------------
@@ -267,7 +317,7 @@ def extract() -> tuple[Response, int] | Response:
         }), 400
 
     try:
-        return jsonify(call_gemini(transcript))
+        return jsonify(call_llm(transcript))
     except (KeyError, IndexError, json.JSONDecodeError) as e:
         return jsonify({"error": f"Model returned malformed output: {e}"}), 502
     except (requests.RequestException, RuntimeError) as e:

@@ -3,13 +3,14 @@ import os
 import sys
 from pathlib import Path
 
-# Set env BEFORE importing app — app.py raises if GOOGLE_API_KEY is missing.
-os.environ.setdefault("GOOGLE_API_KEY", "test-key-fixture")
+# Set env BEFORE importing app — app.py raises if NVIDIA_API_KEY is missing.
+os.environ.setdefault("NVIDIA_API_KEY", "test-key-fixture")
 
 # Make web/ importable as the project root so `import app` works
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 import pytest
+
 import app as app_module  # noqa: E402
 
 

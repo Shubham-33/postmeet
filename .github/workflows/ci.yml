@@ -30,7 +30,7 @@ jobs:
 
       - name: Run pytest with coverage gate
         env:
-          # Tests don't make real Gemini calls — mocked. Just satisfy the
-          # module-level guard in app.py that requires a key to be set.
-          GOOGLE_API_KEY: test-key-ci
+          # Tests don't make real model calls — all HTTP is mocked. This just
+          # satisfies the module-level guard in app.py that requires a key.
+          NVIDIA_API_KEY: test-key-ci
         run: pytest
