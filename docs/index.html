@@ -1,0 +1,536 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Postmeet — AI Product Case Study</title>
+<meta name="description" content="Postmeet: an AI product case study — turning meeting transcripts into distributed action. Problem, insight, model tradeoffs, metrics, evals, and roadmap, framed for an AI Product Manager role.">
+<meta property="og:title" content="Postmeet — AI Product Case Study">
+<meta property="og:description" content="Turning meeting transcripts into distributed action. An AI PM case study: the last-mile insight, the 8B-over-70B model tradeoff, a metric tree, evals, and a data-moat roadmap.">
+<meta property="og:type" content="website">
+<meta name="twitter:card" content="summary">
+<style>
+  :root{
+    --bg:#FAFAFB; --panel:#FFFFFF; --panel-2:#F1F2F5;
+    --ink:#16181F; --muted:#5A616E; --faint:#8B919D; --line:#E4E6EB;
+    --accent:#C2410C; --accent-soft:rgba(194,65,12,.10); --accent-line:rgba(194,65,12,.28);
+    --good:#3F7D5B; --shadow:rgba(20,22,30,.08);
+    --font-sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    --font-mono:ui-monospace,"SF Mono","JetBrains Mono",Menlo,Consolas,monospace;
+    --font-serif:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif;
+  }
+  @media (prefers-color-scheme:dark){
+    :root{
+      --bg:#0D0E12; --panel:#14161C; --panel-2:#1B1E26;
+      --ink:#ECEEF2; --muted:#9AA1AE; --faint:#666D7A; --line:#262A33;
+      --accent:#F2764B; --accent-soft:rgba(242,118,75,.13); --accent-line:rgba(242,118,75,.34);
+      --good:#5FB487; --shadow:rgba(0,0,0,.4);
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#0D0E12; --panel:#14161C; --panel-2:#1B1E26;
+    --ink:#ECEEF2; --muted:#9AA1AE; --faint:#666D7A; --line:#262A33;
+    --accent:#F2764B; --accent-soft:rgba(242,118,75,.13); --accent-line:rgba(242,118,75,.34);
+    --good:#5FB487; --shadow:rgba(0,0,0,.4);
+  }
+  :root[data-theme="light"]{
+    --bg:#FAFAFB; --panel:#FFFFFF; --panel-2:#F1F2F5;
+    --ink:#16181F; --muted:#5A616E; --faint:#8B919D; --line:#E4E6EB;
+    --accent:#C2410C; --accent-soft:rgba(194,65,12,.10); --accent-line:rgba(194,65,12,.28);
+    --good:#3F7D5B; --shadow:rgba(20,22,30,.08);
+  }
+
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  @media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--font-sans);
+    -webkit-font-smoothing:antialiased;line-height:1.5}
+
+  /* deck / slides */
+  .deck{height:100vh;overflow-y:scroll;scroll-snap-type:y mandatory;scroll-padding-top:0}
+  .slide{min-height:100vh;scroll-snap-align:start;scroll-snap-stop:always;
+    display:flex;flex-direction:column;justify-content:center;
+    padding:clamp(2rem,6vw,6rem) clamp(1.4rem,7vw,8rem);position:relative}
+  .wrap{width:100%;max-width:1080px;margin:0 auto}
+
+  /* type */
+  .eyebrow{font-family:var(--font-mono);font-size:.72rem;letter-spacing:.18em;
+    text-transform:uppercase;color:var(--accent);display:flex;align-items:center;gap:.7rem;margin:0 0 1.4rem}
+  .eyebrow::before{content:attr(data-n);color:var(--faint);font-size:.72rem}
+  .eyebrow .tick{flex:1;height:1px;background:var(--line);max-width:120px}
+  h1,h2{text-wrap:balance;margin:0;font-weight:680;letter-spacing:-.02em;line-height:1.04}
+  h1{font-size:clamp(2.6rem,7vw,5.2rem)}
+  h2{font-size:clamp(1.9rem,4.6vw,3.3rem)}
+  .lede{font-size:clamp(1.05rem,1.7vw,1.35rem);color:var(--muted);max-width:60ch;margin:1.3rem 0 0}
+  .thesis{font-family:var(--font-serif);font-size:clamp(1.5rem,3.2vw,2.4rem);line-height:1.28;
+    font-style:italic;letter-spacing:-.01em;text-wrap:balance;margin:0}
+  p{margin:0}
+  strong{color:var(--ink);font-weight:660}
+  .accent{color:var(--accent)}
+
+  /* bits */
+  .kicker{font-family:var(--font-mono);font-size:.74rem;letter-spacing:.04em;color:var(--faint)}
+  .grid{display:grid;gap:1.1rem}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:4px;padding:1.4rem 1.5rem}
+  .card h3{margin:0 0 .5rem;font-size:1.05rem;font-weight:640;letter-spacing:-.01em}
+  .card p{color:var(--muted);font-size:.96rem}
+  .mono{font-family:var(--font-mono)}
+  .num{font-family:var(--font-mono);font-variant-numeric:tabular-nums;font-weight:600;letter-spacing:-.02em}
+
+  .biglist{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:.9rem}
+  .biglist li{display:flex;gap:1rem;align-items:baseline;font-size:1.05rem;color:var(--muted)}
+  .biglist li b{color:var(--ink);font-weight:640}
+  .biglist .lead{font-family:var(--font-mono);color:var(--accent);font-size:.85rem;min-width:2.4rem;
+    flex-shrink:0;font-variant-numeric:tabular-nums}
+
+  .flow{display:grid;grid-template-columns:1fr auto 1fr auto 1fr;align-items:stretch;gap:.6rem}
+  .flow .step{background:var(--panel);border:1px solid var(--line);border-radius:4px;padding:1.2rem 1.1rem}
+  .flow .step .t{font-family:var(--font-mono);font-size:.7rem;letter-spacing:.12em;text-transform:uppercase;color:var(--accent)}
+  .flow .step h3{margin:.5rem 0 .35rem;font-size:1.05rem}
+  .flow .step p{color:var(--muted);font-size:.9rem;margin:0}
+  .flow .arrow{align-self:center;color:var(--faint);font-family:var(--font-mono)}
+
+  .pipe{display:flex;flex-wrap:wrap;align-items:center;gap:.5rem;font-family:var(--font-mono);font-size:.86rem}
+  .pipe .node{background:var(--panel-2);border:1px solid var(--line);border-radius:3px;padding:.5rem .8rem;white-space:nowrap}
+  .pipe .node.hl{border-color:var(--accent-line);color:var(--accent);background:var(--accent-soft)}
+  .pipe .sep{color:var(--faint)}
+
+  /* tradeoff compare */
+  .versus{display:grid;grid-template-columns:1fr 1fr;gap:1.1rem}
+  .opt{border:1px solid var(--line);border-radius:5px;padding:1.4rem;background:var(--panel);position:relative}
+  .opt.win{border-color:var(--accent-line);box-shadow:0 0 0 1px var(--accent-line) inset}
+  .opt .tag{font-family:var(--font-mono);font-size:.68rem;letter-spacing:.12em;text-transform:uppercase}
+  .opt.win .tag{color:var(--accent)} .opt.lose .tag{color:var(--faint)}
+  .opt h3{margin:.5rem 0 1rem;font-size:1.2rem;font-family:var(--font-mono);letter-spacing:-.02em}
+  .opt dl{margin:0;display:grid;grid-template-columns:auto 1fr;gap:.45rem 1rem;font-size:.9rem}
+  .opt dt{color:var(--faint);font-family:var(--font-mono);font-size:.78rem;align-self:center}
+  .opt dd{margin:0;color:var(--muted);text-align:right;font-variant-numeric:tabular-nums}
+  .opt dd b{color:var(--ink)}
+  .callout{margin-top:1.3rem;border-left:2px solid var(--accent);padding:.2rem 0 .2rem 1.2rem}
+  .callout .thesis{font-size:clamp(1.2rem,2.3vw,1.7rem)}
+
+  /* metric tree */
+  .tree{display:flex;flex-direction:column;gap:1rem}
+  .northstar{border:1px solid var(--accent-line);background:var(--accent-soft);border-radius:5px;padding:1.2rem 1.4rem}
+  .northstar .t{font-family:var(--font-mono);font-size:.7rem;letter-spacing:.14em;text-transform:uppercase;color:var(--accent)}
+  .northstar h3{margin:.35rem 0 .3rem;font-size:1.3rem;letter-spacing:-.01em}
+  .northstar p{color:var(--muted);font-size:.92rem;margin:0}
+  .cols{display:grid;grid-template-columns:2fr 1fr;gap:1rem}
+  .metric-set h4{margin:0 0 .7rem;font-family:var(--font-mono);font-size:.72rem;letter-spacing:.12em;
+    text-transform:uppercase;color:var(--faint)}
+  .chips{display:flex;flex-wrap:wrap;gap:.5rem}
+  .chip{border:1px solid var(--line);border-radius:20px;padding:.4rem .85rem;font-size:.84rem;color:var(--muted);background:var(--panel)}
+  .chip b{color:var(--ink);font-weight:620}
+
+  .two{display:grid;grid-template-columns:1fr 1fr;gap:1.4rem}
+  .horizons{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem}
+  .horizon{border:1px solid var(--line);border-radius:5px;padding:1.3rem;background:var(--panel);display:flex;flex-direction:column;gap:.7rem}
+  .horizon .h{font-family:var(--font-mono);font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;color:var(--accent)}
+  .horizon h3{margin:0;font-size:1.05rem}
+  .horizon ul{margin:0;padding-left:1.1rem;color:var(--muted);font-size:.9rem;display:flex;flex-direction:column;gap:.35rem}
+  .horizon.now{border-color:var(--accent-line)}
+
+  .comp{display:grid;grid-template-columns:repeat(2,1fr);gap:.8rem}
+  .comp .c{border:1px solid var(--line);border-radius:4px;padding:1rem 1.1rem;background:var(--panel)}
+  .comp .c .k{font-family:var(--font-mono);font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;color:var(--accent);margin-bottom:.4rem}
+  .comp .c p{color:var(--muted);font-size:.9rem}
+
+  .links{display:flex;flex-wrap:wrap;gap:.8rem;margin-top:1.8rem}
+  .btn{font-family:var(--font-mono);font-size:.85rem;text-decoration:none;color:var(--ink);
+    border:1px solid var(--line);border-radius:4px;padding:.6rem 1.1rem;display:inline-flex;gap:.5rem;align-items:center;
+    transition:border-color .15s,color .15s}
+  .btn:hover,.btn:focus-visible{border-color:var(--accent);color:var(--accent);outline:none}
+  .btn.primary{background:var(--accent);color:#fff;border-color:var(--accent)}
+  .btn.primary:hover,.btn.primary:focus-visible{color:#fff;filter:brightness(1.06)}
+
+  .byline{display:flex;flex-wrap:wrap;gap:.6rem 1.2rem;align-items:center;margin-top:2rem;color:var(--muted);font-size:.95rem}
+  .dot{width:6px;height:6px;border-radius:50%;background:var(--accent);display:inline-block}
+  .wordmark{font-weight:700;letter-spacing:-.03em}
+  .wordmark .p{color:var(--accent)}
+
+  /* chrome */
+  .rail{position:fixed;top:0;left:0;height:3px;background:var(--accent);width:0;z-index:40;transition:width .2s ease}
+  .hud{position:fixed;right:clamp(1rem,3vw,2.4rem);bottom:clamp(1rem,3vw,2rem);z-index:40;
+    font-family:var(--font-mono);font-size:.78rem;color:var(--muted);display:flex;align-items:center;gap:.9rem}
+  .hud .count b{color:var(--ink)}
+  .hud button{font-family:var(--font-mono);background:var(--panel);color:var(--ink);border:1px solid var(--line);
+    width:30px;height:30px;border-radius:4px;cursor:pointer;font-size:.9rem;line-height:1;transition:border-color .15s,color .15s}
+  .hud button:hover{border-color:var(--accent);color:var(--accent)}
+  .dots{position:fixed;right:clamp(.6rem,1.6vw,1.2rem);top:50%;transform:translateY(-50%);z-index:40;
+    display:flex;flex-direction:column;gap:.6rem}
+  .dots a{width:8px;height:8px;border-radius:50%;border:1px solid var(--faint);display:block;transition:all .18s}
+  .dots a.on{background:var(--accent);border-color:var(--accent);transform:scale(1.25)}
+  .themebtn{position:fixed;top:clamp(1rem,3vw,1.6rem);right:clamp(1rem,3vw,2.4rem);z-index:40;
+    font-family:var(--font-mono);font-size:.72rem;background:var(--panel);color:var(--muted);border:1px solid var(--line);
+    border-radius:4px;padding:.4rem .7rem;cursor:pointer}
+  .themebtn:hover{border-color:var(--accent);color:var(--accent)}
+  .hint{position:fixed;left:clamp(1rem,3vw,2.4rem);bottom:clamp(1rem,3vw,2rem);z-index:40;
+    font-family:var(--font-mono);font-size:.72rem;color:var(--faint)}
+
+  /* reveal */
+  .slide .wrap>*{opacity:0;transform:translateY(14px);transition:opacity .5s ease,transform .5s ease}
+  .slide.in .wrap>*{opacity:1;transform:none}
+  .slide.in .wrap>*:nth-child(2){transition-delay:.06s}
+  .slide.in .wrap>*:nth-child(3){transition-delay:.12s}
+  .slide.in .wrap>*:nth-child(4){transition-delay:.18s}
+  .slide.in .wrap>*:nth-child(5){transition-delay:.24s}
+  @media (prefers-reduced-motion:reduce){.slide .wrap>*{opacity:1;transform:none;transition:none}}
+
+  .footnote{font-size:.8rem;color:var(--faint);margin-top:1.4rem;max-width:60ch}
+
+  @media (max-width:760px){
+    .flow{grid-template-columns:1fr}.flow .arrow{display:none}
+    .versus,.two,.cols,.comp{grid-template-columns:1fr}
+    .horizons{grid-template-columns:1fr}
+    .dots{display:none}
+  }
+  @media print{
+    .deck{height:auto;overflow:visible;scroll-snap-type:none}
+    .slide{min-height:auto;page-break-after:always;padding:2.2rem}
+    .rail,.hud,.dots,.themebtn,.hint{display:none}
+    .slide .wrap>*{opacity:1;transform:none}
+    body{background:#fff}
+  }
+</style>
+</head>
+<body>
+
+<div class="rail" id="rail"></div>
+<button class="themebtn" id="themebtn" aria-label="Toggle theme">◐ theme</button>
+<nav class="dots" id="dots" aria-label="Slides"></nav>
+<div class="hud">
+  <button id="prev" aria-label="Previous slide">↑</button>
+  <button id="next" aria-label="Next slide">↓</button>
+  <span class="count"><b id="cur">01</b> / <span id="total">11</span></span>
+</div>
+<div class="hint">↑ ↓ / scroll to navigate</div>
+
+<main class="deck" id="deck">
+
+  <!-- 1 TITLE -->
+  <section class="slide" id="s1">
+    <div class="wrap">
+      <p class="eyebrow" data-n="—"><span>AI Product Case Study</span><span class="tick"></span></p>
+      <h1><span class="wordmark">Postmeet<span class="p">.</span></span><br>The last mile of meetings.</h1>
+      <p class="lede">Every meeting produces commitments. Most of them evaporate. Postmeet turns a raw
+        transcript into distributed, owned action — in about five seconds, with zero setup.</p>
+      <div class="byline">
+        <span class="dot"></span>
+        <span><strong>Shubham</strong> · aspiring AI Product Manager</span>
+        <span class="kicker">Problem → insight → AI decisions → metrics → roadmap</span>
+      </div>
+      <div class="links">
+        <a class="btn primary" href="#s2">Walk the case ↓</a>
+        <a class="btn" href="https://github.com/Shubham-33/postmeet" target="_blank" rel="noopener">GitHub repo ↗</a>
+        <a class="btn" id="demolink" href="#" target="_blank" rel="noopener">Live demo ↗</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- 2 PROBLEM -->
+  <section class="slide" id="s2">
+    <div class="wrap">
+      <p class="eyebrow" data-n="01"><span>The problem</span><span class="tick"></span></p>
+      <h2>Meetings manufacture commitments. Then the commitments go missing.</h2>
+      <div class="two" style="margin-top:2rem">
+        <div>
+          <p class="num accent" style="font-size:clamp(3rem,8vw,5rem);line-height:1">~70%</p>
+          <p class="lede" style="margin-top:.4rem">of action items agreed in a meeting are forgotten
+            within a week — they live in someone's notes, a Slack thread, a doc nobody reopens.</p>
+        </div>
+        <ul class="biglist" style="align-self:center">
+          <li><span class="lead">who</span><span>Knowledge workers spend a huge share of the week in meetings — the output that matters is the <b>follow-through</b>, not the recording.</span></li>
+          <li><span class="lead">gap</span><span>The pain isn't <b>capturing</b> what was said. It's <b>doing</b> what was decided.</span></li>
+          <li><span class="lead">cost</span><span>Dropped commitments = re-work, missed deadlines, and the quiet erosion of "we said we'd do this."</span></li>
+        </ul>
+      </div>
+      <p class="footnote">The 70% figure is directional — driving the hypothesis, not proven. First job as PM: validate it with user research + instrumentation before over-investing.</p>
+    </div>
+  </section>
+
+  <!-- 3 INSIGHT -->
+  <section class="slide" id="s3">
+    <div class="wrap">
+      <p class="eyebrow" data-n="02"><span>The insight</span><span class="tick"></span></p>
+      <h2>Everyone is fighting over capture. The last mile is wide open.</h2>
+      <div class="versus" style="margin-top:2rem">
+        <div class="opt lose">
+          <span class="tag">Crowded — "capture"</span>
+          <h3>Transcribe &amp; summarize</h3>
+          <p style="color:var(--muted);font-size:.95rem">Otter, Fireflies, Fathom, Granola — all competing on
+            better transcripts and summaries. Table stakes now. The commitments they surface still die in a doc.</p>
+        </div>
+        <div class="opt win">
+          <span class="tag">Open — "the last mile"</span>
+          <h3>Distribute &amp; act</h3>
+          <p style="color:var(--muted);font-size:.95rem">Getting each commitment <b>into the tool the owner
+            actually lives in</b> — their calendar, their inbox — is where follow-through is won or lost.</p>
+        </div>
+      </div>
+      <div class="callout">
+        <p class="thesis">The blocker on the last mile isn't a smarter model — it's <span class="accent">setup friction</span>. So the wedge is zero-setup distribution.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 4 PRODUCT -->
+  <section class="slide" id="s4">
+    <div class="wrap">
+      <p class="eyebrow" data-n="03"><span>The product</span><span class="tick"></span></p>
+      <h2>Paste a meeting → get owned action → distribute in one click.</h2>
+      <div class="flow" style="margin-top:2rem">
+        <div class="step"><div class="t">Input</div><h3>Drop it in</h3><p>Paste a transcript, a public Google Doc URL, or a file. No account.</p></div>
+        <div class="arrow">→</div>
+        <div class="step"><div class="t">Extract</div><h3>AI structures it</h3><p>Summary, decisions, and action items — each with owner, email, due date, and context.</p></div>
+        <div class="arrow">→</div>
+        <div class="step"><div class="t">Distribute</div><h3>One-click send</h3><p>Each item opens a prefilled Google Calendar event or Gmail draft. Just hit Save / Send.</p></div>
+      </div>
+      <div class="callout" style="margin-top:2rem">
+        <p class="thesis" style="font-size:clamp(1.15rem,2.2vw,1.6rem)">The "no-OAuth trick": prefilled Calendar/Gmail
+          URLs open in the user's already-logged-in Google. <span class="accent">Time-to-value: ~10 seconds — no integration, no admin approval, no scope review.</span></p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 5 UNDER THE HOOD -->
+  <section class="slide" id="s5">
+    <div class="wrap">
+      <p class="eyebrow" data-n="04"><span>The AI under the hood</span><span class="tick"></span></p>
+      <h2>Reliable structure out of an unreliable medium.</h2>
+      <div class="pipe" style="margin:2rem 0 .4rem">
+        <span class="node">transcript</span><span class="sep">→</span>
+        <span class="node hl">LLM · JSON mode</span><span class="sep">→</span>
+        <span class="node">schema-validated JSON</span><span class="sep">→</span>
+        <span class="node">board + prefilled links</span>
+      </div>
+      <div class="grid" style="grid-template-columns:repeat(3,1fr);margin-top:1.4rem">
+        <div class="card"><h3>Structured output</h3><p>The model returns a fixed JSON contract (summary / decisions / action items) — pinned in the system prompt, decoded by a tolerant parser. One call, no retry loop.</p></div>
+        <div class="card"><h3>Guardrails</h3><p>The prompt extracts <b>only explicit commitments</b> — no invented tasks. Empty fields when data is genuinely absent. This is the difference between useful and hallucinated.</p></div>
+        <div class="card"><h3>Graceful degradation</h3><p>A model fallback chain: if the primary is cold or errors, it automatically drops to a backup so the request still succeeds.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 6 THE DECISION -->
+  <section class="slide" id="s6">
+    <div class="wrap">
+      <p class="eyebrow" data-n="05"><span>The defining decision</span><span class="tick"></span></p>
+      <h2>I shipped the smaller model on purpose.</h2>
+      <div class="versus" style="margin-top:1.8rem">
+        <div class="opt lose">
+          <span class="tag">Rejected as primary</span>
+          <h3>Llama&nbsp;3.1&nbsp;70B</h3>
+          <dl>
+            <dt>latency</dt><dd><b>9s–46s</b>, inconsistent</dd>
+            <dt>reliability</dt><dd>cold-starts, timeouts</dd>
+            <dt>quality</dt><dd>marginally higher</dd>
+          </dl>
+        </div>
+        <div class="opt win">
+          <span class="tag">Shipped as primary</span>
+          <h3>Llama&nbsp;3.1&nbsp;8B</h3>
+          <dl>
+            <dt>latency</dt><dd><b>~2.5s</b>, consistent</dd>
+            <dt>reliability</dt><dd>steady across runs</dd>
+            <dt>quality</dt><dd>comparable on this task</dd>
+          </dl>
+        </div>
+      </div>
+      <div class="callout">
+        <p class="thesis">Model quality is an <span class="accent">input</span> to product value, not the goal. A demo that always works in two seconds beats a "smarter" one that sometimes hangs — reliability builds trust faster than marginal accuracy.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 7 METRICS -->
+  <section class="slide" id="s7">
+    <div class="wrap">
+      <p class="eyebrow" data-n="06"><span>How I'd measure success</span><span class="tick"></span></p>
+      <h2>One north star, a funnel beneath it, guardrails around it.</h2>
+      <div class="tree" style="margin-top:1.8rem">
+        <div class="northstar">
+          <div class="t">North-star metric</div>
+          <h3>Commitment Completion Rate</h3>
+          <p>Of the action items surfaced, what share actually get done? The product only wins if follow-through improves — everything else is a proxy.</p>
+        </div>
+        <div class="cols">
+          <div class="metric-set">
+            <h4>Input metrics — the funnel</h4>
+            <div class="chips">
+              <span class="chip"><b>Activation:</b> % sessions that extract → distribute ≥1 item</span>
+              <span class="chip"><b>Time-to-value:</b> seconds paste → first send</span>
+              <span class="chip"><b>Extraction quality:</b> precision / recall vs. eval set</span>
+              <span class="chip"><b>Retention:</b> repeat use / week</span>
+            </div>
+          </div>
+          <div class="metric-set">
+            <h4>Guardrail metrics</h4>
+            <div class="chips">
+              <span class="chip"><b>Hallucination rate</b> (invented items)</span>
+              <span class="chip"><b>Edit rate</b> (proxy for accuracy)</span>
+              <span class="chip"><b>Error / failure rate</b></span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 8 EVALS -->
+  <section class="slide" id="s8">
+    <div class="wrap">
+      <p class="eyebrow" data-n="07"><span>Making AI decisions rigorously</span><span class="tick"></span></p>
+      <h2>Vibes don't scale. Evals do.</h2>
+      <div class="two" style="margin-top:1.8rem">
+        <ul class="biglist">
+          <li><span class="lead">set</span><span>Build a <b>golden eval set</b>: labelled transcripts with the "true" decisions and action items.</span></li>
+          <li><span class="lead">score</span><span>Measure <b>precision</b> (did we invent tasks?), <b>recall</b> (did we miss commitments?), and field accuracy (owner / date / email).</span></li>
+          <li><span class="lead">use</span><span>That's how I'd actually choose 8B vs 70B, catch regressions, and set a launch quality bar — not by gut.</span></li>
+        </ul>
+        <div class="card" style="align-self:center">
+          <div class="kicker" style="color:var(--accent)">THE COMPOUNDING LOOP</div>
+          <h3 style="margin:.5rem 0 .5rem">Every edit is a label</h3>
+          <p style="color:var(--muted)">Users correct the extracted items before sending. Those corrections are
+            free, in-domain training data → fine-tune on accepted output → org-specific accuracy competitors
+            can't match without the same data. <b>The eval loop becomes the moat.</b></p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 9 PRIORITIZATION -->
+  <section class="slide" id="s9">
+    <div class="wrap">
+      <p class="eyebrow" data-n="08"><span>Prioritization</span><span class="tick"></span></p>
+      <h2>What I deliberately left out — and why that's the point.</h2>
+      <p class="lede">MVP scope is a hypothesis test, not a feature checklist. I cut everything that wasn't needed to
+        validate the one thing in question: <strong>will people extract, then actually distribute?</strong></p>
+      <div class="comp" style="margin-top:1.8rem">
+        <div class="c"><div class="k">Cut · persistence</div><p>No database. A refresh clears everything — validating the loop doesn't require storage, and "no data stored" removes privacy friction for testers.</p></div>
+        <div class="c"><div class="k">Cut · real integrations</div><p>The URL-prefill trick proves the value without OAuth. Real Calendar/Gmail APIs are a scaling investment, made only once the loop is proven.</p></div>
+        <div class="c"><div class="k">Cut · accounts &amp; teams</div><p>Single-session, no login. Multi-user is a growth concern, not a validation one.</p></div>
+        <div class="c"><div class="k">Kept · the core loop + trust</div><p>Extraction reliability, one-click distribution, honest guardrails, 100%-tested logic. The parts the hypothesis actually rides on.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 10 ROADMAP -->
+  <section class="slide" id="s10">
+    <div class="wrap">
+      <p class="eyebrow" data-n="09"><span>Roadmap &amp; moat</span><span class="tick"></span></p>
+      <h2>From a one-click helper to the system of record for follow-through.</h2>
+      <div class="horizons" style="margin-top:1.8rem">
+        <div class="horizon now">
+          <div class="h">Now · validate</div>
+          <h3>The core loop</h3>
+          <ul><li>Paste → extract → distribute</li><li>Zero setup, no OAuth</li><li>Reliable structured output</li></ul>
+        </div>
+        <div class="horizon">
+          <div class="h">Next · deepen</div>
+          <h3>Real workflow</h3>
+          <ul><li>Native Calendar / Gmail / Slack / Notion</li><li>Persistence + team workspaces</li><li>Auto-MoM to attendees</li></ul>
+        </div>
+        <div class="horizon">
+          <div class="h">Later · own the outcome</div>
+          <h3>Proactive follow-through</h3>
+          <ul><li>Auto-join &amp; live capture</li><li>Nudges: "did you ship X?"</li><li>Completion tracking → closes the north-star loop</li></ul>
+        </div>
+      </div>
+      <div class="callout" style="margin-top:1.6rem">
+        <p class="thesis" style="font-size:clamp(1.1rem,2vw,1.5rem)">Moat = the feedback loop. Accepted &amp; edited
+          action items become proprietary training data → accuracy that compounds with usage.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 11 CLOSE -->
+  <section class="slide" id="s11">
+    <div class="wrap">
+      <p class="eyebrow" data-n="10"><span>Why this matters for the role</span><span class="tick"></span></p>
+      <h2>I don't just use AI tools. I make product decisions about them.</h2>
+      <div class="grid" style="grid-template-columns:repeat(3,1fr);margin-top:1.8rem">
+        <div class="card"><h3>Problem framing</h3><p>Found the non-obvious wedge — the last mile, not capture; friction, not model size.</p></div>
+        <div class="card"><h3>AI judgment</h3><p>Model tradeoffs, evals, guardrails, graceful degradation — decisions, with reasons.</p></div>
+        <div class="card"><h3>Metrics rigor</h3><p>A north star, an input funnel, and guardrails — measurement designed in, not bolted on.</p></div>
+        <div class="card"><h3>Prioritization</h3><p>Scoped an MVP as a hypothesis test; cut with intent; shipped the parts that de-risk it.</p></div>
+        <div class="card"><h3>Vision</h3><p>A credible path from a one-click tool to a defensible product with a data moat.</p></div>
+        <div class="card"><h3>End-to-end</h3><p>Built, tested (100% coverage), and deployed it solo — from user insight to a live URL.</p></div>
+      </div>
+      <div class="byline">
+        <span class="dot"></span><span class="wordmark">Postmeet<span class="p">.</span></span>
+        <span class="kicker">Thanks for reading — let's talk about what I'd build next.</span>
+      </div>
+      <div class="links">
+        <a class="btn primary" id="demolink2" href="#" target="_blank" rel="noopener">Try the live demo ↗</a>
+        <a class="btn" href="https://github.com/Shubham-33/postmeet" target="_blank" rel="noopener">GitHub repo ↗</a>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<script>
+(function(){
+  var deck=document.getElementById('deck');
+  var slides=Array.prototype.slice.call(document.querySelectorAll('.slide'));
+  var rail=document.getElementById('rail'), cur=document.getElementById('cur');
+  document.getElementById('total').textContent=String(slides.length).padStart(2,'0');
+  var dots=document.getElementById('dots');
+  slides.forEach(function(s,i){
+    var a=document.createElement('a');a.href='#'+s.id;a.setAttribute('aria-label','Slide '+(i+1));
+    dots.appendChild(a);
+  });
+  var dotEls=Array.prototype.slice.call(dots.children);
+  var idx=0;
+
+  var io=new IntersectionObserver(function(entries){
+    entries.forEach(function(e){
+      if(e.isIntersecting){
+        e.target.classList.add('in');
+        idx=slides.indexOf(e.target);
+        cur.textContent=String(idx+1).padStart(2,'0');
+        dotEls.forEach(function(d,i){d.classList.toggle('on',i===idx);});
+      }
+    });
+  },{threshold:.55});
+  slides.forEach(function(s){io.observe(s);});
+
+  function scrollProg(){
+    var max=deck.scrollHeight-deck.clientHeight;
+    rail.style.width=(max>0?(deck.scrollTop/max*100):0)+'%';
+  }
+  deck.addEventListener('scroll',scrollProg,{passive:true});scrollProg();
+
+  function go(n){n=Math.max(0,Math.min(slides.length-1,n));slides[n].scrollIntoView({behavior:'smooth'});}
+  document.getElementById('next').onclick=function(){go(idx+1);};
+  document.getElementById('prev').onclick=function(){go(idx-1);};
+  document.addEventListener('keydown',function(e){
+    if(e.key==='ArrowDown'||e.key==='ArrowRight'||e.key==='PageDown'){e.preventDefault();go(idx+1);}
+    else if(e.key==='ArrowUp'||e.key==='ArrowLeft'||e.key==='PageUp'){e.preventDefault();go(idx-1);}
+    else if(e.key==='Home'){e.preventDefault();go(0);}
+    else if(e.key==='End'){e.preventDefault();go(slides.length-1);}
+  });
+
+  var tb=document.getElementById('themebtn'), root=document.documentElement;
+  tb.onclick=function(){
+    var t=root.getAttribute('data-theme');
+    var next=t==='dark'?'light':'dark';
+    root.setAttribute('data-theme',next);
+    tb.textContent=(next==='dark'?'☾':'☀')+' '+next;
+  };
+
+  // live demo link: set DEMO_URL once the app is deployed (e.g. Render URL)
+  var DEMO_URL="";
+  if(DEMO_URL){
+    ['demolink','demolink2'].forEach(function(id){var el=document.getElementById(id);if(el)el.href=DEMO_URL;});
+  }else{
+    ['demolink','demolink2'].forEach(function(id){
+      var el=document.getElementById(id);if(!el)return;
+      el.addEventListener('click',function(ev){ev.preventDefault();alert('Live demo link coming soon.');});
+    });
+  }
+})();
+</script>
+
+</body>
+</html>
