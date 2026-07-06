@@ -285,7 +285,7 @@ async function handleExtract() {
 
   $('extractBtn').disabled = true;
   $('extractBtn').textContent = 'Extracting…';
-  setStatus(mode === 'doc' ? 'Fetching Google Doc…' : 'Calling Gemini…', 'info');
+  setStatus(mode === 'doc' ? 'Fetching Google Doc…' : 'Analyzing with Llama 3.1…', 'info');
   renderSkeleton();
 
   try {
