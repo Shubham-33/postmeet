@@ -177,6 +177,8 @@
   @media (prefers-reduced-motion:reduce){.slide .wrap>*{opacity:1;transform:none;transition:none}}
 
   .footnote{font-size:.8rem;color:var(--faint);margin-top:1.4rem;max-width:60ch}
+  .shot{display:block;max-width:100%;max-height:63vh;margin:1.1rem auto 0;border:1px solid var(--line);
+    border-radius:8px;box-shadow:0 14px 44px var(--shadow)}
 
   @media (max-width:760px){
     .flow{grid-template-columns:1fr}.flow .arrow{display:none}
@@ -216,7 +218,7 @@
         transcript into distributed, owned action — in about five seconds, with zero setup.</p>
       <div class="byline">
         <span class="dot"></span>
-        <span><strong>Shubham Mittal</strong> · aspiring AI Product Manager</span>
+        <span><strong>Shubham Mittal</strong> · AI Product Manager</span>
         <span class="kicker">Problem → insight → AI decisions → metrics → roadmap</span>
       </div>
       <div class="links">
@@ -235,8 +237,8 @@
       <div class="two" style="margin-top:2rem">
         <div>
           <p class="num accent" style="font-size:clamp(3rem,8vw,5rem);line-height:1">~70%</p>
-          <p class="lede" style="margin-top:.4rem">of action items agreed in a meeting are forgotten
-            within a week — they live in someone's notes, a Slack thread, a doc nobody reopens.</p>
+          <p class="lede" style="margin-top:.4rem">of meeting action items are never completed —
+            they live in someone's notes, a Slack thread, a doc nobody reopens.</p>
         </div>
         <ul class="biglist" style="align-self:center">
           <li><span class="lead">who</span><span>Knowledge workers spend a huge share of the week in meetings — the output that matters is the <b>follow-through</b>, not the recording.</span></li>
@@ -244,7 +246,7 @@
           <li><span class="lead">cost</span><span>Dropped commitments = re-work, missed deadlines, and the quiet erosion of "we said we'd do this."</span></li>
         </ul>
       </div>
-      <p class="footnote">The 70% figure is directional — driving the hypothesis, not proven. First job as PM: validate it with user research + instrumentation before over-investing.</p>
+      <p class="footnote">Industry estimates range ~44–73% of action items never completed (Fellow, Streamli9). Directional — as PM, the first job is to validate with first-party instrumentation before over-investing.</p>
     </div>
   </section>
 
@@ -289,6 +291,17 @@
         <p class="thesis" style="font-size:clamp(1.15rem,2.2vw,1.6rem)">The "no-OAuth trick": prefilled Calendar/Gmail
           URLs open in the user's already-logged-in Google. <span class="accent">Time-to-value: ~10 seconds — no integration, no admin approval, no scope review.</span></p>
       </div>
+    </div>
+  </section>
+
+  <!-- 4b PRODUCT SCREENSHOT -->
+  <section class="slide" id="s4b">
+    <div class="wrap" style="max-width:1200px">
+      <p class="eyebrow" data-n="—"><span>See it work</span><span class="tick"></span></p>
+      <h2 style="font-size:clamp(1.5rem,3vw,2.2rem)">Paste a transcript → the board writes itself.</h2>
+      <img class="shot" src="postmeet-screenshot.png"
+        alt="Postmeet: a pasted transcript, an extracted summary with bulk distribute buttons, and a per-owner board of action-item cards each with one-click Calendar and Email buttons">
+      <p class="footnote" style="margin-top:.9rem">Real output from the live app — extracted in ~2.8s: a summary, decisions, and one column per owner, each card one click from a prefilled Google Calendar event or Gmail draft.</p>
     </div>
   </section>
 
@@ -426,14 +439,14 @@
           <ul><li>Paste → extract → distribute</li><li>Zero setup, no OAuth</li><li>Reliable structured output</li></ul>
         </div>
         <div class="horizon">
-          <div class="h">Next · deepen</div>
-          <h3>Real workflow</h3>
-          <ul><li>Native Calendar / Gmail / Slack / Notion</li><li>Persistence + team workspaces</li><li>Auto-MoM to attendees</li></ul>
+          <div class="h">Next · kill the paste step</div>
+          <h3>Capture everywhere</h3>
+          <ul><li>Browser extension + AI notetaker that auto-joins Zoom / Teams / Meet</li><li>Pulls the transcript itself — no copy-paste</li><li>Native send to Gmail, Outlook &amp; Calendar</li></ul>
         </div>
         <div class="horizon">
           <div class="h">Later · own the outcome</div>
           <h3>Proactive follow-through</h3>
-          <ul><li>Auto-join &amp; live capture</li><li>Nudges: "did you ship X?"</li><li>Completion tracking → closes the north-star loop</li></ul>
+          <ul><li>Persistence + team workspaces</li><li>Nudges: "did you ship X?"</li><li>Completion tracking → closes the loop</li></ul>
         </div>
       </div>
       <div class="callout" style="margin-top:1.6rem">
