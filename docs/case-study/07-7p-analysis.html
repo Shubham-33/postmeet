@@ -1,0 +1,498 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>7P Analysis — Postmeet Case Study</title>
+<meta name="description" content="7P Analysis — part of the Postmeet product-management case study by Shubham Mittal.">
+<meta property="og:title" content="7P Analysis — Postmeet Case Study">
+<meta property="og:description" content="7P Analysis: part of an end-to-end AI product-management case study.">
+<style>
+  :root{
+    --bg:#FAFAFB; --panel:#FFFFFF; --panel-2:#F1F2F5;
+    --ink:#16181F; --muted:#5A616E; --faint:#8B919D; --line:#E4E6EB;
+    --accent:#C2410C; --accent-soft:rgba(194,65,12,.07); --accent-line:rgba(194,65,12,.28);
+    --shadow:rgba(20,22,30,.07);
+    --font-sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    --font-mono:ui-monospace,"SF Mono","JetBrains Mono",Menlo,Consolas,monospace;
+    --font-serif:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif;
+  }
+  @media (prefers-color-scheme:dark){
+    :root{ --bg:#0D0E12; --panel:#14161C; --panel-2:#1B1E26;
+      --ink:#ECEEF2; --muted:#9AA1AE; --faint:#666D7A; --line:#262A33;
+      --accent:#F2764B; --accent-soft:rgba(242,118,75,.09); --accent-line:rgba(242,118,75,.34);
+      --shadow:rgba(0,0,0,.4); }
+  }
+  :root[data-theme="dark"]{ --bg:#0D0E12; --panel:#14161C; --panel-2:#1B1E26;
+    --ink:#ECEEF2; --muted:#9AA1AE; --faint:#666D7A; --line:#262A33;
+    --accent:#F2764B; --accent-soft:rgba(242,118,75,.09); --accent-line:rgba(242,118,75,.34);
+    --shadow:rgba(0,0,0,.4); }
+  :root[data-theme="light"]{ --bg:#FAFAFB; --panel:#FFFFFF; --panel-2:#F1F2F5;
+    --ink:#16181F; --muted:#5A616E; --faint:#8B919D; --line:#E4E6EB;
+    --accent:#C2410C; --accent-soft:rgba(194,65,12,.07); --accent-line:rgba(194,65,12,.28);
+    --shadow:rgba(20,22,30,.07); }
+
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth;scroll-padding-top:5rem}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--font-sans);
+    line-height:1.68;-webkit-font-smoothing:antialiased}
+  .rule{height:3px;background:var(--accent);position:sticky;top:0;z-index:20}
+
+  .topbar{position:sticky;top:3px;z-index:19;background:color-mix(in srgb,var(--bg) 88%,transparent);
+    backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+  .topbar .in{max-width:860px;margin:0 auto;padding:.7rem clamp(1.1rem,4vw,2rem);
+    display:flex;align-items:center;justify-content:space-between;gap:1rem}
+  .crumb{font-family:var(--font-mono);font-size:.74rem;color:var(--faint);text-decoration:none;
+    display:flex;align-items:center;gap:.5rem;min-width:0}
+  .crumb:hover{color:var(--accent)}
+  .crumb b{color:var(--ink);font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .tools{display:flex;gap:.5rem;flex-shrink:0}
+  .tool{font-family:var(--font-mono);font-size:.7rem;background:var(--panel);color:var(--muted);
+    border:1px solid var(--line);border-radius:4px;padding:.32rem .6rem;cursor:pointer;text-decoration:none}
+  .tool:hover{border-color:var(--accent);color:var(--accent)}
+
+  main{max-width:860px;margin:0 auto;padding:clamp(1.8rem,5vw,3rem) clamp(1.1rem,4vw,2rem) 1rem}
+
+  /* prose */
+  main h1{font-size:clamp(1.9rem,4.4vw,2.8rem);line-height:1.1;letter-spacing:-.025em;
+    margin:0 0 1rem;font-weight:680;text-wrap:balance}
+  main h2{font-size:clamp(1.3rem,2.6vw,1.7rem);letter-spacing:-.018em;margin:2.8rem 0 .9rem;
+    padding-top:1.4rem;border-top:1px solid var(--line);font-weight:660;text-wrap:balance}
+  main h3{font-size:1.08rem;margin:1.9rem 0 .6rem;font-weight:640;letter-spacing:-.01em}
+  main h4{font-size:.95rem;margin:1.4rem 0 .5rem;font-weight:640;color:var(--muted)}
+  main p{margin:.9rem 0}
+  main ul,main ol{margin:.9rem 0;padding-left:1.4rem}
+  main li{margin:.35rem 0}
+  main li::marker{color:var(--accent)}
+  main a{color:var(--accent);text-decoration:none;border-bottom:1px solid var(--accent-line)}
+  main a:hover{border-bottom-color:var(--accent)}
+  main strong{font-weight:660;color:var(--ink)}
+  main hr{border:0;border-top:1px solid var(--line);margin:2.4rem 0}
+  main blockquote{margin:1.4rem 0;padding:.9rem 1.2rem;border-left:2px solid var(--accent);
+    background:var(--accent-soft);border-radius:0 4px 4px 0;color:var(--muted)}
+  main blockquote p{margin:.4rem 0}
+  main blockquote strong{color:var(--ink)}
+  main code{font-family:var(--font-mono);font-size:.86em;background:var(--panel-2);
+    border:1px solid var(--line);border-radius:3px;padding:.1em .38em}
+  main pre{background:var(--panel-2);border:1px solid var(--line);border-radius:6px;
+    padding:1rem 1.1rem;overflow-x:auto;margin:1.3rem 0;line-height:1.45}
+  main pre code{background:none;border:0;padding:0;font-size:.8rem}
+  .tablewrap{overflow-x:auto;margin:1.3rem 0;border:1px solid var(--line);border-radius:6px;background:var(--panel)}
+  main table{border-collapse:collapse;width:100%;font-size:.9rem}
+  main th{text-align:left;font-family:var(--font-mono);font-size:.7rem;letter-spacing:.06em;
+    text-transform:uppercase;color:var(--faint);font-weight:600;
+    padding:.7rem .9rem;border-bottom:1px solid var(--line);white-space:nowrap;background:var(--panel-2)}
+  main td{padding:.7rem .9rem;border-bottom:1px solid var(--line);vertical-align:top;color:var(--muted)}
+  main tr:last-child td{border-bottom:0}
+  main td strong{color:var(--ink)}
+  main img{max-width:100%}
+
+  .docnav{max-width:860px;margin:0 auto;padding:1rem clamp(1.1rem,4vw,2rem) 3.5rem;
+    display:flex;gap:.8rem;justify-content:space-between;border-top:1px solid var(--line)}
+  .docnav a{flex:1;text-decoration:none;border:1px solid var(--line);border-radius:6px;
+    padding:.9rem 1rem;background:var(--panel);transition:border-color .15s,transform .15s}
+  .docnav a:hover{border-color:var(--accent-line);transform:translateY(-2px)}
+  .docnav .k{font-family:var(--font-mono);font-size:.66rem;letter-spacing:.1em;
+    text-transform:uppercase;color:var(--accent);display:block}
+  .docnav .v{color:var(--ink);font-size:.95rem;font-weight:600;display:block;margin-top:.25rem}
+  .docnav .next{text-align:right}
+  @media (max-width:640px){.docnav{flex-direction:column}}
+</style>
+</head>
+<body>
+<div class="rule"></div>
+<div class="topbar"><div class="in">
+  <a class="crumb" href="./">← <span>Case study</span> · <b>Planning & Strategy</b></a>
+  <div class="tools">
+    <a class="tool" href="https://postmeet.onrender.com/" target="_blank" rel="noopener">Live app ↗</a>
+    <a class="tool" href="https://github.com/Shubham-33/postmeet/blob/main/docs/case-study/07-7p-analysis.md" target="_blank" rel="noopener">.md ↗</a>
+    <button class="tool" id="themebtn" aria-label="Toggle theme">◐</button>
+  </div>
+</div></div>
+
+<main>
+<h1 id="7p-marketing-mix-analysis--postmeet">7P Marketing Mix Analysis — Postmeet</h1>
+<p><strong>Owner:</strong> Shubham Mittal · <strong>Status:</strong> v1.0 · <strong>Phase:</strong> Planning &amp; Strategy
+<strong>Related:</strong> <a href="02-mrd.html">MRD</a> · <a href="01-product-vision.html">Vision</a> · <a href="09-launch-plan.html">Launch Plan</a> · <a href="./">Case study home</a></p>
+<hr />
+<h2 id="how-to-read-this">How to read this</h2>
+<p>The 7Ps (Booms &amp; Bitner's extension of the 4Ps for <strong>services</strong>) are a completeness check: they force you to notice that a product is not just the software — it's the price, the channel, the people and the process around it.</p>
+<p><strong>The extended three (People, Process, Physical Evidence) matter most here</strong>, because Postmeet is a service delivered through an interface, and its output is <em>artifacts other people receive</em>.</p>
+<blockquote>
+<p><strong>Position first, then the mix.</strong> Everything below descends from one strategic choice:
+<strong>Postmeet competes on the last mile (distribution), not on capture — and wins entry through zero setup.</strong>
+Any P that contradicts that is wrong, no matter how attractive it looks in isolation.</p>
+</blockquote>
+<hr />
+<h2 id="1-product">1. Product</h2>
+<p><strong>What is actually being sold:</strong> not "AI meeting notes" — <strong>follow-through</strong>. The unit of value is <em>a commitment that landed in the right person's world</em>.</p>
+<div class="tablewrap"><table>
+<thead>
+<tr>
+<th>Layer</th>
+<th>Content</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Core benefit</strong></td>
+<td>Commitments made in meetings actually get done</td>
+</tr>
+<tr>
+<td><strong>Actual product</strong></td>
+<td>Transcript → summary, decisions, and owned/dated action items → one-click Calendar invite or Gmail draft per person</td>
+</tr>
+<tr>
+<td><strong>Augmented product</strong></td>
+<td>Inline editing (human checkpoint) · MoM email + clipboard copy · three input modes · samples · keyboard-complete a11y · zero data retention</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Differentiators, in order of strategic weight:</strong>
+1. <strong>Distribution, not summarisation</strong> — the open quadrant (<a href="02-mrd.html#52-the-strategic-map">MRD §5.2</a>).
+2. <strong>Zero setup / zero OAuth</strong> — value in ~10s with no account, no permission, no admin gate.
+3. <strong>Precision-biased AI</strong> — never invents a commitment (MR-3); the human always sends.
+4. <strong>Speed</strong> — ~2.5s, deliberately chosen over a smarter-but-slower model.</p>
+<p><strong>Product-level risks:</strong> the wedge is copyable in a week (<a href="02-mrd.html#9-risks--assumptions">MRD R3</a>); the product is a <em>feature</em> unless the H2/H3 flywheel starts.</p>
+<hr />
+<h2 id="2-price">2. Price</h2>
+<p><strong>Model:</strong> freemium, product-led, bottom-up. <strong>Not</strong> priced per meeting — usage-metering a core loop punishes the exact behaviour we're trying to prove.</p>
+<div class="tablewrap"><table>
+<thead>
+<tr>
+<th>Tier</th>
+<th>Price</th>
+<th>Includes</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Free</strong></td>
+<td>$0</td>
+<td>Unlimited paste/Doc/file extraction · full distribution · no account</td>
+<td>Own the top of the funnel; harvest correction data; make the wedge frictionless</td>
+</tr>
+<tr>
+<td><strong>Pro</strong></td>
+<td>~$12 /user/mo</td>
+<td>Auto-capture (extension) · persistence &amp; history · Outlook + Google · priority latency</td>
+<td>The friction-removal upgrade</td>
+</tr>
+<tr>
+<td><strong>Team</strong></td>
+<td>~$20 /user/mo</td>
+<td>Shared workspaces · AI notetaker auto-join · completion tracking + nudges · analytics</td>
+<td>H3 value: own the outcome</td>
+</tr>
+<tr>
+<td><strong>Enterprise</strong></td>
+<td>Custom</td>
+<td>SSO/SAML · DPA · data residency · admin controls</td>
+<td>Unlocks "Dana" (<a href="02-mrd.html#43-anti-persona--dana-the-enterprise-it-admin">MRD §4.3</a>) at H2/H3</td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="pricing-rationale">Pricing rationale</h3>
+<ul>
+<li><strong>Charge to remove friction, not to unlock core value.</strong> Extraction stays free forever. We monetise <em>not having to paste</em> — the thing heavy users want most and light users don't care about. This aligns willingness-to-pay with intensity of use.</li>
+<li><strong>Anchoring:</strong> Otter/Fireflies sit roughly $10–20/user/mo. Pro at ~$12 is deliberately <em>inside</em> the category's expected band — pricing is not our differentiator, and being cheap would signal "feature," not "product."</li>
+<li><strong>Marginal cost ≈ 0.</strong> An 8B extraction is fractions of a cent, so a generous free tier is economically trivial and strategically decisive.</li>
+<li><strong>Why not per-meeting?</strong> It taxes the core loop and makes users ration the behaviour we most need. Per-seat is predictable and matches how the buyer already budgets.</li>
+</ul>
+<p><strong>Key risk (<a href="02-mrd.html#9-risks--assumptions">MRD R5</a>):</strong> the free tier is <em>so</em> complete that conversion stalls.
+<strong>Mitigation:</strong> gate on auto-capture and persistence — real, felt friction — not on artificial extraction limits.
+<strong>Evidence needed:</strong> all numbers above are hypotheses. <a href="05-research-plan.html#2-research-questions">RQ5</a> (Van Westendorp + tier fake-doors) exists to replace them with data. <em>Stating a price without research is a hypothesis; pretending it's a plan is the mistake.</em></p>
+<hr />
+<h2 id="3-place-distribution">3. Place (distribution)</h2>
+<div class="tablewrap"><table>
+<thead>
+<tr>
+<th>Channel</th>
+<th>Role</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Web app</strong> (direct URL)</td>
+<td>Primary. Zero-install is the whole point — the channel <em>is</em> the wedge.</td>
+<td>✅ Live</td>
+</tr>
+<tr>
+<td><strong>Chrome Web Store</strong></td>
+<td>H2 extension. High-intent discovery; category-native.</td>
+<td>Planned</td>
+</tr>
+<tr>
+<td><strong>Zoom / Teams marketplaces</strong></td>
+<td>H2. Meet the meeting where it happens; strong distribution surface.</td>
+<td>Planned</td>
+</tr>
+<tr>
+<td><strong>Microsoft/Google Workspace marketplaces</strong></td>
+<td>H2/H3. Required for the enterprise motion.</td>
+<td>Planned</td>
+</tr>
+<tr>
+<td><strong>The recipients themselves</strong></td>
+<td><strong>Underrated.</strong> Every invite/email lands with a non-user (Marcus).</td>
+<td>✅ Live, unexploited</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Strategic note — the free channel we're not using yet:</strong> because assignees receive real Calendar invites and Gmail drafts, <strong>Postmeet already reaches people who have never visited the site.</strong> Today those artifacts carry only a subtle "(Sent via Postmeet)" line. That's a viral loop sitting idle. A tasteful attribution + one-click "extract your own meeting" path turns the <em>product's output</em> into the acquisition channel — near-zero CAC, and it compounds with usage. This is the highest-leverage Place decision available and it costs almost nothing.</p>
+<p><strong>Anti-channel:</strong> enterprise field sales. Contradicts the bottom-up motion, and the product isn't ready for Dana.</p>
+<hr />
+<h2 id="4-promotion">4. Promotion</h2>
+<p><strong>Motion: PLG.</strong> The demo <em>is</em> the pitch — no signup means the funnel is "click link → feel value," which almost no competitor can match.</p>
+<div class="tablewrap"><table>
+<thead>
+<tr>
+<th>Lever</th>
+<th>Play</th>
+<th>Why it fits</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Product-led</strong></td>
+<td>Public URL, samples preloaded, value in 10s</td>
+<td>Removes every step between curiosity and the aha</td>
+</tr>
+<tr>
+<td><strong>Content/SEO</strong></td>
+<td><em>"Zoom transcript to action items"</em>, <em>"meeting follow-through"</em>, <em>"minutes of meeting template"</em></td>
+<td>High-intent, low-competition long tail; the category's head terms are owned by incumbents</td>
+</tr>
+<tr>
+<td><strong>Marketplaces</strong></td>
+<td>Chrome/Zoom/Teams listings (H2)</td>
+<td>Intent-rich, category-native discovery</td>
+</tr>
+<tr>
+<td><strong>Community</strong></td>
+<td>Show HN, r/productivity, PM/EM communities</td>
+<td>The no-OAuth trick is a genuinely interesting story — it earns attention on merit</td>
+</tr>
+<tr>
+<td><strong>Founder narrative</strong></td>
+<td>The 8B-over-70B tradeoff, the URL wedge</td>
+<td>Technical credibility; attracts practitioners, not just users</td>
+</tr>
+<tr>
+<td><strong>Viral loop</strong></td>
+<td>Attribution on generated artifacts (see §3)</td>
+<td>Compounds; near-zero CAC</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Positioning line:</strong> <em>"Meeting tools capture what was said. Postmeet makes sure it gets done."</em></p>
+<p><strong>Anti-promotion:</strong> don't compete on "best AI notetaker." That's the crowded lane, it invites a comparison we lose (Otter has years of ASR investment), and it re-frames us as capture — contradicting the strategy.</p>
+<hr />
+<h2 id="5-people">5. People</h2>
+<h3 id="51-the-people-who-deliver-it">5.1 The people who deliver it</h3>
+<div class="tablewrap"><table>
+<thead>
+<tr>
+<th>Role</th>
+<th>Why needed</th>
+<th>When</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>PM</strong> (me)</td>
+<td>Discovery, prioritisation, evals, the H2/H3 call</td>
+<td>Now</td>
+</tr>
+<tr>
+<td><strong>Full-stack eng</strong> ×2</td>
+<td>Extension + notetaker are real engineering</td>
+<td>H2</td>
+</tr>
+<tr>
+<td><strong>Product designer</strong></td>
+<td>Board UX is the trust surface; distribution must be unmissable</td>
+<td>H2</td>
+</tr>
+<tr>
+<td><strong>ML/AI eng</strong></td>
+<td>Eval harness, fine-tuning on the correction corpus</td>
+<td>H2/H3</td>
+</tr>
+<tr>
+<td><strong>DevRel / content</strong></td>
+<td>PLG demands content, not sales headcount</td>
+<td>H2</td>
+</tr>
+<tr>
+<td><strong>Support</strong></td>
+<td>In-app + docs; the <a href="04-user-guide.html">User Guide</a> is tier-0 deflection</td>
+<td>H2</td>
+</tr>
+</tbody>
+</table></div>
+<p>Deliberately <strong>no sales team</strong> pre-H3. Hiring sellers into a PLG motion before PMF is how bottom-up products die.</p>
+<h3 id="52-the-people-who-receive-it">5.2 The people who receive it</h3>
+<p><strong>Marcus (the assignee) is a service touchpoint, not a bystander.</strong> He experiences Postmeet purely through an artifact he didn't ask for. If that invite is wrong — wrong date, wrong owner, a task he never agreed to — the damage lands on <em>Priya's</em> credibility, not ours, and she stops using it.</p>
+<p><strong>That is precisely why precision is weighted over recall</strong> (<a href="05-research-plan.html#52-metrics">Research §5.2</a>): the person most exposed to an AI error is the one with the least context to catch it.</p>
+<hr />
+<h2 id="6-process">6. Process</h2>
+<p><strong>Delivery process (how value reaches the user):</strong></p>
+<pre><code>Land (no signup) → Sample or paste → Extract (~2.5s) → Review &amp; edit ← human checkpoint
+                                                            ↓
+                                              One-click distribute → user clicks Save/Send
+</code></pre>
+<p>Exactly <strong>one required decision</strong> (what to paste) before value. Everything else is optional.</p>
+<div class="tablewrap"><table>
+<thead>
+<tr>
+<th>Process</th>
+<th>Design choice</th>
+<th>Rationale</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Onboarding</strong></td>
+<td>None. Samples replace a tutorial.</td>
+<td>A tutorial is an admission the product isn't obvious</td>
+</tr>
+<tr>
+<td><strong>Failure</strong></td>
+<td>Human-readable errors, never a stack trace; auto-fallback on model failure</td>
+<td>Errors are a service moment; a crash is a churn event</td>
+</tr>
+<tr>
+<td><strong>Human checkpoint</strong></td>
+<td>Everything editable; <strong>nothing auto-sends</strong></td>
+<td>Trust + the source of flywheel data</td>
+</tr>
+<tr>
+<td><strong>Support</strong></td>
+<td>Self-serve docs → in-app → email</td>
+<td>Matches a $0–12/mo price point</td>
+</tr>
+<tr>
+<td><strong>Feedback → product</strong></td>
+<td>Corrections are logged as signal, not just UI state</td>
+<td>The process <em>is</em> the flywheel</td>
+</tr>
+<tr>
+<td><strong>Privacy</strong></td>
+<td>Stateless by default</td>
+<td>Removes the objection instead of answering it</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>The process insight:</strong> the human checkpoint looks like a <em>limitation</em> ("why doesn't it just send?") but is simultaneously the trust mechanism <strong>and</strong> the data-collection mechanism. One design decision serving three purposes is a sign the strategy is coherent.</p>
+<hr />
+<h2 id="7-physical-evidence">7. Physical Evidence</h2>
+<p>For a service, "physical evidence" = the tangible proof the value is real. Postmeet's evidence is unusually strong because <strong>its output lives in other people's tools.</strong></p>
+<div class="tablewrap"><table>
+<thead>
+<tr>
+<th>Evidence</th>
+<th>Signal</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>The board</strong></td>
+<td>Structured, owned, dated — visibly not just a summary</td>
+</tr>
+<tr>
+<td><strong>"Extracted in 2.8s · 5 action items · 1 decision"</strong></td>
+<td>Speed and value, stated as fact</td>
+</tr>
+<tr>
+<td><strong>The Google Calendar invite</strong></td>
+<td><em>The</em> proof point — a real invite in a real calendar. Indistinguishable from a native integration.</td>
+</tr>
+<tr>
+<td><strong>The Gmail draft</strong></td>
+<td>Formatted, per-person, human-readable</td>
+</tr>
+<tr>
+<td><strong>The MoM</strong></td>
+<td>A shareable artifact with a life beyond the app</td>
+</tr>
+<tr>
+<td><strong>Honest stats</strong> (~2.5s · 0 OAuth scopes · 100% coverage)</td>
+<td>Credibility through verifiable facts — <em>replaced fabricated usage counts, deliberately</em></td>
+</tr>
+<tr>
+<td><strong>Open-source repo, green CI</strong></td>
+<td>Engineering rigor is public and checkable</td>
+</tr>
+<tr>
+<td><strong>The 40s cold start</strong></td>
+<td>⚠️ <strong>Negative evidence</strong> — the free tier's first impression. Mitigated by a keep-warm ping; a paid host is the real fix.</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>The strategic point:</strong> the calendar invite is the strongest evidence we have <em>and</em> our distribution channel <em>and</em> our viral loop. Same artifact, three jobs. That's what a coherent mix looks like — and it's why "Physical Evidence" isn't a box-ticking exercise here.</p>
+<hr />
+<h2 id="8-coherence-check">8. Coherence check</h2>
+<p>The mix is only as good as its consistency with the strategy. Auditing:</p>
+<div class="tablewrap"><table>
+<thead>
+<tr>
+<th>P</th>
+<th>Serves "last mile + zero setup"?</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Product</td>
+<td>✅ Distribution is the core; setup removed by construction</td>
+</tr>
+<tr>
+<td>Price</td>
+<td>✅ Free extraction; charge to remove <em>remaining</em> friction</td>
+</tr>
+<tr>
+<td>Place</td>
+<td>✅ Zero-install web; recipients as a latent channel</td>
+</tr>
+<tr>
+<td>Promotion</td>
+<td>✅ PLG — the demo is the pitch; explicitly refuses the capture fight</td>
+</tr>
+<tr>
+<td>People</td>
+<td>✅ No sales pre-PMF; assignee treated as a touchpoint</td>
+</tr>
+<tr>
+<td>Process</td>
+<td>✅ One decision to value; human checkpoint = trust + data</td>
+</tr>
+<tr>
+<td>Physical Evidence</td>
+<td>✅ A real calendar invite proves it better than any landing page</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>No P contradicts the strategy</strong> — and where one nearly did (per-meeting pricing would tax the core loop; native OAuth integration would delete the wedge), it was rejected on those grounds. Consistency across all seven is the actual output of this analysis; the individual boxes are just how you get there.</p>
+<p><strong>Weakest link:</strong> Place. We're not yet using the recipient loop — the cheapest growth lever we own.</p>
+<hr />
+<p><em>Next: <a href="08-development-execution.html">Development &amp; Execution →</a></em></p>
+</main>
+
+<nav class="docnav">
+<a class="prev" href="06-methodology.html"><span class="k">← Previous</span><span class="v">Methodology</span></a>
+<a class="next" href="08-development-execution.html"><span class="k">Next →</span><span class="v">Development & Execution</span></a>
+</nav>
+
+<script>
+  var tb=document.getElementById('themebtn'), root=document.documentElement;
+  tb.onclick=function(){
+    var t=root.getAttribute('data-theme');
+    var next=t==='dark'?'light':'dark';
+    root.setAttribute('data-theme',next);
+    tb.textContent=(next==='dark'?'☾':'☀');
+  };
+</script>
+</body>
+</html>

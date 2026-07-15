@@ -30,13 +30,13 @@ Meeting commitments get forgotten because they live in someone's notes. Postmeet
 
 ## The product-management case study
 
-The full PM record behind this product — **[read it here](https://shubham-33.github.io/postmeet/case-study/)** (or [browse on GitHub](docs/case-study/)):
+The full PM record behind this product — **[read it here](https://shubham-33.github.io/postmeet/case-study/)** (source `.md` files: [docs/case-study/](docs/case-study/)):
 
 | Phase | Documents |
 |---|---|
-| **Ideation** | [Product Vision](docs/case-study/01-product-vision.md) · [MRD](docs/case-study/02-mrd.md) · [PRD](docs/case-study/03-prd.md) · [User Guide](docs/case-study/04-user-guide.md) |
-| **Planning & Strategy** | [Research Plan](docs/case-study/05-research-plan.md) · [Methodology](docs/case-study/06-methodology.md) · [7P Analysis](docs/case-study/07-7p-analysis.md) |
-| **Development & Execution** | [Development & ADRs](docs/case-study/08-development-execution.md) · [Launch Plan](docs/case-study/09-launch-plan.md) · [Post-Launch](docs/case-study/10-post-launch.md) |
+| **Ideation** | [Product Vision](https://shubham-33.github.io/postmeet/case-study/01-product-vision.html) · [MRD](https://shubham-33.github.io/postmeet/case-study/02-mrd.html) · [PRD](https://shubham-33.github.io/postmeet/case-study/03-prd.html) · [User Guide](https://shubham-33.github.io/postmeet/case-study/04-user-guide.html) |
+| **Planning & Strategy** | [Research Plan](https://shubham-33.github.io/postmeet/case-study/05-research-plan.html) · [Methodology](https://shubham-33.github.io/postmeet/case-study/06-methodology.html) · [7P Analysis](https://shubham-33.github.io/postmeet/case-study/07-7p-analysis.html) |
+| **Development & Execution** | [Development & ADRs](https://shubham-33.github.io/postmeet/case-study/08-development-execution.html) · [Launch Plan](https://shubham-33.github.io/postmeet/case-study/09-launch-plan.html) · [Post-Launch](https://shubham-33.github.io/postmeet/case-study/10-post-launch.html) |
 
 They're real working documents — including the decisions that were wrong, the metric that shipped unmeasured, and the assumptions still waiting on evidence.
 
@@ -75,7 +75,7 @@ cd web && pip install -r requirements-dev.txt && pytest      # 69 tests, 100% co
 | [`web/templates/`](web/templates/), [`web/static/`](web/static/) | Flask single-page UI (editorial theme, inline editing, drag-drop) |
 | [`web/tests/`](web/tests/) | pytest suite (`test_app.py`, `test_links.py`) |
 | [`web/deploy.sh`](web/deploy.sh) | One-shot Cloud Run deploy |
-| [`docs/case-study/`](docs/case-study/) | **The full PM case study** — Vision, MRD, PRD, User Guide, Research Plan, Methodology, 7P, ADRs, Launch & Post-Launch |
+| [`docs/case-study/`](https://shubham-33.github.io/postmeet/case-study/) | **The full PM case study** — Vision, MRD, PRD, User Guide, Research Plan, Methodology, 7P, ADRs, Launch & Post-Launch |
 | [`web/README.md`](web/README.md) | Deeper technical notes, architecture, and rubric mapping |
 
 ## Deploy your own (free)

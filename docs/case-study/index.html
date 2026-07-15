@@ -78,6 +78,14 @@
   a.card .go{display:inline-block;margin-top:.7rem;font-family:var(--font-mono);font-size:.74rem;color:var(--faint)}
   a.card:hover .go{color:var(--accent)}
 
+  .shotlink{display:block;position:relative;border:1px solid var(--line);border-radius:8px;overflow:hidden;
+    background:var(--panel);box-shadow:0 10px 34px var(--shadow);transition:border-color .15s,transform .15s}
+  .shotlink:hover,.shotlink:focus-visible{border-color:var(--accent);transform:translateY(-3px);outline:none}
+  .shotlink img{display:block;width:100%}
+  .shotcta{position:absolute;right:.9rem;bottom:.9rem;font-family:var(--font-mono);font-size:.76rem;
+    background:var(--accent);color:#fff;padding:.5rem .9rem;border-radius:4px;box-shadow:0 4px 14px var(--shadow)}
+  .shotcap{font-family:var(--font-mono);font-size:.74rem;color:var(--faint);margin:.8rem 0 0}
+
   .pull{font-family:var(--font-serif);font-style:italic;font-size:clamp(1.1rem,2.1vw,1.45rem);
     line-height:1.35;color:var(--ink);border-left:2px solid var(--accent);padding-left:1.2rem;margin:2.2rem 0 0;max-width:60ch}
 
@@ -113,8 +121,8 @@
     <div class="note">
       <b>How to read this.</b> These are real working documents, not a highlight reel — they include the decisions I got
       wrong, the metric I failed to instrument, and the assumptions still waiting on evidence. If you only read two:
-      the <a href="https://github.com/Shubham-33/postmeet/blob/main/docs/case-study/03-prd.md">PRD</a> (for how I specify
-      an AI feature) and <a href="https://github.com/Shubham-33/postmeet/blob/main/docs/case-study/10-post-launch.md">Post-Launch</a>
+      the <a href="03-prd.html">PRD</a> (for how I specify
+      an AI feature) and <a href="10-post-launch.html">Post-Launch</a>
       (for how I judge my own work).
     </div>
   </div>
@@ -122,26 +130,41 @@
 
 <section class="phase">
   <div class="wrap">
+    <div class="phead"><span class="pnum">THE PRODUCT</span><h2>What we're actually talking about</h2></div>
+    <p class="psub">Paste a transcript → get owned, dated action items → push each one to that person's calendar
+      and inbox in a single click. No account, no OAuth, ~2.5 seconds. <strong>Click the screenshot to try it live.</strong></p>
+    <a class="shotlink" href="https://postmeet.onrender.com/" target="_blank" rel="noopener"
+       aria-label="Open the live Postmeet app in a new tab">
+      <img src="../postmeet-screenshot.png" width="2880" height="2200"
+        alt="Postmeet in use: a pasted meeting transcript, an extracted summary with bulk-distribute buttons, and a board with one column per owner — each action-item card showing task, due date, email, and one-click Calendar and Email buttons">
+      <span class="shotcta">Try it live ↗</span>
+    </a>
+    <p class="shotcap">Real output from the live app — extracted in ~2.8s: summary, decisions, and one column per owner.</p>
+  </div>
+</section>
+
+<section class="phase">
+  <div class="wrap">
     <div class="phead"><span class="pnum">PHASE 01</span><h2>Ideation</h2></div>
     <p class="psub">What are we building, for whom, and why is it worth doing? From a vision statement down to a
       buildable spec — plus the manual a real user would read.</p>
     <div class="cards">
-      <a class="card" href="https://github.com/Shubham-33/postmeet/blob/main/docs/case-study/01-product-vision.md">
+      <a class="card" href="01-product-vision.html">
         <span class="t">Document 01</span><h3>Product Vision</h3>
         <p>Positioning statement, the core insight (friction beats intelligence), north-star metric, three-horizon vision, the data-flywheel moat, and explicit non-goals.</p>
         <span class="go">Read →</span>
       </a>
-      <a class="card" href="https://github.com/Shubham-33/postmeet/blob/main/docs/case-study/02-mrd.md">
+      <a class="card" href="02-mrd.html">
         <span class="t">Document 02</span><h3>MRD — Market Requirements</h3>
         <p>Market problem &amp; evidence, TAM/SAM/SOM with every assumption labelled, personas, the competitive map, the honest platform-native risk, and 11 numbered market requirements.</p>
         <span class="go">Read →</span>
       </a>
-      <a class="card" href="https://github.com/Shubham-33/postmeet/blob/main/docs/case-study/03-prd.md">
+      <a class="card" href="03-prd.html">
         <span class="t">Document 03</span><h3>PRD — Product Requirements</h3>
         <p>Goals, metric tree, user stories, 24 functional requirements — plus a full <em>AI requirements</em> section: model, output contract, guardrails, and evaluation criteria.</p>
         <span class="go">Read →</span>
       </a>
-      <a class="card" href="https://github.com/Shubham-33/postmeet/blob/main/docs/case-study/04-user-guide.md">
+      <a class="card" href="04-user-guide.html">
         <span class="t">Document 04</span><h3>User Guide &amp; Manual</h3>
         <p>Quick start, all three input modes, distributing, how the no-OAuth trick works, privacy answers, troubleshooting table, FAQ, and honest known limitations.</p>
         <span class="go">Read →</span>
@@ -155,17 +178,17 @@
     <div class="phead"><span class="pnum">PHASE 02</span><h2>Planning &amp; Strategy</h2></div>
     <p class="psub">How do we find out if we're right, how will we work, and how does the product reach a market?</p>
     <div class="cards">
-      <a class="card" href="https://github.com/Shubham-33/postmeet/blob/main/docs/case-study/05-research-plan.md">
+      <a class="card" href="05-research-plan.html">
         <span class="t">Document 05</span><h3>Research Plan</h3>
         <p>Eight research questions ranked by decision risk. JTBD guides with anti-bias rules, diary study, fake doors, the analytics taxonomy, and the golden eval set. Every study bound to a decision.</p>
         <span class="go">Read →</span>
       </a>
-      <a class="card" href="https://github.com/Shubham-33/postmeet/blob/main/docs/case-study/06-methodology.md">
+      <a class="card" href="06-methodology.html">
         <span class="t">Document 06</span><h3>Methodology</h3>
         <p>Dual-track Agile, Lean loops, why Kanban over Scrum <em>here</em>, RICE with a worked table, MoSCoW, OKRs — and eval-driven development, the gate standard Agile lacks.</p>
         <span class="go">Read →</span>
       </a>
-      <a class="card" href="https://github.com/Shubham-33/postmeet/blob/main/docs/case-study/07-7p-analysis.md">
+      <a class="card" href="07-7p-analysis.html">
         <span class="t">Document 07</span><h3>7P Analysis</h3>
         <p>Product · Price · Place · Promotion · People · Process · Physical Evidence — each audited against one strategy, including the pricing model and the untapped recipient loop.</p>
         <span class="go">Read →</span>
@@ -179,17 +202,17 @@
     <div class="phead"><span class="pnum">PHASE 03</span><h2>Development &amp; Execution</h2></div>
     <p class="psub">What actually got built, how it was launched, and what the evidence says now.</p>
     <div class="cards">
-      <a class="card" href="https://github.com/Shubham-33/postmeet/blob/main/docs/case-study/08-development-execution.md">
+      <a class="card" href="08-development-execution.html">
         <span class="t">Document 08</span><h3>Development &amp; Execution</h3>
         <p>Architecture, four ADRs (incl. shipping the <em>smaller</em> model on purpose), the quality strategy, the deployment detour that taught the most, and a candid "what I'd do differently".</p>
         <span class="go">Read →</span>
       </a>
-      <a class="card" href="https://github.com/Shubham-33/postmeet/blob/main/docs/case-study/09-launch-plan.md">
+      <a class="card" href="09-launch-plan.html">
         <span class="t">Document 09</span><h3>Launch Plan</h3>
         <p>Staged alpha → beta → public → scale, each with an entry gate and a kill criterion. GTM, the launch checklist (with its blockers still marked red), and the trust-incident protocol.</p>
         <span class="go">Read →</span>
       </a>
-      <a class="card" href="https://github.com/Shubham-33/postmeet/blob/main/docs/case-study/10-post-launch.md">
+      <a class="card" href="10-post-launch.html">
         <span class="t">Document 10</span><h3>Post-Launch</h3>
         <p>The metric dashboard, the vanity metrics deliberately excluded, the correction flywheel, incident response for trust, the iteration plan — and an honest scorecard with three red rows.</p>
         <span class="go">Read →</span>

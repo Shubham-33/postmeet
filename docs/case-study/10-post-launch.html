@@ -1,0 +1,547 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Post-Launch — Postmeet Case Study</title>
+<meta name="description" content="Post-Launch — part of the Postmeet product-management case study by Shubham Mittal.">
+<meta property="og:title" content="Post-Launch — Postmeet Case Study">
+<meta property="og:description" content="Post-Launch: part of an end-to-end AI product-management case study.">
+<style>
+  :root{
+    --bg:#FAFAFB; --panel:#FFFFFF; --panel-2:#F1F2F5;
+    --ink:#16181F; --muted:#5A616E; --faint:#8B919D; --line:#E4E6EB;
+    --accent:#C2410C; --accent-soft:rgba(194,65,12,.07); --accent-line:rgba(194,65,12,.28);
+    --shadow:rgba(20,22,30,.07);
+    --font-sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    --font-mono:ui-monospace,"SF Mono","JetBrains Mono",Menlo,Consolas,monospace;
+    --font-serif:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif;
+  }
+  @media (prefers-color-scheme:dark){
+    :root{ --bg:#0D0E12; --panel:#14161C; --panel-2:#1B1E26;
+      --ink:#ECEEF2; --muted:#9AA1AE; --faint:#666D7A; --line:#262A33;
+      --accent:#F2764B; --accent-soft:rgba(242,118,75,.09); --accent-line:rgba(242,118,75,.34);
+      --shadow:rgba(0,0,0,.4); }
+  }
+  :root[data-theme="dark"]{ --bg:#0D0E12; --panel:#14161C; --panel-2:#1B1E26;
+    --ink:#ECEEF2; --muted:#9AA1AE; --faint:#666D7A; --line:#262A33;
+    --accent:#F2764B; --accent-soft:rgba(242,118,75,.09); --accent-line:rgba(242,118,75,.34);
+    --shadow:rgba(0,0,0,.4); }
+  :root[data-theme="light"]{ --bg:#FAFAFB; --panel:#FFFFFF; --panel-2:#F1F2F5;
+    --ink:#16181F; --muted:#5A616E; --faint:#8B919D; --line:#E4E6EB;
+    --accent:#C2410C; --accent-soft:rgba(194,65,12,.07); --accent-line:rgba(194,65,12,.28);
+    --shadow:rgba(20,22,30,.07); }
+
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth;scroll-padding-top:5rem}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--font-sans);
+    line-height:1.68;-webkit-font-smoothing:antialiased}
+  .rule{height:3px;background:var(--accent);position:sticky;top:0;z-index:20}
+
+  .topbar{position:sticky;top:3px;z-index:19;background:color-mix(in srgb,var(--bg) 88%,transparent);
+    backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+  .topbar .in{max-width:860px;margin:0 auto;padding:.7rem clamp(1.1rem,4vw,2rem);
+    display:flex;align-items:center;justify-content:space-between;gap:1rem}
+  .crumb{font-family:var(--font-mono);font-size:.74rem;color:var(--faint);text-decoration:none;
+    display:flex;align-items:center;gap:.5rem;min-width:0}
+  .crumb:hover{color:var(--accent)}
+  .crumb b{color:var(--ink);font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .tools{display:flex;gap:.5rem;flex-shrink:0}
+  .tool{font-family:var(--font-mono);font-size:.7rem;background:var(--panel);color:var(--muted);
+    border:1px solid var(--line);border-radius:4px;padding:.32rem .6rem;cursor:pointer;text-decoration:none}
+  .tool:hover{border-color:var(--accent);color:var(--accent)}
+
+  main{max-width:860px;margin:0 auto;padding:clamp(1.8rem,5vw,3rem) clamp(1.1rem,4vw,2rem) 1rem}
+
+  /* prose */
+  main h1{font-size:clamp(1.9rem,4.4vw,2.8rem);line-height:1.1;letter-spacing:-.025em;
+    margin:0 0 1rem;font-weight:680;text-wrap:balance}
+  main h2{font-size:clamp(1.3rem,2.6vw,1.7rem);letter-spacing:-.018em;margin:2.8rem 0 .9rem;
+    padding-top:1.4rem;border-top:1px solid var(--line);font-weight:660;text-wrap:balance}
+  main h3{font-size:1.08rem;margin:1.9rem 0 .6rem;font-weight:640;letter-spacing:-.01em}
+  main h4{font-size:.95rem;margin:1.4rem 0 .5rem;font-weight:640;color:var(--muted)}
+  main p{margin:.9rem 0}
+  main ul,main ol{margin:.9rem 0;padding-left:1.4rem}
+  main li{margin:.35rem 0}
+  main li::marker{color:var(--accent)}
+  main a{color:var(--accent);text-decoration:none;border-bottom:1px solid var(--accent-line)}
+  main a:hover{border-bottom-color:var(--accent)}
+  main strong{font-weight:660;color:var(--ink)}
+  main hr{border:0;border-top:1px solid var(--line);margin:2.4rem 0}
+  main blockquote{margin:1.4rem 0;padding:.9rem 1.2rem;border-left:2px solid var(--accent);
+    background:var(--accent-soft);border-radius:0 4px 4px 0;color:var(--muted)}
+  main blockquote p{margin:.4rem 0}
+  main blockquote strong{color:var(--ink)}
+  main code{font-family:var(--font-mono);font-size:.86em;background:var(--panel-2);
+    border:1px solid var(--line);border-radius:3px;padding:.1em .38em}
+  main pre{background:var(--panel-2);border:1px solid var(--line);border-radius:6px;
+    padding:1rem 1.1rem;overflow-x:auto;margin:1.3rem 0;line-height:1.45}
+  main pre code{background:none;border:0;padding:0;font-size:.8rem}
+  .tablewrap{overflow-x:auto;margin:1.3rem 0;border:1px solid var(--line);border-radius:6px;background:var(--panel)}
+  main table{border-collapse:collapse;width:100%;font-size:.9rem}
+  main th{text-align:left;font-family:var(--font-mono);font-size:.7rem;letter-spacing:.06em;
+    text-transform:uppercase;color:var(--faint);font-weight:600;
+    padding:.7rem .9rem;border-bottom:1px solid var(--line);white-space:nowrap;background:var(--panel-2)}
+  main td{padding:.7rem .9rem;border-bottom:1px solid var(--line);vertical-align:top;color:var(--muted)}
+  main tr:last-child td{border-bottom:0}
+  main td strong{color:var(--ink)}
+  main img{max-width:100%}
+
+  .docnav{max-width:860px;margin:0 auto;padding:1rem clamp(1.1rem,4vw,2rem) 3.5rem;
+    display:flex;gap:.8rem;justify-content:space-between;border-top:1px solid var(--line)}
+  .docnav a{flex:1;text-decoration:none;border:1px solid var(--line);border-radius:6px;
+    padding:.9rem 1rem;background:var(--panel);transition:border-color .15s,transform .15s}
+  .docnav a:hover{border-color:var(--accent-line);transform:translateY(-2px)}
+  .docnav .k{font-family:var(--font-mono);font-size:.66rem;letter-spacing:.1em;
+    text-transform:uppercase;color:var(--accent);display:block}
+  .docnav .v{color:var(--ink);font-size:.95rem;font-weight:600;display:block;margin-top:.25rem}
+  .docnav .next{text-align:right}
+  @media (max-width:640px){.docnav{flex-direction:column}}
+</style>
+</head>
+<body>
+<div class="rule"></div>
+<div class="topbar"><div class="in">
+  <a class="crumb" href="./">← <span>Case study</span> · <b>Development & Execution</b></a>
+  <div class="tools">
+    <a class="tool" href="https://postmeet.onrender.com/" target="_blank" rel="noopener">Live app ↗</a>
+    <a class="tool" href="https://github.com/Shubham-33/postmeet/blob/main/docs/case-study/10-post-launch.md" target="_blank" rel="noopener">.md ↗</a>
+    <button class="tool" id="themebtn" aria-label="Toggle theme">◐</button>
+  </div>
+</div></div>
+
+<main>
+<h1 id="post-launch--operating-measuring--iterating">Post-Launch — Operating, Measuring &amp; Iterating</h1>
+<p><strong>Owner:</strong> Shubham Mittal · <strong>Status:</strong> v1.0 · <strong>Phase:</strong> Development &amp; Execution
+<strong>Related:</strong> <a href="09-launch-plan.html">Launch Plan</a> · <a href="03-prd.html">PRD</a> · <a href="05-research-plan.html">Research Plan</a> · <a href="./">Case study home</a></p>
+<hr />
+<h2 id="1-the-post-launch-job">1. The post-launch job</h2>
+<p>Launch is the <em>start</em> of the experiment, not the end of the project. The post-launch job is three things, in order:</p>
+<ol>
+<li><strong>Read the result</strong> — did the loop close?</li>
+<li><strong>Close the loop between evidence and roadmap</strong> — make the next decision on data, not momentum.</li>
+<li><strong>Protect trust</strong> — one fabricated commitment costs more than a quarter of features gains.</li>
+</ol>
+<p><strong>The trap this document exists to avoid:</strong> shipping, watching traffic go up, and calling it validation. Traffic is not the hypothesis.</p>
+<hr />
+<h2 id="2-the-measurement-dashboard">2. The measurement dashboard</h2>
+<h3 id="21-what-we-watch">2.1 What we watch</h3>
+<div class="tablewrap"><table>
+<thead>
+<tr>
+<th>Tier</th>
+<th>Metric</th>
+<th>Target</th>
+<th>Cadence</th>
+<th>Why</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>North star</strong></td>
+<td>Commitment Completion Rate</td>
+<td>—</td>
+<td>H3</td>
+<td>Not observable until we own completion state. Steer on inputs until then.</td>
+</tr>
+<tr>
+<td><strong>Primary</strong></td>
+<td><strong>Activation</strong> (extract → distribute ≥1)</td>
+<td><strong>≥25%</strong></td>
+<td>Daily</td>
+<td><em>The</em> hypothesis. Everything else is secondary.</td>
+</tr>
+<tr>
+<td>Input</td>
+<td>Time-to-value (p50)</td>
+<td>&lt;30s</td>
+<td>Weekly</td>
+<td>The wedge is speed-to-aha</td>
+</tr>
+<tr>
+<td>Input</td>
+<td>Extraction p95 latency</td>
+<td>&lt;5s</td>
+<td>Daily</td>
+<td>NFR-1; degradation is silent</td>
+</tr>
+<tr>
+<td>Input</td>
+<td>Retention (W1/W4)</td>
+<td>W4 &gt;20%</td>
+<td>Weekly</td>
+<td>One-time novelty vs. habit</td>
+</tr>
+<tr>
+<td>Input</td>
+<td>Extraction precision / recall</td>
+<td>≥0.95 / ≥0.80</td>
+<td>Per model/prompt change</td>
+<td>Trust</td>
+</tr>
+<tr>
+<td><strong>Guardrail</strong></td>
+<td>Hallucination rate</td>
+<td><strong>0</strong></td>
+<td>Per eval run</td>
+<td>Non-negotiable</td>
+</tr>
+<tr>
+<td><strong>Guardrail</strong></td>
+<td>Edit rate by field</td>
+<td>&lt;40%</td>
+<td>Weekly</td>
+<td>Free live quality signal</td>
+</tr>
+<tr>
+<td><strong>Guardrail</strong></td>
+<td>Failure rate</td>
+<td>&lt;2%</td>
+<td>Daily</td>
+<td>Reliability</td>
+</tr>
+<tr>
+<td>Business</td>
+<td>Free→Pro conversion</td>
+<td>TBD</td>
+<td>Monthly</td>
+<td>H2</td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="22-the-two-numbers-that-decide-everything">2.2 The two numbers that decide everything</h3>
+<p><strong>Activation</strong> answers <em>"is the thesis right?"</em> — and <strong>edit rate by field</strong> answers <em>"where is the model actually weak?"</em> for free, continuously, with no labelling.</p>
+<p>Edit-rate-by-field is the most underrated instrument here. If <code>owner_email</code> is corrected 60% of the time, FR-10 (email matching) is broken — and we learn that from production behaviour without commissioning a study. It's a golden eval set that users build for us, for nothing, forever.</p>
+<h3 id="23-what-we-deliberately-dont-optimise">2.3 What we deliberately don't optimise</h3>
+<div class="tablewrap"><table>
+<thead>
+<tr>
+<th>Vanity metric</th>
+<th>Why it's excluded</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Page views / signups</td>
+<td>No signup exists. Traffic ≠ value.</td>
+</tr>
+<tr>
+<td>Extractions per day</td>
+<td>Rises even if <strong>nobody distributes</strong> — i.e. it goes up while the product fails. Actively misleading.</td>
+</tr>
+<tr>
+<td>"Meetings processed" counters</td>
+<td>We literally have no database. <strong>Fabricating this number was a real mistake in v1</strong>, since corrected (<a href="08-development-execution.html#7-what-id-do-differently">Dev §7</a>).</td>
+</tr>
+<tr>
+<td>Time-in-app</td>
+<td>Perverse: less time is better. The goal is to leave fast.</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>A metric that can go up while the product fails is worse than no metric.</strong> That's the filter.</p>
+<hr />
+<h2 id="3-feedback-loops">3. Feedback loops</h2>
+<p>Four loops, running at different speeds:</p>
+<div class="tablewrap"><table>
+<thead>
+<tr>
+<th>Loop</th>
+<th>Speed</th>
+<th>Source</th>
+<th>Feeds</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Behavioural</strong></td>
+<td>Continuous</td>
+<td>Analytics: Activation, edit rate, drop-off</td>
+<td>Prioritisation</td>
+</tr>
+<tr>
+<td><strong>Corrective</strong></td>
+<td>Continuous</td>
+<td>Every user edit = a labelled correction</td>
+<td><strong>The flywheel</strong> + eval set</td>
+</tr>
+<tr>
+<td><strong>Qualitative</strong></td>
+<td>Weekly</td>
+<td>Usability sessions, churn interviews, support</td>
+<td>The <em>why</em> behind the numbers</td>
+</tr>
+<tr>
+<td><strong>Evaluative</strong></td>
+<td>Per change</td>
+<td>Golden eval set in CI</td>
+<td>Model/prompt gate</td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="31-the-corrective-loop-is-the-strategy">3.1 The corrective loop is the strategy</h3>
+<pre><code>extract → user edits before sending → correction captured (schema-identical to eval labels)
+   → eval set grows · fine-tune / few-shot on accepted output → accuracy ↑
+   → trust ↑ → more extractions → more corrections ──┐
+   └──────────────────────────────────────────────────┘
+</code></pre>
+<p>The design decision that makes this possible was made for a different reason: <strong>the human checkpoint</strong> (<a href="07-7p-analysis.html#6-process">7P §6</a>) exists for <em>trust</em>, and it turns out to also be the data-collection mechanism and the moat (<a href="01-product-vision.html#9-the-moat">Vision §9</a>). One decision, three jobs.</p>
+<p><strong>Requirement:</strong> corrections must be captured as <strong>aggregate, content-free signal</strong> (which field, was it changed, edit distance bucket) — not raw meeting text. This preserves <a href="08-development-execution.html#adr-3-stateless--no-database">ADR-3</a>'s privacy promise. Storing raw transcripts to train would trade the adoption wedge for the moat — and at H1 the wedge is worth more. Any move to content-level training requires <strong>explicit, informed opt-in.</strong> Non-negotiable.</p>
+<h3 id="32-churn-interviews--the-cohort-everyone-skips">3.2 Churn interviews — the cohort everyone skips</h3>
+<p>The most valuable users to talk to are the ones who <strong>tried it once and never came back.</strong> They are unmotivated to be polite and they know exactly what was wrong. Cadence: 3–5 per month, recruited from the beta list, asked one question — <em>"Walk me through the last time you thought about using it and didn't."</em></p>
+<hr />
+<h2 id="4-operating-cadence">4. Operating cadence</h2>
+<div class="tablewrap"><table>
+<thead>
+<tr>
+<th>Ritual</th>
+<th>Frequency</th>
+<th>Output</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Metric review</td>
+<td>Weekly, 30 min</td>
+<td>Activation trend; anything red</td>
+</tr>
+<tr>
+<td>Discovery sync</td>
+<td>Weekly</td>
+<td>What did we learn? What changes?</td>
+</tr>
+<tr>
+<td>Backlog re-rank</td>
+<td>Fortnightly</td>
+<td>RICE re-scored <strong>with new Confidence values</strong> — that's what the evidence actually buys</td>
+</tr>
+<tr>
+<td>Eval run</td>
+<td>Every prompt/model change (CI)</td>
+<td>Precision/recall delta</td>
+</tr>
+<tr>
+<td>OKR check-in</td>
+<td>Monthly</td>
+<td>Honest status, incl. ⚠️ and ⬜</td>
+</tr>
+<tr>
+<td>Retro</td>
+<td>Monthly</td>
+<td>Process changes</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Kanban, not Scrum, deliberately</strong> (<a href="06-methodology.html#5-delivery-kanban-over-scrum-for-now">Methodology §5</a>): post-launch, priorities <em>should</em> move the week evidence lands. Sprint commitments would create pressure to finish work the data has already invalidated.</p>
+<hr />
+<h2 id="5-incident-response-trust">5. Incident response: trust</h2>
+<p>Standard sev levels don't capture the failure that matters here. <strong>A fabricated commitment emailed to a real person is a P0 — even though nothing crashed and every test passes.</strong></p>
+<div class="tablewrap"><table>
+<thead>
+<tr>
+<th>Step</th>
+<th>Action</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1. Contain</td>
+<td>Pause bulk distribute (highest blast radius)</td>
+</tr>
+<tr>
+<td>2. Reproduce</td>
+<td>Recover the transcript from the reporter (with consent)</td>
+</tr>
+<tr>
+<td>3. <strong>Add to eval set</strong></td>
+<td>Every incident becomes a permanent regression test</td>
+</tr>
+<tr>
+<td>4. Fix</td>
+<td>Prompt/model change</td>
+</tr>
+<tr>
+<td>5. Verify</td>
+<td>Full eval — precision must not regress elsewhere</td>
+</tr>
+<tr>
+<td>6. Restore &amp; communicate</td>
+<td>Say what happened, plainly</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Why P0:</strong> the error lands on the <em>user's</em> credibility with their own team, not on ours. Marcus receives an invite for something he never agreed to, and Priya looks careless. <strong>We damage a relationship we're not party to</strong> — which is unrecoverable in a way an outage isn't.</p>
+<hr />
+<h2 id="6-the-iteration-plan">6. The iteration plan</h2>
+<h3 id="61-v11--make-the-experiment-readable-immediate">6.1 v1.1 — Make the experiment readable <em>(immediate)</em></h3>
+<div class="tablewrap"><table>
+<thead>
+<tr>
+<th>Priority</th>
+<th>Item</th>
+<th>Why</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>P0</strong></td>
+<td>Privacy-preserving analytics (aggregate, cookieless, content-free)</td>
+<td>Activation is currently <strong>unmeasured</strong>. Everything below is guessing until this lands. RICE: <strong>30,000</strong> — highest by 50×</td>
+</tr>
+<tr>
+<td><strong>P0</strong></td>
+<td>Golden eval set + CI harness</td>
+<td>Converts <a href="08-development-execution.html#adr-2-fast-primary-model-with-automatic-fallback">ADR-2</a> from anecdote to evidence; gates trust</td>
+</tr>
+<tr>
+<td>P1</td>
+<td>Fake doors (Zoom / Outlook / auto-join)</td>
+<td>Ranks H2 with behaviour instead of opinion</td>
+</tr>
+<tr>
+<td>P1</td>
+<td>Paid host (kill the 40s cold start)</td>
+<td>Required before public launch</td>
+</tr>
+<tr>
+<td>P2</td>
+<td>Recipient attribution loop</td>
+<td>Cheapest growth lever we own (<a href="07-7p-analysis.html#3-place-distribution">7P §3</a>)</td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="62-then--gated-on-evidence">6.2 Then — gated on evidence</h3>
+<pre><code>                  Activation ≥25%?
+                   ┌─────┴─────┐
+                 YES           NO
+                  │             │
+             Fund H2       Back to discovery
+        (auto-capture)     RQ1: is pain real?
+                  │        RQ3: is friction the blocker?
+                  ▼        → pivot the hypothesis,
+        H3: completion       DON'T tune the model
+        tracking → CCR
+</code></pre>
+<p><strong>H2 — Kill the paste step:</strong> browser extension + AI notetaker (Zoom/Teams/Meet), native Gmail/Outlook/Calendar, persistence + team workspaces. <em>Sequenced by fake-door demand, not intuition.</em></p>
+<p><strong>H3 — Own the outcome:</strong> completion tracking, proactive nudges, follow-through analytics. <strong>This is where the north star becomes measurable</strong> — and where Postmeet stops being a utility and becomes a system of record.</p>
+<hr />
+<h2 id="7-long-term-risks">7. Long-term risks</h2>
+<div class="tablewrap"><table>
+<thead>
+<tr>
+<th>Risk</th>
+<th>Watch</th>
+<th>Response</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Platform-native ships the last mile</strong> (Copilot/Zoom)</td>
+<td>Their release notes</td>
+<td>Cross-platform + flywheel; accelerate H2/H3. <strong>The existential one</strong> (<a href="02-mrd.html#53-the-honest-competitive-risk">MRD §5.3</a>)</td>
+</tr>
+<tr>
+<td>Flywheel doesn't produce usable signal</td>
+<td>Correction volume/quality</td>
+<td>If it fails, <strong>this is a feature, not a company</strong> — say so honestly and act</td>
+</tr>
+<tr>
+<td>Free tier cannibalises conversion</td>
+<td>Free→Pro rate</td>
+<td>Gate on friction removal, never on extraction</td>
+</tr>
+<tr>
+<td>Google changes the URL specs</td>
+<td>Distribution failure rate</td>
+<td>H2 native APIs are the structural hedge</td>
+</tr>
+<tr>
+<td>Model costs scale badly</td>
+<td>$/extraction</td>
+<td>8B is already ~free; fine-tuned small models get cheaper</td>
+</tr>
+</tbody>
+</table></div>
+<hr />
+<h2 id="8-honest-scorecard">8. Honest scorecard</h2>
+<div class="tablewrap"><table>
+<thead>
+<tr>
+<th>Dimension</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Core loop works, live, publicly</td>
+<td>✅</td>
+</tr>
+<tr>
+<td>Fast, reliable, graceful (~2.5s, fallback)</td>
+<td>✅</td>
+</tr>
+<tr>
+<td>Engineering quality (69 tests, 100%, green CI)</td>
+<td>✅</td>
+</tr>
+<tr>
+<td>Trust guardrails designed in</td>
+<td>✅</td>
+</tr>
+<tr>
+<td>Privacy stance genuinely honest</td>
+<td>✅</td>
+</tr>
+<tr>
+<td>Honest, verifiable stats (fabricated ones removed)</td>
+<td>✅</td>
+</tr>
+<tr>
+<td><strong>Primary hypothesis measured</strong></td>
+<td>🔴 <strong>No — the biggest gap</strong></td>
+</tr>
+<tr>
+<td><strong>Model quality formally evaluated</strong></td>
+<td>🔴 <strong>No — spot-checked only</strong></td>
+</tr>
+<tr>
+<td>Problem validated with first-party research</td>
+<td>🔴 No — borrowed vendor stat</td>
+</tr>
+<tr>
+<td>Monetisation tested</td>
+<td>⬜ Not started</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>The candid read:</strong> v1 is a <strong>well-built product and an incomplete experiment.</strong> It proves I can ship something reliable, tasteful and honest — and the three red rows prove exactly where I'd start on Monday. A case study that showed all green would be less credible, not more.</p>
+<hr />
+<h2 id="9-what-i-learned">9. What I learned</h2>
+<ol>
+<li><strong>Reliability beats intelligence at the point of use.</strong> The 46s→2.5s decision did more for the product than any model upgrade could. Users experience <em>latency</em>; they only infer <em>quality</em>.</li>
+<li><strong>Ship the read-out with the experiment.</strong> A Lean loop without instrumentation is just building. This was v1's real mistake — not a technical one, a methodological one.</li>
+<li><strong>Deterministic tests can't see a lying model.</strong> 100% coverage and a fabricated action item coexist happily. AI products need a second, probabilistic gate.</li>
+<li><strong>Honest numbers beat impressive ones.</strong> Replacing "12,847 meetings processed" with "~2.5s · 0 OAuth scopes" made the product <em>more</em> persuasive and removed a question I couldn't have answered.</li>
+<li><strong>Verify the artifact from a stranger's client.</strong> A login wall made a "shipped" demo unreachable — and Streamlit's own apps proved it wasn't my config.</li>
+<li><strong>The best decisions serve several goals at once.</strong> The human checkpoint = trust + data + the moat. When one choice does three jobs, the strategy is probably coherent.</li>
+</ol>
+<hr />
+<p><em>Back to: <a href="./">Case study home</a> · <a href="01-product-vision.html">Vision</a> · <a href="02-mrd.html">MRD</a> · <a href="03-prd.html">PRD</a></em></p>
+</main>
+
+<nav class="docnav">
+<a class="prev" href="09-launch-plan.html"><span class="k">← Previous</span><span class="v">Launch Plan</span></a>
+<span></span>
+</nav>
+
+<script>
+  var tb=document.getElementById('themebtn'), root=document.documentElement;
+  tb.onclick=function(){
+    var t=root.getAttribute('data-theme');
+    var next=t==='dark'?'light':'dark';
+    root.setAttribute('data-theme',next);
+    tb.textContent=(next==='dark'?'☾':'☀');
+  };
+</script>
+</body>
+</html>

@@ -1,0 +1,467 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Launch Plan — Postmeet Case Study</title>
+<meta name="description" content="Launch Plan — part of the Postmeet product-management case study by Shubham Mittal.">
+<meta property="og:title" content="Launch Plan — Postmeet Case Study">
+<meta property="og:description" content="Launch Plan: part of an end-to-end AI product-management case study.">
+<style>
+  :root{
+    --bg:#FAFAFB; --panel:#FFFFFF; --panel-2:#F1F2F5;
+    --ink:#16181F; --muted:#5A616E; --faint:#8B919D; --line:#E4E6EB;
+    --accent:#C2410C; --accent-soft:rgba(194,65,12,.07); --accent-line:rgba(194,65,12,.28);
+    --shadow:rgba(20,22,30,.07);
+    --font-sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    --font-mono:ui-monospace,"SF Mono","JetBrains Mono",Menlo,Consolas,monospace;
+    --font-serif:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif;
+  }
+  @media (prefers-color-scheme:dark){
+    :root{ --bg:#0D0E12; --panel:#14161C; --panel-2:#1B1E26;
+      --ink:#ECEEF2; --muted:#9AA1AE; --faint:#666D7A; --line:#262A33;
+      --accent:#F2764B; --accent-soft:rgba(242,118,75,.09); --accent-line:rgba(242,118,75,.34);
+      --shadow:rgba(0,0,0,.4); }
+  }
+  :root[data-theme="dark"]{ --bg:#0D0E12; --panel:#14161C; --panel-2:#1B1E26;
+    --ink:#ECEEF2; --muted:#9AA1AE; --faint:#666D7A; --line:#262A33;
+    --accent:#F2764B; --accent-soft:rgba(242,118,75,.09); --accent-line:rgba(242,118,75,.34);
+    --shadow:rgba(0,0,0,.4); }
+  :root[data-theme="light"]{ --bg:#FAFAFB; --panel:#FFFFFF; --panel-2:#F1F2F5;
+    --ink:#16181F; --muted:#5A616E; --faint:#8B919D; --line:#E4E6EB;
+    --accent:#C2410C; --accent-soft:rgba(194,65,12,.07); --accent-line:rgba(194,65,12,.28);
+    --shadow:rgba(20,22,30,.07); }
+
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth;scroll-padding-top:5rem}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--font-sans);
+    line-height:1.68;-webkit-font-smoothing:antialiased}
+  .rule{height:3px;background:var(--accent);position:sticky;top:0;z-index:20}
+
+  .topbar{position:sticky;top:3px;z-index:19;background:color-mix(in srgb,var(--bg) 88%,transparent);
+    backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+  .topbar .in{max-width:860px;margin:0 auto;padding:.7rem clamp(1.1rem,4vw,2rem);
+    display:flex;align-items:center;justify-content:space-between;gap:1rem}
+  .crumb{font-family:var(--font-mono);font-size:.74rem;color:var(--faint);text-decoration:none;
+    display:flex;align-items:center;gap:.5rem;min-width:0}
+  .crumb:hover{color:var(--accent)}
+  .crumb b{color:var(--ink);font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .tools{display:flex;gap:.5rem;flex-shrink:0}
+  .tool{font-family:var(--font-mono);font-size:.7rem;background:var(--panel);color:var(--muted);
+    border:1px solid var(--line);border-radius:4px;padding:.32rem .6rem;cursor:pointer;text-decoration:none}
+  .tool:hover{border-color:var(--accent);color:var(--accent)}
+
+  main{max-width:860px;margin:0 auto;padding:clamp(1.8rem,5vw,3rem) clamp(1.1rem,4vw,2rem) 1rem}
+
+  /* prose */
+  main h1{font-size:clamp(1.9rem,4.4vw,2.8rem);line-height:1.1;letter-spacing:-.025em;
+    margin:0 0 1rem;font-weight:680;text-wrap:balance}
+  main h2{font-size:clamp(1.3rem,2.6vw,1.7rem);letter-spacing:-.018em;margin:2.8rem 0 .9rem;
+    padding-top:1.4rem;border-top:1px solid var(--line);font-weight:660;text-wrap:balance}
+  main h3{font-size:1.08rem;margin:1.9rem 0 .6rem;font-weight:640;letter-spacing:-.01em}
+  main h4{font-size:.95rem;margin:1.4rem 0 .5rem;font-weight:640;color:var(--muted)}
+  main p{margin:.9rem 0}
+  main ul,main ol{margin:.9rem 0;padding-left:1.4rem}
+  main li{margin:.35rem 0}
+  main li::marker{color:var(--accent)}
+  main a{color:var(--accent);text-decoration:none;border-bottom:1px solid var(--accent-line)}
+  main a:hover{border-bottom-color:var(--accent)}
+  main strong{font-weight:660;color:var(--ink)}
+  main hr{border:0;border-top:1px solid var(--line);margin:2.4rem 0}
+  main blockquote{margin:1.4rem 0;padding:.9rem 1.2rem;border-left:2px solid var(--accent);
+    background:var(--accent-soft);border-radius:0 4px 4px 0;color:var(--muted)}
+  main blockquote p{margin:.4rem 0}
+  main blockquote strong{color:var(--ink)}
+  main code{font-family:var(--font-mono);font-size:.86em;background:var(--panel-2);
+    border:1px solid var(--line);border-radius:3px;padding:.1em .38em}
+  main pre{background:var(--panel-2);border:1px solid var(--line);border-radius:6px;
+    padding:1rem 1.1rem;overflow-x:auto;margin:1.3rem 0;line-height:1.45}
+  main pre code{background:none;border:0;padding:0;font-size:.8rem}
+  .tablewrap{overflow-x:auto;margin:1.3rem 0;border:1px solid var(--line);border-radius:6px;background:var(--panel)}
+  main table{border-collapse:collapse;width:100%;font-size:.9rem}
+  main th{text-align:left;font-family:var(--font-mono);font-size:.7rem;letter-spacing:.06em;
+    text-transform:uppercase;color:var(--faint);font-weight:600;
+    padding:.7rem .9rem;border-bottom:1px solid var(--line);white-space:nowrap;background:var(--panel-2)}
+  main td{padding:.7rem .9rem;border-bottom:1px solid var(--line);vertical-align:top;color:var(--muted)}
+  main tr:last-child td{border-bottom:0}
+  main td strong{color:var(--ink)}
+  main img{max-width:100%}
+
+  .docnav{max-width:860px;margin:0 auto;padding:1rem clamp(1.1rem,4vw,2rem) 3.5rem;
+    display:flex;gap:.8rem;justify-content:space-between;border-top:1px solid var(--line)}
+  .docnav a{flex:1;text-decoration:none;border:1px solid var(--line);border-radius:6px;
+    padding:.9rem 1rem;background:var(--panel);transition:border-color .15s,transform .15s}
+  .docnav a:hover{border-color:var(--accent-line);transform:translateY(-2px)}
+  .docnav .k{font-family:var(--font-mono);font-size:.66rem;letter-spacing:.1em;
+    text-transform:uppercase;color:var(--accent);display:block}
+  .docnav .v{color:var(--ink);font-size:.95rem;font-weight:600;display:block;margin-top:.25rem}
+  .docnav .next{text-align:right}
+  @media (max-width:640px){.docnav{flex-direction:column}}
+</style>
+</head>
+<body>
+<div class="rule"></div>
+<div class="topbar"><div class="in">
+  <a class="crumb" href="./">← <span>Case study</span> · <b>Development & Execution</b></a>
+  <div class="tools">
+    <a class="tool" href="https://postmeet.onrender.com/" target="_blank" rel="noopener">Live app ↗</a>
+    <a class="tool" href="https://github.com/Shubham-33/postmeet/blob/main/docs/case-study/09-launch-plan.md" target="_blank" rel="noopener">.md ↗</a>
+    <button class="tool" id="themebtn" aria-label="Toggle theme">◐</button>
+  </div>
+</div></div>
+
+<main>
+<h1 id="launch-plan--postmeet">Launch Plan — Postmeet</h1>
+<p><strong>Owner:</strong> Shubham Mittal · <strong>Status:</strong> v1 launched (public demo) · <strong>Phase:</strong> Development &amp; Execution
+<strong>Related:</strong> <a href="07-7p-analysis.html">7P Analysis</a> · <a href="10-post-launch.html">Post-Launch</a> · <a href="05-research-plan.html">Research Plan</a> · <a href="./">Case study home</a></p>
+<hr />
+<h2 id="1-launch-philosophy">1. Launch philosophy</h2>
+<p><strong>This is not a "big bang" launch, and it shouldn't be.</strong> Postmeet v1 is an experiment with a kill criterion (<a href="02-mrd.html#10-recommendation">MRD §10</a>). Driving traffic to an unvalidated product wastes the scarcest resource a new product has: <strong>the first impression of people who would have been your best users.</strong></p>
+<p>So the launch is staged, and <strong>each stage has an entry gate, a learning goal, and an exit criterion.</strong> A stage that fails its gate does not proceed — it loops back.</p>
+<blockquote>
+<p><strong>Governing rule:</strong> don't scale distribution until the loop is proven. Amplifying a broken funnel just burns the audience faster.</p>
+</blockquote>
+<hr />
+<h2 id="2-launch-stages">2. Launch stages</h2>
+<pre><code>  ALPHA          PRIVATE BETA        PUBLIC LAUNCH        SCALE
+  n≈5            n≈30–50             open                 marketplaces
+  ─────────      ────────────        ─────────────        ─────────────
+  Does it        Does the loop       Can it survive       Can it grow
+  work at all?   close? (RQ2)        strangers?           without us?
+       │              │                    │                   │
+       ▼              ▼                    ▼                   ▼
+  gate: P0s     gate: Activation     gate: reliability    gate: retention
+  pass          ≥25% + precision     + no trust incident  + conversion
+                ≥0.95
+</code></pre>
+<h3 id="stage-0--alpha-complete">Stage 0 — Alpha <em>(complete)</em></h3>
+<div class="tablewrap"><table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Audience</strong></td>
+<td>Me + ~5 friendly testers</td>
+</tr>
+<tr>
+<td><strong>Goal</strong></td>
+<td>Does the core loop function on real transcripts?</td>
+</tr>
+<tr>
+<td><strong>Exit criteria</strong></td>
+<td>✅ All P0 stories pass · ✅ p95 &lt;5s · ✅ zero stack traces on failure paths · ✅ publicly reachable with no login</td>
+</tr>
+<tr>
+<td><strong>Learned</strong></td>
+<td>Reliability, not quality, was the binding constraint (<a href="08-development-execution.html#adr-2-fast-primary-model-with-automatic-fallback">ADR-2</a>). Hosting must be verified from an <em>unauthenticated</em> client (<a href="08-development-execution.html#the-deployment-detour--a-real-execution-lesson">the Streamlit detour</a>).</td>
+</tr>
+<tr>
+<td><strong>Status</strong></td>
+<td>✅ Done — <a href="https://postmeet.onrender.com/">live</a></td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="stage-1--private-beta-next--currently-blocked">Stage 1 — Private beta <em>(next — currently blocked)</em></h3>
+<div class="tablewrap"><table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Audience</strong></td>
+<td>30–50 meeting-heavy leads: JTBD interviewees, PM/EM communities, personal network</td>
+</tr>
+<tr>
+<td><strong>Entry gate</strong></td>
+<td>🔴 <strong>BLOCKED on analytics instrumentation.</strong> Running a beta whose primary metric is unmeasurable is theatre.</td>
+</tr>
+<tr>
+<td><strong>Goal</strong></td>
+<td><strong>RQ2</strong> — does the loop actually close? Plus RQ4, RQ6.</td>
+</tr>
+<tr>
+<td><strong>Duration</strong></td>
+<td>4 weeks</td>
+</tr>
+<tr>
+<td><strong>Instrumentation required</strong></td>
+<td>Activation · time-to-value · edit rate by field · failure rate (<a href="05-research-plan.html#41-product-analytics--the-cheapest-and-most-important">Research §4.1</a>)</td>
+</tr>
+<tr>
+<td><strong>Qual alongside</strong></td>
+<td>5–8 think-aloud sessions; exit survey; <strong>churn interviews with people who tried once and never returned</strong> — the most informative cohort and the one everyone forgets to talk to</td>
+</tr>
+<tr>
+<td><strong>Exit criteria</strong></td>
+<td><strong>Activation ≥25%</strong> · precision ≥0.95 on the golden eval set · zero fabricated items reaching a recipient · qualitative signal that the pain is real</td>
+</tr>
+<tr>
+<td><strong>If it fails</strong></td>
+<td><strong>Do not launch publicly.</strong> Return to discovery. Activation &lt;25% means the last-mile thesis is wrong, and no amount of polish or model upgrading fixes a wrong thesis.</td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="stage-2--public-launch">Stage 2 — Public launch</h3>
+<div class="tablewrap"><table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Entry gate</strong></td>
+<td>Stage 1 exit criteria met</td>
+</tr>
+<tr>
+<td><strong>Goal</strong></td>
+<td>Reach beyond the network; test whether the value is self-evident to strangers</td>
+</tr>
+<tr>
+<td><strong>Channels</strong></td>
+<td>Show HN · r/productivity, r/ExperiencedDevs · PM/EM communities · LinkedIn (founder narrative) · SEO content live</td>
+</tr>
+<tr>
+<td><strong>Angle</strong></td>
+<td>Lead with the <strong>engineering story</strong>, not the product pitch: <em>"I shipped the smaller model on purpose"</em> and <em>"integration-grade distribution with zero OAuth."</em> Both are genuinely interesting and earn attention on merit — a launch post that just says "AI meeting tool" dies on arrival in this category.</td>
+</tr>
+<tr>
+<td><strong>Prep</strong></td>
+<td>Cold start eliminated (paid host — a 40s first load on launch day is unrecoverable) · rate limiting · model spend cap + alert · error monitoring · <a href="04-user-guide.html">User Guide</a> live · fake-doors instrumented to capture H2 demand</td>
+</tr>
+<tr>
+<td><strong>Success</strong></td>
+<td>1,000 sessions in week 1 · Activation holds ≥25% <strong>with strangers</strong> (the real test — friendly testers are biased) · no trust incident · fake-door signal ranks H2</td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="stage-3--scale-h2">Stage 3 — Scale <em>(H2)</em></h3>
+<div class="tablewrap"><table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Entry gate</strong></td>
+<td>Public Activation holds; week-4 retention &gt;20%; H2 demand evidenced by fake doors</td>
+</tr>
+<tr>
+<td><strong>Channels</strong></td>
+<td>Chrome Web Store · Zoom/Teams marketplaces · the <strong>recipient loop</strong> (<a href="07-7p-analysis.html#3-place-distribution">7P §3</a>)</td>
+</tr>
+<tr>
+<td><strong>Motion</strong></td>
+<td>Turn the product's own output into the acquisition channel — every invite reaches a non-user at ~zero CAC</td>
+</tr>
+<tr>
+<td><strong>Monetisation</strong></td>
+<td>Pro tier live; gate on auto-capture, never on extraction</td>
+</tr>
+</tbody>
+</table></div>
+<hr />
+<h2 id="3-go-to-market">3. Go-to-market</h2>
+<p><strong>Motion: PLG, bottom-up.</strong> (<a href="07-7p-analysis.html#4-promotion">7P §4</a>)</p>
+<div class="tablewrap"><table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Positioning</strong></td>
+<td><em>"Meeting tools capture what was said. Postmeet makes sure it gets done."</em></td>
+</tr>
+<tr>
+<td><strong>Target</strong></td>
+<td>Meeting-heavy leads in tech-forward SMBs/scale-ups ("Priya")</td>
+</tr>
+<tr>
+<td><strong>Wedge</strong></td>
+<td>Zero setup — value in ~10s, no account, no permission, no admin gate</td>
+</tr>
+<tr>
+<td><strong>Funnel</strong></td>
+<td>Click link → sample → extract → <strong>distribute</strong> (the aha) → return next meeting → hit paste friction → convert to auto-capture</td>
+</tr>
+<tr>
+<td><strong>Anti-strategy</strong></td>
+<td>❌ Don't compete on "best AI notetaker" (crowded, we lose) · ❌ no sales team pre-PMF · ❌ no enterprise motion until Dana's requirements exist</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>The aha moment is precisely defined:</strong> <em>seeing a real Google Calendar invite open, fully prefilled, from a transcript pasted 10 seconds ago.</em> Every GTM decision optimises for reaching that moment faster. It's also why <code>distribute_click</code> is the Activation event — it's not a proxy for the aha, <strong>it is the aha.</strong></p>
+<hr />
+<h2 id="4-launch-checklist">4. Launch checklist</h2>
+<h3 id="product">Product</h3>
+<ul>
+<li>[x] All P0 stories pass acceptance</li>
+<li>[x] Graceful, human-readable errors on every failure path</li>
+<li>[x] Accessibility: keyboard-complete, AA contrast, <code>aria-live</code> status</li>
+<li>[x] Samples load in one click (no transcript needed to evaluate)</li>
+<li>[x] Mobile-responsive</li>
+<li>[ ] <strong>Analytics instrumented</strong> 🔴 <em>blocking Stage 1</em></li>
+<li>[ ] Fake doors live (Zoom / Outlook / auto-join) to rank H2</li>
+</ul>
+<h3 id="reliability">Reliability</h3>
+<ul>
+<li>[x] Model fallback chain verified</li>
+<li>[x] Upstream timeout bounded (30s)</li>
+<li>[x] CI green; 100% coverage gate enforced</li>
+<li>[x] Keep-warm ping (free-tier cold start)</li>
+<li>[ ] Paid host — <strong>required before Stage 2</strong> (40s first load is fatal on launch day)</li>
+<li>[ ] Rate limiting</li>
+<li>[ ] Model spend cap + alert</li>
+<li>[ ] Error monitoring / alerting</li>
+</ul>
+<h3 id="trust--compliance">Trust &amp; compliance</h3>
+<ul>
+<li>[x] Zero OAuth scopes</li>
+<li>[x] No server-side retention; local-only, 7-day TTL</li>
+<li>[x] Secrets in a secret store; none in repo</li>
+<li>[x] Privacy answers documented in the <a href="04-user-guide.html">User Guide</a></li>
+<li>[ ] <strong>Golden eval set: precision ≥0.95</strong> 🔴 <em>blocking Stage 1</em></li>
+<li>[ ] Public privacy policy + ToS (before Stage 2)</li>
+</ul>
+<h3 id="content--comms">Content &amp; comms</h3>
+<ul>
+<li>[x] Public demo URL</li>
+<li>[x] User Guide + FAQ + troubleshooting</li>
+<li>[x] Open-source repo, README with live links</li>
+<li>[x] Case study / pitch deck</li>
+<li>[ ] Launch post (engineering-story angle)</li>
+<li>[ ] SEO content for the long tail</li>
+<li>[ ] Demo GIF/video</li>
+</ul>
+<h3 id="honest-status">Honest status</h3>
+<p><strong>Two hard blockers before a real Stage 1: analytics and the eval set.</strong> Both are named in <a href="03-prd.html#42-targets--instrumentation">PRD §4.2</a> and <a href="03-prd.html#74-evaluation">§7.4</a>. Everything shipped is necessary and not sufficient — v1 is a <em>working product</em> but not yet a <em>readable experiment</em>.</p>
+<hr />
+<h2 id="5-rollout--safety">5. Rollout &amp; safety</h2>
+<div class="tablewrap"><table>
+<thead>
+<tr>
+<th>Control</th>
+<th>Approach</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Staged exposure</strong></td>
+<td>Alpha → beta (invite) → public. No stage skips its gate.</td>
+</tr>
+<tr>
+<td><strong>Kill switch</strong></td>
+<td><code>NIM_MODEL</code> env pins a model instantly; Render env change + redeploy in ~90s. A bad model swap is reversible in under two minutes without a code change.</td>
+</tr>
+<tr>
+<td><strong>Rollback</strong></td>
+<td><code>main</code> is always deployable; revert + push = ~90s to previous state.</td>
+</tr>
+<tr>
+<td><strong>Spend guard</strong></td>
+<td>Cap + alert on model spend before public traffic (free credits are a real exhaustion risk — <a href="08-development-execution.html#6-risk-register-execution">E1</a>).</td>
+</tr>
+<tr>
+<td><strong>Trust incident plan</strong></td>
+<td>If a fabricated commitment reaches a recipient: pause bulk distribute → reproduce → add to eval set → fix prompt → re-run eval → restore. <strong>Precision regressions are treated as P0 incidents, not bugs.</strong></td>
+</tr>
+</tbody>
+</table></div>
+<hr />
+<h2 id="6-what-could-go-wrong-at-launch">6. What could go wrong at launch</h2>
+<div class="tablewrap"><table>
+<thead>
+<tr>
+<th>Scenario</th>
+<th>Response</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Activation is 8%, not 25%</strong></td>
+<td>The thesis is wrong. <strong>Do not tune the model.</strong> Return to discovery: is the pain real (RQ1)? Is friction the blocker (RQ3)? This is the outcome the whole staging exists to catch cheaply.</td>
+</tr>
+<tr>
+<td>Everyone extracts, nobody distributes</td>
+<td>Investigate the checkpoint: is distribution undiscoverable, or is trust too low to send? Distinguish via usability + edit rate. Two very different fixes.</td>
+</tr>
+<tr>
+<td>A hallucinated item is emailed to a real person</td>
+<td>Trust incident protocol (§5). This is the failure mode that ends products, not the one that annoys users.</td>
+</tr>
+<tr>
+<td>Model credits exhaust mid-launch</td>
+<td>Graceful error (already built) + spend alert. Degrades, doesn't crash.</td>
+</tr>
+<tr>
+<td>Traffic spikes on Show HN and the free host melts</td>
+<td>Paid host before Stage 2; rate limit.</td>
+</tr>
+<tr>
+<td>A competitor ships the same wedge that week</td>
+<td>Expected — it's copyable (<a href="02-mrd.html#9-risks--assumptions">MRD R3</a>). The response is speed to H2/H3, never a feature war on the wedge.</td>
+</tr>
+</tbody>
+</table></div>
+<hr />
+<h2 id="7-definition-of-a-successful-launch">7. Definition of a successful launch</h2>
+<p>Not signups. Not traffic. Not upvotes.</p>
+<blockquote>
+<p><strong>A successful launch is one where we learn — with confidence — whether the last-mile thesis is true.</strong></p>
+</blockquote>
+<div class="tablewrap"><table>
+<thead>
+<tr>
+<th>Outcome</th>
+<th>Verdict</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Activation ≥25% with strangers, precision ≥0.95, retention signal</td>
+<td>✅ <strong>Thesis validated</strong> → fund H2</td>
+</tr>
+<tr>
+<td>Activation &lt;25%, cleanly measured</td>
+<td>✅ <strong>A successful launch.</strong> We learned the thesis is wrong for ~$0 instead of finding out after building the extension.</td>
+</tr>
+<tr>
+<td>High traffic, no instrumentation, "felt good"</td>
+<td>❌ <strong>A failed launch</strong>, regardless of the numbers on the vanity dashboard.</td>
+</tr>
+</tbody>
+</table></div>
+<p>That third row is the one worth internalising: <strong>an unmeasured launch that looks successful is worse than a measured one that fails</strong>, because it licenses the next, far more expensive, wrong decision.</p>
+<hr />
+<p><em>Next: <a href="10-post-launch.html">Post-Launch →</a></em></p>
+</main>
+
+<nav class="docnav">
+<a class="prev" href="08-development-execution.html"><span class="k">← Previous</span><span class="v">Development & Execution</span></a>
+<a class="next" href="10-post-launch.html"><span class="k">Next →</span><span class="v">Post-Launch</span></a>
+</nav>
+
+<script>
+  var tb=document.getElementById('themebtn'), root=document.documentElement;
+  tb.onclick=function(){
+    var t=root.getAttribute('data-theme');
+    var next=t==='dark'?'light':'dark';
+    root.setAttribute('data-theme',next);
+    tb.textContent=(next==='dark'?'☾':'☀');
+  };
+</script>
+</body>
+</html>

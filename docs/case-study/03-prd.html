@@ -1,0 +1,957 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>PRD — Product Requirements — Postmeet Case Study</title>
+<meta name="description" content="PRD — Product Requirements — part of the Postmeet product-management case study by Shubham Mittal.">
+<meta property="og:title" content="PRD — Product Requirements — Postmeet Case Study">
+<meta property="og:description" content="PRD — Product Requirements: part of an end-to-end AI product-management case study.">
+<style>
+  :root{
+    --bg:#FAFAFB; --panel:#FFFFFF; --panel-2:#F1F2F5;
+    --ink:#16181F; --muted:#5A616E; --faint:#8B919D; --line:#E4E6EB;
+    --accent:#C2410C; --accent-soft:rgba(194,65,12,.07); --accent-line:rgba(194,65,12,.28);
+    --shadow:rgba(20,22,30,.07);
+    --font-sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    --font-mono:ui-monospace,"SF Mono","JetBrains Mono",Menlo,Consolas,monospace;
+    --font-serif:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif;
+  }
+  @media (prefers-color-scheme:dark){
+    :root{ --bg:#0D0E12; --panel:#14161C; --panel-2:#1B1E26;
+      --ink:#ECEEF2; --muted:#9AA1AE; --faint:#666D7A; --line:#262A33;
+      --accent:#F2764B; --accent-soft:rgba(242,118,75,.09); --accent-line:rgba(242,118,75,.34);
+      --shadow:rgba(0,0,0,.4); }
+  }
+  :root[data-theme="dark"]{ --bg:#0D0E12; --panel:#14161C; --panel-2:#1B1E26;
+    --ink:#ECEEF2; --muted:#9AA1AE; --faint:#666D7A; --line:#262A33;
+    --accent:#F2764B; --accent-soft:rgba(242,118,75,.09); --accent-line:rgba(242,118,75,.34);
+    --shadow:rgba(0,0,0,.4); }
+  :root[data-theme="light"]{ --bg:#FAFAFB; --panel:#FFFFFF; --panel-2:#F1F2F5;
+    --ink:#16181F; --muted:#5A616E; --faint:#8B919D; --line:#E4E6EB;
+    --accent:#C2410C; --accent-soft:rgba(194,65,12,.07); --accent-line:rgba(194,65,12,.28);
+    --shadow:rgba(20,22,30,.07); }
+
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth;scroll-padding-top:5rem}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--font-sans);
+    line-height:1.68;-webkit-font-smoothing:antialiased}
+  .rule{height:3px;background:var(--accent);position:sticky;top:0;z-index:20}
+
+  .topbar{position:sticky;top:3px;z-index:19;background:color-mix(in srgb,var(--bg) 88%,transparent);
+    backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+  .topbar .in{max-width:860px;margin:0 auto;padding:.7rem clamp(1.1rem,4vw,2rem);
+    display:flex;align-items:center;justify-content:space-between;gap:1rem}
+  .crumb{font-family:var(--font-mono);font-size:.74rem;color:var(--faint);text-decoration:none;
+    display:flex;align-items:center;gap:.5rem;min-width:0}
+  .crumb:hover{color:var(--accent)}
+  .crumb b{color:var(--ink);font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .tools{display:flex;gap:.5rem;flex-shrink:0}
+  .tool{font-family:var(--font-mono);font-size:.7rem;background:var(--panel);color:var(--muted);
+    border:1px solid var(--line);border-radius:4px;padding:.32rem .6rem;cursor:pointer;text-decoration:none}
+  .tool:hover{border-color:var(--accent);color:var(--accent)}
+
+  main{max-width:860px;margin:0 auto;padding:clamp(1.8rem,5vw,3rem) clamp(1.1rem,4vw,2rem) 1rem}
+
+  /* prose */
+  main h1{font-size:clamp(1.9rem,4.4vw,2.8rem);line-height:1.1;letter-spacing:-.025em;
+    margin:0 0 1rem;font-weight:680;text-wrap:balance}
+  main h2{font-size:clamp(1.3rem,2.6vw,1.7rem);letter-spacing:-.018em;margin:2.8rem 0 .9rem;
+    padding-top:1.4rem;border-top:1px solid var(--line);font-weight:660;text-wrap:balance}
+  main h3{font-size:1.08rem;margin:1.9rem 0 .6rem;font-weight:640;letter-spacing:-.01em}
+  main h4{font-size:.95rem;margin:1.4rem 0 .5rem;font-weight:640;color:var(--muted)}
+  main p{margin:.9rem 0}
+  main ul,main ol{margin:.9rem 0;padding-left:1.4rem}
+  main li{margin:.35rem 0}
+  main li::marker{color:var(--accent)}
+  main a{color:var(--accent);text-decoration:none;border-bottom:1px solid var(--accent-line)}
+  main a:hover{border-bottom-color:var(--accent)}
+  main strong{font-weight:660;color:var(--ink)}
+  main hr{border:0;border-top:1px solid var(--line);margin:2.4rem 0}
+  main blockquote{margin:1.4rem 0;padding:.9rem 1.2rem;border-left:2px solid var(--accent);
+    background:var(--accent-soft);border-radius:0 4px 4px 0;color:var(--muted)}
+  main blockquote p{margin:.4rem 0}
+  main blockquote strong{color:var(--ink)}
+  main code{font-family:var(--font-mono);font-size:.86em;background:var(--panel-2);
+    border:1px solid var(--line);border-radius:3px;padding:.1em .38em}
+  main pre{background:var(--panel-2);border:1px solid var(--line);border-radius:6px;
+    padding:1rem 1.1rem;overflow-x:auto;margin:1.3rem 0;line-height:1.45}
+  main pre code{background:none;border:0;padding:0;font-size:.8rem}
+  .tablewrap{overflow-x:auto;margin:1.3rem 0;border:1px solid var(--line);border-radius:6px;background:var(--panel)}
+  main table{border-collapse:collapse;width:100%;font-size:.9rem}
+  main th{text-align:left;font-family:var(--font-mono);font-size:.7rem;letter-spacing:.06em;
+    text-transform:uppercase;color:var(--faint);font-weight:600;
+    padding:.7rem .9rem;border-bottom:1px solid var(--line);white-space:nowrap;background:var(--panel-2)}
+  main td{padding:.7rem .9rem;border-bottom:1px solid var(--line);vertical-align:top;color:var(--muted)}
+  main tr:last-child td{border-bottom:0}
+  main td strong{color:var(--ink)}
+  main img{max-width:100%}
+
+  .docnav{max-width:860px;margin:0 auto;padding:1rem clamp(1.1rem,4vw,2rem) 3.5rem;
+    display:flex;gap:.8rem;justify-content:space-between;border-top:1px solid var(--line)}
+  .docnav a{flex:1;text-decoration:none;border:1px solid var(--line);border-radius:6px;
+    padding:.9rem 1rem;background:var(--panel);transition:border-color .15s,transform .15s}
+  .docnav a:hover{border-color:var(--accent-line);transform:translateY(-2px)}
+  .docnav .k{font-family:var(--font-mono);font-size:.66rem;letter-spacing:.1em;
+    text-transform:uppercase;color:var(--accent);display:block}
+  .docnav .v{color:var(--ink);font-size:.95rem;font-weight:600;display:block;margin-top:.25rem}
+  .docnav .next{text-align:right}
+  @media (max-width:640px){.docnav{flex-direction:column}}
+</style>
+</head>
+<body>
+<div class="rule"></div>
+<div class="topbar"><div class="in">
+  <a class="crumb" href="./">← <span>Case study</span> · <b>Ideation</b></a>
+  <div class="tools">
+    <a class="tool" href="https://postmeet.onrender.com/" target="_blank" rel="noopener">Live app ↗</a>
+    <a class="tool" href="https://github.com/Shubham-33/postmeet/blob/main/docs/case-study/03-prd.md" target="_blank" rel="noopener">.md ↗</a>
+    <button class="tool" id="themebtn" aria-label="Toggle theme">◐</button>
+  </div>
+</div></div>
+
+<main>
+<h1 id="product-requirements-document-prd--postmeet-v1">Product Requirements Document (PRD) — Postmeet v1</h1>
+<p><strong>Owner:</strong> Shubham Mittal · <strong>Status:</strong> v1.0 — Shipped · <strong>Phase:</strong> Ideation → Execution
+<strong>Related:</strong> <a href="01-product-vision.html">Vision</a> · <a href="02-mrd.html">MRD</a> · <a href="08-development-execution.html">Development &amp; Execution</a> · <a href="./">Case study home</a></p>
+<hr />
+<h2 id="1-tldr">1. TL;DR</h2>
+<p>Postmeet v1 turns a meeting transcript into a board of owned, dated action items and lets the user push each one into Google Calendar or Gmail in a single click — <strong>with no account, no OAuth, and no stored data.</strong> v1 exists to test one hypothesis: <em>people who extract commitments will actually distribute them.</em></p>
+<p><strong>Shipped:</strong> <a href="https://postmeet.onrender.com/">postmeet.onrender.com</a> · <strong>Code:</strong> <a href="https://github.com/Shubham-33/postmeet">github.com/Shubham-33/postmeet</a></p>
+<hr />
+<h2 id="2-problem-statement">2. Problem statement</h2>
+<p>Meeting owners manually retype action items out of notes into calendars, inboxes and trackers — or skip it, and the commitments drop. Existing tools capture meetings well but stop at a summary; closing the last mile conventionally requires OAuth-gated integrations that most users never get approved. (Full market case: <a href="02-mrd.html">MRD</a>.)</p>
+<h2 id="3-goals--non-goals">3. Goals &amp; non-goals</h2>
+<h3 id="31-goals">3.1 Goals</h3>
+<div class="tablewrap"><table>
+<thead>
+<tr>
+<th>#</th>
+<th>Goal</th>
+<th>Measured by</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>G1</td>
+<td>Prove users will extract <strong>and then distribute</strong></td>
+<td>Activation ≥ 25% (extract → ≥1 item distributed)</td>
+</tr>
+<tr>
+<td>G2</td>
+<td>Deliver first value in under 30 seconds, with zero setup</td>
+<td>Time-to-value p50 &lt; 30s from landing → first distribute</td>
+</tr>
+<tr>
+<td>G3</td>
+<td>Extraction users trust enough to send without heavy rework</td>
+<td>Edit rate &lt; 40% of fields; <strong>zero</strong> fabricated items in eval</td>
+</tr>
+<tr>
+<td>G4</td>
+<td>Feel synchronous</td>
+<td>Extraction p95 &lt; 5s</td>
+</tr>
+<tr>
+<td>G5</td>
+<td>Remove privacy as an adoption objection</td>
+<td>No server-side retention of meeting content</td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="32-non-goals-v1">3.2 Non-goals (v1)</h3>
+<div class="tablewrap"><table>
+<thead>
+<tr>
+<th>Non-goal</th>
+<th>Why</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Accounts, auth, teams</td>
+<td>Not needed to test G1; adds friction that would confound the result</td>
+</tr>
+<tr>
+<td>Server-side persistence / a database</td>
+<td>Statelessness <em>is</em> the privacy answer at v1; also nothing to test yet</td>
+</tr>
+<tr>
+<td>Native Calendar/Gmail <strong>API</strong> integration</td>
+<td>The URL trick delivers the same user value at 0 setup cost. Native APIs are an H2 investment</td>
+</tr>
+<tr>
+<td>Transcription / recording</td>
+<td>Commodity + capital-intensive; out of the wedge (<a href="01-product-vision.html#11-non-goals-explicitly-not-building">Vision §11</a>)</td>
+</tr>
+<tr>
+<td>Slack / Notion / Jira targets</td>
+<td>Calendar + email are where the owner actually lives; more targets = more surface, no more learning</td>
+</tr>
+<tr>
+<td>Mobile-native apps</td>
+<td>Responsive web is sufficient for the test</td>
+</tr>
+</tbody>
+</table></div>
+<hr />
+<h2 id="4-success-metrics">4. Success metrics</h2>
+<h3 id="41-metric-tree">4.1 Metric tree</h3>
+<pre><code>NORTH STAR
+└── Commitment Completion Rate (CCR)          ← not observable until H3; steer on inputs
+    │
+    ├── INPUT METRICS (the funnel)
+    │   ├── Activation:     % sessions extract → distribute ≥1 item      [PRIMARY for v1]
+    │   ├── Time-to-value:  seconds, landing → first distribute
+    │   ├── Extraction quality: precision / recall vs. golden eval set
+    │   └── Retention:      repeat sessions / user / week
+    │
+    └── GUARDRAIL METRICS (must not degrade)
+        ├── Hallucination rate: fabricated items per 100 extracted   [target: 0]
+        ├── Edit rate:          % of fields corrected before send
+        └── Failure rate:       % extractions returning an error
+</code></pre>
+<h3 id="42-targets--instrumentation">4.2 Targets &amp; instrumentation</h3>
+<div class="tablewrap"><table>
+<thead>
+<tr>
+<th>Metric</th>
+<th>Target (v1)</th>
+<th>How measured</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Activation</strong></td>
+<td>≥ 25%</td>
+<td>Event: <code>extract_success</code> → <code>distribute_click</code> in same session</td>
+</tr>
+<tr>
+<td><strong>Time-to-value</strong></td>
+<td>p50 &lt; 30s</td>
+<td><code>page_load</code> → first <code>distribute_click</code></td>
+</tr>
+<tr>
+<td><strong>Extraction p95 latency</strong></td>
+<td>&lt; 5s</td>
+<td>Server-side timer on <code>/extract</code></td>
+</tr>
+<tr>
+<td><strong>Hallucination rate</strong></td>
+<td>0 per 100</td>
+<td>Manual scoring against golden eval set (<a href="05-research-plan.html#5-ai-specific-research-evaluation">Research §5</a>)</td>
+</tr>
+<tr>
+<td><strong>Edit rate</strong></td>
+<td>&lt; 40% of fields</td>
+<td>Event: <code>field_edited</code> / fields rendered</td>
+</tr>
+<tr>
+<td><strong>Failure rate</strong></td>
+<td>&lt; 2%</td>
+<td>Non-2xx from <code>/extract</code> ÷ total</td>
+</tr>
+</tbody>
+</table></div>
+<blockquote>
+<p><strong>Status — honest gap.</strong> v1 shipped <strong>without analytics instrumentation</strong> (no event pipeline, deliberately, to keep the stateless privacy promise and ship fast). Activation is therefore currently <strong>unmeasured</strong> — the primary metric for the primary goal. This is the single biggest weakness of v1 and is <strong>Priority 1 for v1.1</strong>: add privacy-preserving, aggregate-only, cookieless event counts (no meeting content), which is compatible with G5. <em>Shipping a hypothesis test you can't read the result of is a mistake — naming it is more useful than hiding it.</em></p>
+</blockquote>
+<h3 id="43-kill-criterion">4.3 Kill criterion</h3>
+<p>If Activation &lt; 25% once instrumented, the last-mile thesis is <strong>wrong</strong> and the response is to pivot the hypothesis — not to improve the model.</p>
+<hr />
+<h2 id="5-personas--user-stories">5. Personas &amp; user stories</h2>
+<p>Personas: <a href="02-mrd.html#4-personas">MRD §4</a>. Stories are written from the meeting owner ("Priya") unless noted.</p>
+<div class="tablewrap"><table>
+<thead>
+<tr>
+<th>ID</th>
+<th>Story</th>
+<th>Acceptance criteria</th>
+<th>Priority</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>US-1</td>
+<td>As a meeting owner, I want to paste a transcript and get structured action items, so I stop retyping them</td>
+<td>Given a ≥30-char transcript, when I press Extract, then I see a summary, decisions, and action items each with owner/date within 5s</td>
+<td><strong>P0</strong></td>
+</tr>
+<tr>
+<td>US-2</td>
+<td>As a meeting owner, I want to try it instantly without signing up, so I can judge it in a minute</td>
+<td>No account/permission prompt exists anywhere in the flow</td>
+<td><strong>P0</strong></td>
+</tr>
+<tr>
+<td>US-3</td>
+<td>As a meeting owner, I want to send a commitment to its owner's calendar in one click</td>
+<td>Clicking Calendar opens a Google Calendar event prefilled with title, date, attendee, context</td>
+<td><strong>P0</strong></td>
+</tr>
+<tr>
+<td>US-4</td>
+<td>As a meeting owner, I want to email each person their own items</td>
+<td>Clicking Email opens a Gmail draft addressed to that owner containing <strong>all</strong> of their items</td>
+<td><strong>P0</strong></td>
+</tr>
+<tr>
+<td>US-5</td>
+<td>As a meeting owner, I want to fix a wrong name/date before sending</td>
+<td>Any field is editable inline; edits flow into the generated links</td>
+<td><strong>P0</strong></td>
+</tr>
+<tr>
+<td>US-6</td>
+<td>As a meeting owner, I want to send everyone the minutes</td>
+<td>One action opens a Gmail draft with formatted MoM addressed to all extracted emails</td>
+<td><strong>P1</strong></td>
+</tr>
+<tr>
+<td>US-7</td>
+<td>As a meeting owner, I want to use a Google Doc I already keep notes in</td>
+<td>Pasting a public Doc URL fetches its text and extracts from it</td>
+<td><strong>P1</strong></td>
+</tr>
+<tr>
+<td>US-8</td>
+<td>As a meeting owner, I want to try it with no transcript handy</td>
+<td>Sample transcripts load in one click</td>
+<td><strong>P1</strong></td>
+</tr>
+<tr>
+<td>US-9</td>
+<td>As a meeting owner, I want to upload a transcript file</td>
+<td><code>.txt</code>/<code>.md</code> upload and drag-drop are accepted (≤200 KB)</td>
+<td><strong>P1</strong></td>
+</tr>
+<tr>
+<td>US-10</td>
+<td>As an <strong>assignee</strong> (Marcus), I want commitments to arrive without installing anything</td>
+<td>Received artifacts are a normal Google Calendar invite / Gmail message</td>
+<td><strong>P0</strong></td>
+</tr>
+<tr>
+<td>US-11</td>
+<td>As a keyboard user, I want to operate the app without a mouse</td>
+<td>All actions reachable via keyboard; ⌘/Ctrl+Enter extracts; visible focus rings</td>
+<td><strong>P1</strong></td>
+</tr>
+<tr>
+<td>US-12</td>
+<td>As a returning user, I don't want to lose my board on refresh</td>
+<td>Last result restored from local storage (client-side only, TTL 7d)</td>
+<td><strong>P2</strong></td>
+</tr>
+</tbody>
+</table></div>
+<hr />
+<h2 id="6-functional-requirements">6. Functional requirements</h2>
+<blockquote>
+<p>Each maps to a market requirement from <a href="02-mrd.html#8-market-requirements">MRD §8</a>.</p>
+</blockquote>
+<h3 id="61-input">6.1 Input</h3>
+<div class="tablewrap"><table>
+<thead>
+<tr>
+<th>ID</th>
+<th>Requirement</th>
+<th>Maps to</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>FR-1</td>
+<td>Accept a pasted transcript (min 30 chars, else reject with a clear message)</td>
+<td>MR-8</td>
+</tr>
+<tr>
+<td>FR-2</td>
+<td>Accept a public Google Doc URL and fetch its plain text (no OAuth, via the public export endpoint)</td>
+<td>MR-1, MR-8</td>
+</tr>
+<tr>
+<td>FR-3</td>
+<td>Accept <code>.txt</code>/<code>.md</code> upload + drag-drop, ≤200 KB, truncate with warning beyond</td>
+<td>MR-8</td>
+</tr>
+<tr>
+<td>FR-4</td>
+<td>Auto-detect input mode from content (URL vs. prose) rather than forcing a mode toggle</td>
+<td>MR-1</td>
+</tr>
+<tr>
+<td>FR-5</td>
+<td>Provide ≥3 one-click sample transcripts (standup / planning / retro)</td>
+<td>MR-1</td>
+</tr>
+<tr>
+<td>FR-6</td>
+<td>Reject a non-public Doc with an actionable error ("set sharing to Anyone with the link")</td>
+<td>MR-8</td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="62-extraction">6.2 Extraction</h3>
+<div class="tablewrap"><table>
+<thead>
+<tr>
+<th>ID</th>
+<th>Requirement</th>
+<th>Maps to</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>FR-7</td>
+<td>Return <code>summary</code> (1–2 sentences), <code>decisions[]</code>, and <code>action_items[]</code></td>
+<td>MR-2</td>
+</tr>
+<tr>
+<td>FR-8</td>
+<td>Each action item carries: <code>task</code>, <code>owner</code>, <code>owner_email</code>, <code>due_date</code>, <code>context</code></td>
+<td>MR-2</td>
+</tr>
+<tr>
+<td>FR-9</td>
+<td>Resolve relative dates ("Friday", "next Monday") to absolute <code>YYYY-MM-DD</code> using today's date</td>
+<td>MR-2</td>
+</tr>
+<tr>
+<td>FR-10</td>
+<td>Match an owner to an email found <strong>anywhere</strong> in the transcript by first-name match on the local-part</td>
+<td>MR-2</td>
+</tr>
+<tr>
+<td>FR-11</td>
+<td>Extract <strong>only explicit commitments</strong>; never infer or invent a task</td>
+<td><strong>MR-3</strong></td>
+</tr>
+<tr>
+<td>FR-12</td>
+<td>Emit empty string/array rather than guessing when data is absent</td>
+<td>MR-3</td>
+</tr>
+<tr>
+<td>FR-13</td>
+<td>One assignee per item; split shared ownership into separate items</td>
+<td>MR-2</td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="63-review--edit">6.3 Review &amp; edit</h3>
+<div class="tablewrap"><table>
+<thead>
+<tr>
+<th>ID</th>
+<th>Requirement</th>
+<th>Maps to</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>FR-14</td>
+<td>Render a board: a Decisions column + one column per owner</td>
+<td>MR-2</td>
+</tr>
+<tr>
+<td>FR-15</td>
+<td>Every field (task, owner, email, date, context) editable inline</td>
+<td><strong>MR-5</strong></td>
+</tr>
+<tr>
+<td>FR-16</td>
+<td>Edits propagate to all generated links without re-extraction</td>
+<td>MR-5</td>
+</tr>
+<tr>
+<td>FR-17</td>
+<td>Nothing is transmitted anywhere until the user explicitly clicks a distribute action</td>
+<td>MR-5, MR-9</td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="64-distribute">6.4 Distribute</h3>
+<div class="tablewrap"><table>
+<thead>
+<tr>
+<th>ID</th>
+<th>Requirement</th>
+<th>Maps to</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>FR-18</td>
+<td>Per item: open a prefilled Google Calendar event (title, date, attendee, context)</td>
+<td><strong>MR-4</strong></td>
+</tr>
+<tr>
+<td>FR-19</td>
+<td>Per owner: open a Gmail draft containing <strong>all</strong> of that owner's items (one email per person, not per task)</td>
+<td>MR-4, MR-7</td>
+</tr>
+<tr>
+<td>FR-20</td>
+<td>Bulk: open all calendars / all emails, staggered to survive popup blockers</td>
+<td>MR-4</td>
+</tr>
+<tr>
+<td>FR-21</td>
+<td>MoM: one Gmail draft, formatted minutes, addressed to all extracted emails (deduped, sorted)</td>
+<td>MR-4</td>
+</tr>
+<tr>
+<td>FR-22</td>
+<td>MoM copyable as plain text to the clipboard</td>
+<td>MR-4</td>
+</tr>
+<tr>
+<td>FR-23</td>
+<td>Items with no due date default to today + 7 days</td>
+<td>MR-4</td>
+</tr>
+<tr>
+<td>FR-24</td>
+<td>All distribution must work for recipients with no Postmeet account</td>
+<td><strong>MR-7</strong></td>
+</tr>
+</tbody>
+</table></div>
+<hr />
+<h2 id="7-ai-requirements">7. AI requirements</h2>
+<blockquote>
+<p>The section most PRDs miss. An LLM feature without stated quality, failure and evaluation requirements is not specified — it's hoped for.</p>
+</blockquote>
+<h3 id="71-model--inference">7.1 Model &amp; inference</h3>
+<div class="tablewrap"><table>
+<thead>
+<tr>
+<th>ID</th>
+<th>Requirement</th>
+<th>Decision &amp; rationale</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>AI-1</td>
+<td>Extraction must be a <strong>single</strong> model call — no agentic loops, no retries on success path</td>
+<td>Latency budget (G4) and cost; the task is well-bounded</td>
+</tr>
+<tr>
+<td>AI-2</td>
+<td>Primary model must meet p95 &lt; 5s</td>
+<td><strong>Llama 3.1 8B</strong> via NVIDIA NIM: ~2.5s consistent</td>
+</tr>
+<tr>
+<td>AI-3</td>
+<td>The system must degrade gracefully if the primary model fails</td>
+<td>Automatic fallback chain → <strong>Llama 3.1 70B</strong>; transient errors only</td>
+</tr>
+<tr>
+<td>AI-4</td>
+<td>Model choice must be config-swappable without a code change</td>
+<td><code>NIM_MODEL</code> env var pins a single model</td>
+</tr>
+<tr>
+<td>AI-5</td>
+<td>Temperature 0</td>
+<td>Determinism; this is extraction, not generation</td>
+</tr>
+</tbody>
+</table></div>
+<blockquote>
+<p><strong>Key tradeoff (documented, not hidden):</strong> the 70B model was tested first and <em>rejected as primary</em> — measured latency was <strong>9s–46s with timeouts</strong>, vs. 8B's <strong>~2.5s consistent</strong>, at comparable extraction quality on this task. <strong>Model quality is an input to product value, not the goal.</strong> Full ADR: <a href="08-development-execution.html#adr-2-fast-primary-model-with-automatic-fallback">Development §ADR-2</a>.</p>
+</blockquote>
+<h3 id="72-output-contract">7.2 Output contract</h3>
+<div class="tablewrap"><table>
+<thead>
+<tr>
+<th>ID</th>
+<th>Requirement</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>AI-6</td>
+<td>Request JSON response mode; pin the exact JSON contract in the system prompt</td>
+</tr>
+<tr>
+<td>AI-7</td>
+<td>Parse defensively — tolerate markdown fences/prose by slicing the first <code>{</code> to the last <code>}</code></td>
+</tr>
+<tr>
+<td>AI-8</td>
+<td>Malformed content must surface as a clear 502, never a crash or a partial board</td>
+</tr>
+<tr>
+<td>AI-9</td>
+<td>A parse failure must <strong>not</strong> trigger the model fallback (a different model won't fix a contract violation — only transient errors are retried)</td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="73-guardrails">7.3 Guardrails</h3>
+<div class="tablewrap"><table>
+<thead>
+<tr>
+<th>ID</th>
+<th>Requirement</th>
+<th>Enforcement</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>AI-10</td>
+<td><strong>Never fabricate a commitment</strong> (MR-3)</td>
+<td>Prompt constrains to explicit commitments; measured as hallucination rate = 0 in eval</td>
+</tr>
+<tr>
+<td>AI-11</td>
+<td>Never invent context — empty string if none exists</td>
+<td>Prompt rule + eval check</td>
+</tr>
+<tr>
+<td>AI-12</td>
+<td>Never invent an email address</td>
+<td>Only emails literally present in the transcript may be used</td>
+</tr>
+<tr>
+<td>AI-13</td>
+<td>The human is the final checkpoint — the system drafts, it never sends</td>
+<td>No auto-send exists in the product by design</td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="74-evaluation">7.4 Evaluation</h3>
+<div class="tablewrap"><table>
+<thead>
+<tr>
+<th>ID</th>
+<th>Requirement</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>AI-14</td>
+<td>A <strong>golden eval set</strong> of human-labelled transcripts must exist before any model change is accepted</td>
+</tr>
+<tr>
+<td>AI-15</td>
+<td>Track <strong>precision</strong> (fabrications), <strong>recall</strong> (misses), and <strong>field accuracy</strong> (owner/date/email)</td>
+</tr>
+<tr>
+<td>AI-16</td>
+<td>Model swaps must be decided on eval deltas, not vibes</td>
+</tr>
+<tr>
+<td>AI-17</td>
+<td>Eval set must include <strong>real, messy, multi-speaker</strong> transcripts — not only curated samples (<a href="02-mrd.html#9-risks--assumptions">MRD R7</a>)</td>
+</tr>
+</tbody>
+</table></div>
+<blockquote>
+<p><strong>Status — honest gap.</strong> v1's model decision was made on <strong>measured latency + spot-checked quality</strong>, not a formal eval set. That was defensible under a hackathon constraint and is <strong>not</strong> defensible for v1.1. Building the eval harness is the top AI-quality investment (<a href="05-research-plan.html#5-ai-specific-research-evaluation">Research §5</a>).</p>
+</blockquote>
+<hr />
+<h2 id="8-non-functional-requirements">8. Non-functional requirements</h2>
+<div class="tablewrap"><table>
+<thead>
+<tr>
+<th>ID</th>
+<th>Category</th>
+<th>Requirement</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>NFR-1</td>
+<td>Performance</td>
+<td>Extraction p95 &lt; 5s</td>
+<td>✅ ~2.5s typical</td>
+</tr>
+<tr>
+<td>NFR-2</td>
+<td>Performance</td>
+<td>Page &lt; 100 KB gzipped; index cached 5 min</td>
+<td>✅ gzip + Cache-Control</td>
+</tr>
+<tr>
+<td>NFR-3</td>
+<td>Reliability</td>
+<td>Single model failure must not fail the request</td>
+<td>✅ fallback chain</td>
+</tr>
+<tr>
+<td>NFR-4</td>
+<td>Reliability</td>
+<td>Upstream timeout bounded at 30s</td>
+<td>✅</td>
+</tr>
+<tr>
+<td>NFR-5</td>
+<td>Privacy</td>
+<td><strong>No server-side persistence</strong> of transcripts or extractions</td>
+<td>✅ stateless</td>
+</tr>
+<tr>
+<td>NFR-6</td>
+<td>Privacy</td>
+<td>Client-side restore only, local storage, 7-day TTL, user-clearable</td>
+<td>✅</td>
+</tr>
+<tr>
+<td>NFR-7</td>
+<td>Security</td>
+<td>API key only via secret manager / env — never in the repo or client</td>
+<td>✅ Render secret; <code>.gcloudignore</code>/<code>.gitignore</code> exclude <code>.env</code></td>
+</tr>
+<tr>
+<td>NFR-8</td>
+<td>Security</td>
+<td><strong>Zero OAuth scopes requested</strong> — least privilege by construction</td>
+<td>✅</td>
+</tr>
+<tr>
+<td>NFR-9</td>
+<td>Accessibility</td>
+<td>WCAG AA: semantic landmarks, ARIA labels, <code>aria-live</code> status, visible focus, keyboard-complete, AA contrast</td>
+<td>✅</td>
+</tr>
+<tr>
+<td>NFR-10</td>
+<td>Quality</td>
+<td>100% line+branch coverage on business logic, gated in CI</td>
+<td>✅ 69 tests</td>
+</tr>
+<tr>
+<td>NFR-11</td>
+<td>Portability</td>
+<td>No vendor lock-in on the model provider</td>
+<td>✅ OpenAI-compatible endpoint + env override</td>
+</tr>
+<tr>
+<td>NFR-12</td>
+<td>Extensibility</td>
+<td>Must not foreclose enterprise needs (SSO, residency) at H2/H3</td>
+<td>⚠️ Deferred, not blocked</td>
+</tr>
+</tbody>
+</table></div>
+<hr />
+<h2 id="9-primary-ux-flow">9. Primary UX flow</h2>
+<pre><code>Landing (no auth)
+   │
+   ├─ Paste transcript  ┐
+   ├─ Public Doc URL    ├──► [Extract]  ──► single LLM call (~2.5s)
+   ├─ Upload .txt/.md   ┘         │
+   └─ Load sample ──────┘         ▼
+                          Board renders
+                          ├── Summary + decisions
+                          └── One column per owner
+                                 │
+                          Inline edit any field  ◄── human checkpoint
+                                 │
+                    ┌────────────┴────────────┐
+                    ▼                         ▼
+          📅 Calendar (per item)     ✉️ Email (per owner, all their items)
+          ✉️ MoM to all             📋 Copy MoM
+                    │
+                    ▼
+        Prefilled Google tab opens → user clicks Save / Send
+</code></pre>
+<p><strong>Design intent:</strong> the flow has exactly one required decision (what to paste) before value appears. Everything else is optional refinement.</p>
+<hr />
+<h2 id="10-dependencies">10. Dependencies</h2>
+<div class="tablewrap"><table>
+<thead>
+<tr>
+<th>Dependency</th>
+<th>Purpose</th>
+<th>Risk</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>NVIDIA NIM (Llama 3.1)</td>
+<td>Extraction</td>
+<td>Free-tier credits could exhaust → app degrades with a clear error, not a crash</td>
+</tr>
+<tr>
+<td>Google Calendar URL spec</td>
+<td>Per-item distribution</td>
+<td>Long-stable public spec; change would break FR-18 (<a href="02-mrd.html#9-risks--assumptions">MRD R6</a>)</td>
+</tr>
+<tr>
+<td>Gmail compose URL spec</td>
+<td>Email distribution</td>
+<td>As above</td>
+</tr>
+<tr>
+<td>Google Docs public export</td>
+<td>FR-2</td>
+<td>Only works for link-shared docs — a stated limitation</td>
+</tr>
+<tr>
+<td>Render (free tier)</td>
+<td>Hosting</td>
+<td>Sleeps after 15 min idle → ~40s cold start; mitigated by a scheduled keep-warm ping</td>
+</tr>
+</tbody>
+</table></div>
+<h2 id="11-risks--mitigations">11. Risks &amp; mitigations</h2>
+<div class="tablewrap"><table>
+<thead>
+<tr>
+<th>#</th>
+<th>Risk</th>
+<th>Mitigation</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>P1</td>
+<td>Users extract but never distribute (kills the thesis)</td>
+<td>Make distribution the visually dominant action; instrument Activation (v1.1)</td>
+</tr>
+<tr>
+<td>P2</td>
+<td>A hallucinated item destroys trust</td>
+<td>AI-10..13 + human checkpoint + precision-biased prompt</td>
+</tr>
+<tr>
+<td>P3</td>
+<td>Wrong date resolution on relative dates</td>
+<td>Today's date injected into the prompt; <strong>all dates editable</strong>; known limitation documented</td>
+</tr>
+<tr>
+<td>P4</td>
+<td>Popup blockers break bulk distribute</td>
+<td>Staggered <code>window.open</code>; per-item fallback</td>
+</tr>
+<tr>
+<td>P5</td>
+<td>Model provider outage</td>
+<td>Fallback chain; clear user-facing error, never a stack trace</td>
+</tr>
+<tr>
+<td>P6</td>
+<td>Cold start makes first impression ~40s</td>
+<td>Scheduled keep-warm ping every 10 min</td>
+</tr>
+</tbody>
+</table></div>
+<h2 id="12-release-criteria">12. Release criteria</h2>
+<p>v1 ships only when <strong>all</strong> are true:</p>
+<ul>
+<li>[x] All P0 stories pass acceptance</li>
+<li>[x] Extraction p95 &lt; 5s measured live</li>
+<li>[x] 100% line+branch coverage on business logic; CI green</li>
+<li>[x] Zero secrets in the repo; key in a secret store</li>
+<li>[x] Zero fabricated items across the sample suite</li>
+<li>[x] Graceful, human-readable errors on every failure path (no stack traces)</li>
+<li>[x] Publicly reachable with no login</li>
+<li>[x] Accessibility pass (keyboard-complete, AA contrast)</li>
+</ul>
+<h2 id="13-open-questions">13. Open questions</h2>
+<div class="tablewrap"><table>
+<thead>
+<tr>
+<th>#</th>
+<th>Question</th>
+<th>Owner</th>
+<th>Needed by</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Q1</td>
+<td>Is the ~70% pain figure real for our segment?</td>
+<td>Research</td>
+<td>Before H2</td>
+</tr>
+<tr>
+<td>Q2</td>
+<td>What Activation rate do we actually see?</td>
+<td>Analytics (v1.1)</td>
+<td>Before H2</td>
+</tr>
+<tr>
+<td>Q3</td>
+<td>Do users trust extraction enough to bulk-send, or do they send one-by-one?</td>
+<td>Research + analytics</td>
+<td>H2 scoping</td>
+</tr>
+<tr>
+<td>Q4</td>
+<td>Is 8B sufficient on messy real transcripts, or does quality force 70B?</td>
+<td>Eval harness</td>
+<td>v1.1</td>
+</tr>
+<tr>
+<td>Q5</td>
+<td>Does the correction flywheel produce usable training signal at realistic volume?</td>
+<td>Data science</td>
+<td>H3</td>
+</tr>
+</tbody>
+</table></div>
+<hr />
+<h2 id="appendix-a--extraction-schema">Appendix A — Extraction schema</h2>
+<pre><code class="language-json">{
+  &quot;summary&quot;: &quot;string&quot;,
+  &quot;decisions&quot;: [&quot;string&quot;],
+  &quot;action_items&quot;: [{
+    &quot;task&quot;:        &quot;string&quot;,
+    &quot;owner&quot;:       &quot;string  (first name, or 'Unassigned')&quot;,
+    &quot;owner_email&quot;: &quot;string  (empty if not present in transcript)&quot;,
+    &quot;due_date&quot;:    &quot;string  (YYYY-MM-DD, empty if none stated)&quot;,
+    &quot;context&quot;:     &quot;string  (≤~25 words explaining why it matters; empty if absent)&quot;
+  }]
+}
+</code></pre>
+<h2 id="appendix-b--api-surface">Appendix B — API surface</h2>
+<div class="tablewrap"><table>
+<thead>
+<tr>
+<th>Endpoint</th>
+<th>Method</th>
+<th>Request</th>
+<th>Response</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>/</code></td>
+<td>GET</td>
+<td>—</td>
+<td>Single-page UI (gzipped, cached 5 min)</td>
+</tr>
+<tr>
+<td><code>/extract</code></td>
+<td>POST</td>
+<td><code>{"transcript": str}</code> or <code>{"doc_url": str}</code></td>
+<td><code>200</code> → schema above · <code>400</code> too short/invalid · <code>403</code> private doc · <code>502</code> upstream/model failure</td>
+</tr>
+</tbody>
+</table></div>
+<hr />
+<p><em>Next: <a href="04-user-guide.html">User Guide →</a></em></p>
+</main>
+
+<nav class="docnav">
+<a class="prev" href="02-mrd.html"><span class="k">← Previous</span><span class="v">MRD — Market Requirements</span></a>
+<a class="next" href="04-user-guide.html"><span class="k">Next →</span><span class="v">User Guide & Manual</span></a>
+</nav>
+
+<script>
+  var tb=document.getElementById('themebtn'), root=document.documentElement;
+  tb.onclick=function(){
+    var t=root.getAttribute('data-theme');
+    var next=t==='dark'?'light':'dark';
+    root.setAttribute('data-theme',next);
+    tb.textContent=(next==='dark'?'☾':'☀');
+  };
+</script>
+</body>
+</html>

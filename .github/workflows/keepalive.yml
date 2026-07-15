@@ -7,7 +7,7 @@ name: Keep Render app warm
 
 on:
   schedule:
-    - cron: "*/10 * * * *"   # every 10 minutes
+    - cron: "*/12 * * * *"   # every 12 minutes (:00, :12, :24, :36, :48)
   workflow_dispatch: {}        # allow manual runs from the Actions tab
 
 permissions:

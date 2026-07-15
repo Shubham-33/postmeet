@@ -1,0 +1,272 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Product Vision — Postmeet Case Study</title>
+<meta name="description" content="Product Vision — part of the Postmeet product-management case study by Shubham Mittal.">
+<meta property="og:title" content="Product Vision — Postmeet Case Study">
+<meta property="og:description" content="Product Vision: part of an end-to-end AI product-management case study.">
+<style>
+  :root{
+    --bg:#FAFAFB; --panel:#FFFFFF; --panel-2:#F1F2F5;
+    --ink:#16181F; --muted:#5A616E; --faint:#8B919D; --line:#E4E6EB;
+    --accent:#C2410C; --accent-soft:rgba(194,65,12,.07); --accent-line:rgba(194,65,12,.28);
+    --shadow:rgba(20,22,30,.07);
+    --font-sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    --font-mono:ui-monospace,"SF Mono","JetBrains Mono",Menlo,Consolas,monospace;
+    --font-serif:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif;
+  }
+  @media (prefers-color-scheme:dark){
+    :root{ --bg:#0D0E12; --panel:#14161C; --panel-2:#1B1E26;
+      --ink:#ECEEF2; --muted:#9AA1AE; --faint:#666D7A; --line:#262A33;
+      --accent:#F2764B; --accent-soft:rgba(242,118,75,.09); --accent-line:rgba(242,118,75,.34);
+      --shadow:rgba(0,0,0,.4); }
+  }
+  :root[data-theme="dark"]{ --bg:#0D0E12; --panel:#14161C; --panel-2:#1B1E26;
+    --ink:#ECEEF2; --muted:#9AA1AE; --faint:#666D7A; --line:#262A33;
+    --accent:#F2764B; --accent-soft:rgba(242,118,75,.09); --accent-line:rgba(242,118,75,.34);
+    --shadow:rgba(0,0,0,.4); }
+  :root[data-theme="light"]{ --bg:#FAFAFB; --panel:#FFFFFF; --panel-2:#F1F2F5;
+    --ink:#16181F; --muted:#5A616E; --faint:#8B919D; --line:#E4E6EB;
+    --accent:#C2410C; --accent-soft:rgba(194,65,12,.07); --accent-line:rgba(194,65,12,.28);
+    --shadow:rgba(20,22,30,.07); }
+
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth;scroll-padding-top:5rem}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--font-sans);
+    line-height:1.68;-webkit-font-smoothing:antialiased}
+  .rule{height:3px;background:var(--accent);position:sticky;top:0;z-index:20}
+
+  .topbar{position:sticky;top:3px;z-index:19;background:color-mix(in srgb,var(--bg) 88%,transparent);
+    backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+  .topbar .in{max-width:860px;margin:0 auto;padding:.7rem clamp(1.1rem,4vw,2rem);
+    display:flex;align-items:center;justify-content:space-between;gap:1rem}
+  .crumb{font-family:var(--font-mono);font-size:.74rem;color:var(--faint);text-decoration:none;
+    display:flex;align-items:center;gap:.5rem;min-width:0}
+  .crumb:hover{color:var(--accent)}
+  .crumb b{color:var(--ink);font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .tools{display:flex;gap:.5rem;flex-shrink:0}
+  .tool{font-family:var(--font-mono);font-size:.7rem;background:var(--panel);color:var(--muted);
+    border:1px solid var(--line);border-radius:4px;padding:.32rem .6rem;cursor:pointer;text-decoration:none}
+  .tool:hover{border-color:var(--accent);color:var(--accent)}
+
+  main{max-width:860px;margin:0 auto;padding:clamp(1.8rem,5vw,3rem) clamp(1.1rem,4vw,2rem) 1rem}
+
+  /* prose */
+  main h1{font-size:clamp(1.9rem,4.4vw,2.8rem);line-height:1.1;letter-spacing:-.025em;
+    margin:0 0 1rem;font-weight:680;text-wrap:balance}
+  main h2{font-size:clamp(1.3rem,2.6vw,1.7rem);letter-spacing:-.018em;margin:2.8rem 0 .9rem;
+    padding-top:1.4rem;border-top:1px solid var(--line);font-weight:660;text-wrap:balance}
+  main h3{font-size:1.08rem;margin:1.9rem 0 .6rem;font-weight:640;letter-spacing:-.01em}
+  main h4{font-size:.95rem;margin:1.4rem 0 .5rem;font-weight:640;color:var(--muted)}
+  main p{margin:.9rem 0}
+  main ul,main ol{margin:.9rem 0;padding-left:1.4rem}
+  main li{margin:.35rem 0}
+  main li::marker{color:var(--accent)}
+  main a{color:var(--accent);text-decoration:none;border-bottom:1px solid var(--accent-line)}
+  main a:hover{border-bottom-color:var(--accent)}
+  main strong{font-weight:660;color:var(--ink)}
+  main hr{border:0;border-top:1px solid var(--line);margin:2.4rem 0}
+  main blockquote{margin:1.4rem 0;padding:.9rem 1.2rem;border-left:2px solid var(--accent);
+    background:var(--accent-soft);border-radius:0 4px 4px 0;color:var(--muted)}
+  main blockquote p{margin:.4rem 0}
+  main blockquote strong{color:var(--ink)}
+  main code{font-family:var(--font-mono);font-size:.86em;background:var(--panel-2);
+    border:1px solid var(--line);border-radius:3px;padding:.1em .38em}
+  main pre{background:var(--panel-2);border:1px solid var(--line);border-radius:6px;
+    padding:1rem 1.1rem;overflow-x:auto;margin:1.3rem 0;line-height:1.45}
+  main pre code{background:none;border:0;padding:0;font-size:.8rem}
+  .tablewrap{overflow-x:auto;margin:1.3rem 0;border:1px solid var(--line);border-radius:6px;background:var(--panel)}
+  main table{border-collapse:collapse;width:100%;font-size:.9rem}
+  main th{text-align:left;font-family:var(--font-mono);font-size:.7rem;letter-spacing:.06em;
+    text-transform:uppercase;color:var(--faint);font-weight:600;
+    padding:.7rem .9rem;border-bottom:1px solid var(--line);white-space:nowrap;background:var(--panel-2)}
+  main td{padding:.7rem .9rem;border-bottom:1px solid var(--line);vertical-align:top;color:var(--muted)}
+  main tr:last-child td{border-bottom:0}
+  main td strong{color:var(--ink)}
+  main img{max-width:100%}
+
+  .docnav{max-width:860px;margin:0 auto;padding:1rem clamp(1.1rem,4vw,2rem) 3.5rem;
+    display:flex;gap:.8rem;justify-content:space-between;border-top:1px solid var(--line)}
+  .docnav a{flex:1;text-decoration:none;border:1px solid var(--line);border-radius:6px;
+    padding:.9rem 1rem;background:var(--panel);transition:border-color .15s,transform .15s}
+  .docnav a:hover{border-color:var(--accent-line);transform:translateY(-2px)}
+  .docnav .k{font-family:var(--font-mono);font-size:.66rem;letter-spacing:.1em;
+    text-transform:uppercase;color:var(--accent);display:block}
+  .docnav .v{color:var(--ink);font-size:.95rem;font-weight:600;display:block;margin-top:.25rem}
+  .docnav .next{text-align:right}
+  @media (max-width:640px){.docnav{flex-direction:column}}
+</style>
+</head>
+<body>
+<div class="rule"></div>
+<div class="topbar"><div class="in">
+  <a class="crumb" href="./">← <span>Case study</span> · <b>Ideation</b></a>
+  <div class="tools">
+    <a class="tool" href="https://postmeet.onrender.com/" target="_blank" rel="noopener">Live app ↗</a>
+    <a class="tool" href="https://github.com/Shubham-33/postmeet/blob/main/docs/case-study/01-product-vision.md" target="_blank" rel="noopener">.md ↗</a>
+    <button class="tool" id="themebtn" aria-label="Toggle theme">◐</button>
+  </div>
+</div></div>
+
+<main>
+<h1 id="product-vision--postmeet">Product Vision — Postmeet</h1>
+<p><strong>Owner:</strong> Shubham Mittal · <strong>Status:</strong> Living document · <strong>Phase:</strong> Ideation
+<strong>Related:</strong> <a href="02-mrd.html">MRD</a> · <a href="03-prd.html">PRD</a> · <a href="./">Case study home</a></p>
+<hr />
+<h2 id="1-vision-statement">1. Vision statement</h2>
+<blockquote>
+<p><strong>Every commitment made in a meeting lands in the owner's world before the meeting ends — and gets done.</strong></p>
+</blockquote>
+<p>Meetings are where organisations make decisions and assign ownership. They are also where that ownership quietly dies. Postmeet's vision is to close the gap between <em>"we agreed"</em> and <em>"it happened"</em> — not by recording meetings better, but by making the resulting commitments impossible to lose.</p>
+<h2 id="2-positioning-statement">2. Positioning statement</h2>
+<p>Using Geoffrey Moore's format:</p>
+<blockquote>
+<p><strong>For</strong> teams who run recurring, decision-heavy meetings
+<strong>who</strong> lose track of the commitments made in them,
+<strong>Postmeet</strong> is a meeting-to-action tool
+<strong>that</strong> turns any transcript into owned, dated action items and pushes each one into the owner's calendar and inbox in a single click.
+<strong>Unlike</strong> Otter, Fireflies, Fathom and Granola — which compete on capturing and summarising meetings —
+<strong>Postmeet</strong> starts where they stop: the last mile of distribution, with <strong>zero setup and no OAuth</strong>.</p>
+</blockquote>
+<h2 id="3-mission">3. Mission</h2>
+<p>Make follow-through the default outcome of a meeting, not an act of individual discipline.</p>
+<h2 id="4-the-problem-were-solving">4. The problem we're solving</h2>
+<div class="tablewrap"><table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Observed pain</strong></td>
+<td>Commitments made verbally in meetings are captured in notes, then never actioned. Industry estimates put the share of meeting action items never completed at <strong>~44–73%</strong> (see <a href="02-mrd.html#2-market-problem">MRD §2</a>).</td>
+</tr>
+<tr>
+<td><strong>Why it persists</strong></td>
+<td>Capture ≠ action. Notes live in a doc; work lives in a calendar and an inbox. Nothing carries a commitment across that boundary.</td>
+</tr>
+<tr>
+<td><strong>Why now</strong></td>
+<td>LLMs made reliable extraction of structured commitments from unstructured speech cheap and fast (~2.5s, fractions of a cent). The bottleneck moved from <em>understanding</em> the meeting to <em>acting</em> on it.</td>
+</tr>
+<tr>
+<td><strong>Why it stays unsolved</strong></td>
+<td>Incumbents optimise the part that demos well (transcript quality). The last mile requires integrations, which require OAuth, admin approval and security review — a setup tax that kills adoption before value is ever felt.</td>
+</tr>
+</tbody>
+</table></div>
+<h2 id="5-the-core-insight">5. The core insight</h2>
+<p><strong>The blocker on the last mile isn't model intelligence — it's setup friction.</strong></p>
+<p>This drives the wedge: Google Calendar and Gmail both accept fully <strong>prefilled actions via URL</strong>. Postmeet exploits this to deliver integration-grade value with <strong>zero authentication</strong>. A user goes from a raw transcript to a saved calendar invite in ~10 seconds, on their first visit, without creating an account.</p>
+<p>That is the strategic bet: <strong>time-to-value is the moat at the wedge stage</strong>, and everything else (accounts, integrations, persistence) is deferred until the loop is proven.</p>
+<h2 id="6-target-user">6. Target user</h2>
+<p><strong>Primary:</strong> the <em>meeting owner</em> — an EM, PM, chief-of-staff, or team lead who runs 8–20 meetings a week and is accountable for the outcomes.
+<strong>Secondary:</strong> the <em>assignee</em> — the person who receives a prefilled invite/email and does the work.</p>
+<p>Full personas in <a href="02-mrd.html#4-personas">MRD §4</a>.</p>
+<h2 id="7-north-star-metric">7. North-star metric</h2>
+<blockquote>
+<p><strong>Commitment Completion Rate (CCR)</strong> — of the action items Postmeet surfaces, the share that are actually completed by their due date.</p>
+</blockquote>
+<p><strong>Why this one:</strong> it is the only metric that goes up <em>only if the product delivers the promise</em>. Extractions, sends and MAU can all rise while follow-through stays broken. CCR cannot.</p>
+<p><strong>Honest caveat:</strong> CCR is not directly observable at v1 (we don't yet own completion state). Until Horizon 3 (completion tracking) closes the loop, we steer on the input funnel — <strong>Activation (extract → distribute)</strong>, <strong>time-to-value</strong>, and <strong>extraction precision/recall</strong> — which are leading indicators of CCR. Full metric tree in <a href="03-prd.html#4-success-metrics">PRD §4</a>.</p>
+<h2 id="8-three-horizon-vision">8. Three-horizon vision</h2>
+<div class="tablewrap"><table>
+<thead>
+<tr>
+<th>Horizon</th>
+<th>Timeframe</th>
+<th>Product</th>
+<th>Strategic purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>H1 — Validate the loop</strong> <em>(shipped)</em></td>
+<td>Now</td>
+<td>Paste / Doc / file → extract → one-click distribute. No setup, no OAuth, no storage.</td>
+<td>Prove people will extract <strong>and then distribute</strong>. Cheapest possible test of the core hypothesis.</td>
+</tr>
+<tr>
+<td><strong>H2 — Kill the paste step</strong></td>
+<td>6–12 mo</td>
+<td>Browser extension + AI notetaker that auto-joins Zoom / Teams / Meet and pulls the transcript itself. Native send via Gmail, Outlook, Calendar. Persistence + team workspaces.</td>
+<td>Remove the last manual step. Move from "a tool I remember to use" to "a thing that just happens."</td>
+</tr>
+<tr>
+<td><strong>H3 — Own the outcome</strong></td>
+<td>12–24 mo</td>
+<td>Completion tracking, proactive nudges ("did you ship X?"), commitment history per person/team, follow-through analytics.</td>
+<td>Close the north-star loop. Become the <strong>system of record for follow-through</strong>, not a utility.</td>
+</tr>
+</tbody>
+</table></div>
+<h2 id="9-the-moat">9. The moat</h2>
+<p>At H1 there is no moat — the URL trick is copyable in a week. The defensibility thesis is a <strong>data flywheel</strong>:</p>
+<pre><code>extract → user edits before sending → edits are labelled corrections
+   → fine-tune / few-shot on accepted output → accuracy rises
+   → more trust → more extractions → more labels ──┐
+   └──────────────────────────────────────────────┘
+</code></pre>
+<p>Every correction a user makes is free, in-domain, human-labelled training data on <em>exactly</em> the task. An incumbent can copy the feature; they cannot copy the corpus of "what this org's commitments actually look like." Compounding accuracy on org-specific language (project names, people, cadences) is what makes H3 defensible.</p>
+<h2 id="10-product-principles">10. Product principles</h2>
+<ol>
+<li><strong>Time-to-value beats feature depth.</strong> Anything that delays the first "wow" past ~30 seconds is suspect.</li>
+<li><strong>Never invent a commitment.</strong> A hallucinated action item destroys trust permanently; a missed one costs one edit. Bias to precision.</li>
+<li><strong>The user is the last checkpoint.</strong> Everything is editable before it is sent. We draft; humans send.</li>
+<li><strong>Reliability &gt; model size.</strong> A fast, consistent answer beats a marginally better one that sometimes hangs. (See <a href="08-development-execution.html#adr-2-fast-primary-model-with-automatic-fallback">the model decision</a>.)</li>
+<li><strong>Earn the right to store data.</strong> Statelessness is a feature at H1 — no data, no privacy objection, no adoption blocker.</li>
+</ol>
+<h2 id="11-non-goals-explicitly-not-building">11. Non-goals (explicitly not building)</h2>
+<div class="tablewrap"><table>
+<thead>
+<tr>
+<th>Non-goal</th>
+<th>Rationale</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Best-in-class transcription</td>
+<td>Commodity, capital-intensive, and not where the pain is. We consume transcripts; we don't produce them (until H2's notetaker, and even then via existing ASR).</td>
+</tr>
+<tr>
+<td>A general project-management tool</td>
+<td>Jira/Asana/Linear own this. Postmeet feeds them; it does not replace them.</td>
+</tr>
+<tr>
+<td>A meeting <em>recorder</em> brand</td>
+<td>Recording is the crowded lane. We're the action layer.</td>
+</tr>
+<tr>
+<td>Enterprise admin/SSO at H1</td>
+<td>Real requirement — deferred until segments demand it. Building it early is the classic pre-PMF trap.</td>
+</tr>
+</tbody>
+</table></div>
+<h2 id="12-what-success-looks-like">12. What success looks like</h2>
+<p><strong>In 12 months:</strong> teams stop copying action items out of meeting notes by hand, because the invite is already in their calendar before they've left the call.
+<strong>In 3 years:</strong> "Did we ever close that out?" is answerable from data, and CCR is a metric teams track like they track velocity.</p>
+<hr />
+<p><em>Next: <a href="02-mrd.html">MRD — the market case →</a></em></p>
+</main>
+
+<nav class="docnav">
+<span></span>
+<a class="next" href="02-mrd.html"><span class="k">Next →</span><span class="v">MRD — Market Requirements</span></a>
+</nav>
+
+<script>
+  var tb=document.getElementById('themebtn'), root=document.documentElement;
+  tb.onclick=function(){
+    var t=root.getAttribute('data-theme');
+    var next=t==='dark'?'light':'dark';
+    root.setAttribute('data-theme',next);
+    tb.textContent=(next==='dark'?'☾':'☀');
+  };
+</script>
+</body>
+</html>
