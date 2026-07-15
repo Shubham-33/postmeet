@@ -81,7 +81,10 @@
   .shotlink{display:block;position:relative;border:1px solid var(--line);border-radius:8px;overflow:hidden;
     background:var(--panel);box-shadow:0 10px 34px var(--shadow);transition:border-color .15s,transform .15s}
   .shotlink:hover,.shotlink:focus-visible{border-color:var(--accent);transform:translateY(-3px);outline:none}
-  .shotlink img{display:block;width:100%}
+  /* height:auto is required — the img carries width/height attrs (to reserve space and
+     avoid layout shift); without height:auto the literal height attr beats width:100%
+     and the image renders squashed. */
+  .shotlink img{display:block;width:100%;height:auto}
   .shotcta{position:absolute;right:.9rem;bottom:.9rem;font-family:var(--font-mono);font-size:.76rem;
     background:var(--accent);color:#fff;padding:.5rem .9rem;border-radius:4px;box-shadow:0 4px 14px var(--shadow)}
   .shotcap{font-family:var(--font-mono);font-size:.74rem;color:var(--faint);margin:.8rem 0 0}
@@ -135,11 +138,11 @@
       and inbox in a single click. No account, no OAuth, ~2.5 seconds. <strong>Click the screenshot to try it live.</strong></p>
     <a class="shotlink" href="https://postmeet.onrender.com/" target="_blank" rel="noopener"
        aria-label="Open the live Postmeet app in a new tab">
-      <img src="../postmeet-screenshot.png" width="2880" height="2200"
+      <img src="../postmeet-screenshot.png" width="2368" height="1572"
         alt="Postmeet in use: a pasted meeting transcript, an extracted summary with bulk-distribute buttons, and a board with one column per owner — each action-item card showing task, due date, email, and one-click Calendar and Email buttons">
       <span class="shotcta">Try it live ↗</span>
     </a>
-    <p class="shotcap">Real output from the live app — extracted in ~2.8s: summary, decisions, and one column per owner.</p>
+    <p class="shotcap">Real output from the live app — extracted in ~3s: summary, decisions, and one column per owner.</p>
   </div>
 </section>
 

@@ -17,7 +17,7 @@ from pptx.util import Inches, Pt
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 SHOT = ROOT / "docs" / "postmeet-screenshot.png"
 OUT = ROOT / "docs" / "postmeet-pitch.pptx"
-SHOT_W, SHOT_H = 2880, 2200          # cropped screenshot dimensions
+SHOT_W, SHOT_H = 2368, 1572          # screenshot dimensions (see tools/capture_screenshot.py)
 
 INK   = RGBColor(0x16, 0x18, 0x1F)
 MUTED = RGBColor(0x5A, 0x61, 0x6E)
@@ -96,7 +96,7 @@ title(s, "Paste a transcript → the board writes itself.", size=28)
 _ih = 5.15; _iw = _ih * SHOT_W / SHOT_H; _left = (MW - _iw) / 2
 s.shapes.add_picture(str(SHOT), Inches(_left), Inches(1.8), height=Inches(_ih))
 box(s, _left, 1.8, _iw, _ih, fill=None, line=LINE, lw=1.0)
-txt(s, 0.9, 7.02, 11.5, 0.35, [[("Real output from the live app — extracted in ~2.8s: summary, decisions, and one "
+txt(s, 0.9, 7.02, 11.5, 0.35, [[("Real output from the live app — extracted in ~3s: summary, decisions, and one "
     "column per owner, each card one click from a prefilled Calendar event or Gmail draft.", 10.5, FAINT, False, BODY)]])
 
 # ============ 3 · THE PRODUCT ============
