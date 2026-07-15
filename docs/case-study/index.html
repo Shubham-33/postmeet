@@ -1,0 +1,226 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Postmeet — Product Management Case Study</title>
+<meta name="description" content="A full product-management case study for Postmeet: Ideation (Vision, MRD, PRD, User Guide), Planning & Strategy (Research, Methodology, 7P), and Development & Execution (Architecture/ADRs, Launch, Post-Launch).">
+<meta property="og:title" content="Postmeet — Product Management Case Study">
+<meta property="og:description" content="Vision · MRD · PRD · User Guide · Research Plan · Methodology · 7P Analysis · Development & ADRs · Launch Plan · Post-Launch. An end-to-end AI product case study by Shubham Mittal.">
+<meta property="og:type" content="website">
+<style>
+  :root{
+    --bg:#FAFAFB; --panel:#FFFFFF; --panel-2:#F1F2F5;
+    --ink:#16181F; --muted:#5A616E; --faint:#8B919D; --line:#E4E6EB;
+    --accent:#C2410C; --accent-soft:rgba(194,65,12,.08); --accent-line:rgba(194,65,12,.28);
+    --shadow:rgba(20,22,30,.07);
+    --font-sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    --font-mono:ui-monospace,"SF Mono","JetBrains Mono",Menlo,Consolas,monospace;
+    --font-serif:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif;
+  }
+  @media (prefers-color-scheme:dark){
+    :root{ --bg:#0D0E12; --panel:#14161C; --panel-2:#1B1E26;
+      --ink:#ECEEF2; --muted:#9AA1AE; --faint:#666D7A; --line:#262A33;
+      --accent:#F2764B; --accent-soft:rgba(242,118,75,.10); --accent-line:rgba(242,118,75,.34);
+      --shadow:rgba(0,0,0,.4); }
+  }
+  :root[data-theme="dark"]{ --bg:#0D0E12; --panel:#14161C; --panel-2:#1B1E26;
+    --ink:#ECEEF2; --muted:#9AA1AE; --faint:#666D7A; --line:#262A33;
+    --accent:#F2764B; --accent-soft:rgba(242,118,75,.10); --accent-line:rgba(242,118,75,.34);
+    --shadow:rgba(0,0,0,.4); }
+  :root[data-theme="light"]{ --bg:#FAFAFB; --panel:#FFFFFF; --panel-2:#F1F2F5;
+    --ink:#16181F; --muted:#5A616E; --faint:#8B919D; --line:#E4E6EB;
+    --accent:#C2410C; --accent-soft:rgba(194,65,12,.08); --accent-line:rgba(194,65,12,.28);
+    --shadow:rgba(20,22,30,.07); }
+
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--font-sans);
+    line-height:1.55;-webkit-font-smoothing:antialiased}
+  .rule{height:3px;background:var(--accent)}
+  .wrap{max-width:1000px;margin:0 auto;padding:0 clamp(1.2rem,5vw,2.5rem)}
+
+  header.top{padding:clamp(2.6rem,7vw,4.5rem) 0 clamp(1.6rem,4vw,2.4rem)}
+  .eyebrow{font-family:var(--font-mono);font-size:.72rem;letter-spacing:.18em;text-transform:uppercase;
+    color:var(--accent);margin:0 0 1rem}
+  h1{font-size:clamp(2.1rem,5.2vw,3.4rem);line-height:1.05;letter-spacing:-.025em;margin:0;font-weight:680;text-wrap:balance}
+  .wordmark .p{color:var(--accent)}
+  .lede{font-size:clamp(1rem,1.5vw,1.2rem);color:var(--muted);max-width:68ch;margin:1.1rem 0 0}
+  .byline{display:flex;flex-wrap:wrap;gap:.5rem 1.1rem;align-items:center;margin-top:1.5rem;color:var(--muted);font-size:.95rem}
+  .dot{width:6px;height:6px;border-radius:50%;background:var(--accent);display:inline-block}
+  .kicker{font-family:var(--font-mono);font-size:.73rem;color:var(--faint)}
+
+  .links{display:flex;flex-wrap:wrap;gap:.7rem;margin-top:1.6rem}
+  .btn{font-family:var(--font-mono);font-size:.82rem;text-decoration:none;color:var(--ink);
+    border:1px solid var(--line);border-radius:4px;padding:.55rem 1rem;background:var(--panel);
+    transition:border-color .15s,color .15s}
+  .btn:hover,.btn:focus-visible{border-color:var(--accent);color:var(--accent);outline:none}
+  .btn.primary{background:var(--accent);color:#fff;border-color:var(--accent)}
+  .btn.primary:hover,.btn.primary:focus-visible{color:#fff;filter:brightness(1.07)}
+
+  .note{background:var(--accent-soft);border-left:2px solid var(--accent);padding:.9rem 1.2rem;
+    margin:2rem 0 0;border-radius:0 4px 4px 0;color:var(--muted);font-size:.93rem;max-width:68ch}
+  .note b{color:var(--ink)}
+
+  section.phase{padding:clamp(1.8rem,4vw,2.8rem) 0;border-top:1px solid var(--line)}
+  .phead{display:flex;align-items:baseline;gap:.9rem;flex-wrap:wrap;margin-bottom:.5rem}
+  .pnum{font-family:var(--font-mono);font-size:.78rem;color:var(--accent);letter-spacing:.1em}
+  h2{font-size:clamp(1.35rem,2.6vw,1.9rem);margin:0;letter-spacing:-.02em;font-weight:660}
+  .psub{color:var(--muted);font-size:.97rem;margin:.35rem 0 1.4rem;max-width:70ch}
+
+  .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(270px,1fr));gap:.9rem}
+  a.card{display:block;text-decoration:none;background:var(--panel);border:1px solid var(--line);
+    border-radius:6px;padding:1.15rem 1.25rem;transition:border-color .15s,transform .15s,box-shadow .15s}
+  a.card:hover,a.card:focus-visible{border-color:var(--accent-line);transform:translateY(-2px);
+    box-shadow:0 8px 26px var(--shadow);outline:none}
+  a.card .t{font-family:var(--font-mono);font-size:.68rem;letter-spacing:.1em;text-transform:uppercase;color:var(--accent)}
+  a.card h3{margin:.4rem 0 .35rem;font-size:1.05rem;color:var(--ink);letter-spacing:-.01em;font-weight:640}
+  a.card p{margin:0;color:var(--muted);font-size:.88rem;line-height:1.5}
+  a.card .go{display:inline-block;margin-top:.7rem;font-family:var(--font-mono);font-size:.74rem;color:var(--faint)}
+  a.card:hover .go{color:var(--accent)}
+
+  .pull{font-family:var(--font-serif);font-style:italic;font-size:clamp(1.1rem,2.1vw,1.45rem);
+    line-height:1.35;color:var(--ink);border-left:2px solid var(--accent);padding-left:1.2rem;margin:2.2rem 0 0;max-width:60ch}
+
+  footer{border-top:1px solid var(--line);margin-top:2.5rem;padding:2rem 0 3rem;color:var(--muted);font-size:.9rem}
+  .themebtn{position:fixed;top:1rem;right:1rem;z-index:10;font-family:var(--font-mono);font-size:.7rem;
+    background:var(--panel);color:var(--muted);border:1px solid var(--line);border-radius:4px;padding:.35rem .65rem;cursor:pointer}
+  .themebtn:hover{border-color:var(--accent);color:var(--accent)}
+  a{color:var(--accent)}
+</style>
+</head>
+<body>
+<div class="rule"></div>
+<button class="themebtn" id="themebtn" aria-label="Toggle theme">◐ theme</button>
+
+<header class="top">
+  <div class="wrap">
+    <p class="eyebrow">Product Management Case Study</p>
+    <h1><span class="wordmark">Postmeet<span class="p">.</span></span> — from insight to shipped product, end to end.</h1>
+    <p class="lede">An AI product that turns any meeting transcript into owned, dated action items and pushes each one
+      into the owner's calendar and inbox — with zero setup and no OAuth. This is the full product-management record
+      behind it: the market case, the requirements, the research that <em>should</em> follow, the methodology, and an
+      honest post-launch scorecard.</p>
+    <div class="byline">
+      <span class="dot"></span><span><strong>Shubham Mittal</strong> · AI Product Manager</span>
+      <span class="kicker">Ideation → Planning &amp; Strategy → Development &amp; Execution</span>
+    </div>
+    <div class="links">
+      <a class="btn primary" href="https://postmeet.onrender.com/" target="_blank" rel="noopener">Try the live app ↗</a>
+      <a class="btn" href="../">Pitch deck ↗</a>
+      <a class="btn" href="../postmeet-pitch.pptx">Download .pptx ↓</a>
+      <a class="btn" href="https://github.com/Shubham-33/postmeet" target="_blank" rel="noopener">GitHub repo ↗</a>
+    </div>
+    <div class="note">
+      <b>How to read this.</b> These are real working documents, not a highlight reel — they include the decisions I got
+      wrong, the metric I failed to instrument, and the assumptions still waiting on evidence. If you only read two:
+      the <a href="https://github.com/Shubham-33/postmeet/blob/main/docs/case-study/03-prd.md">PRD</a> (for how I specify
+      an AI feature) and <a href="https://github.com/Shubham-33/postmeet/blob/main/docs/case-study/10-post-launch.md">Post-Launch</a>
+      (for how I judge my own work).
+    </div>
+  </div>
+</header>
+
+<section class="phase">
+  <div class="wrap">
+    <div class="phead"><span class="pnum">PHASE 01</span><h2>Ideation</h2></div>
+    <p class="psub">What are we building, for whom, and why is it worth doing? From a vision statement down to a
+      buildable spec — plus the manual a real user would read.</p>
+    <div class="cards">
+      <a class="card" href="https://github.com/Shubham-33/postmeet/blob/main/docs/case-study/01-product-vision.md">
+        <span class="t">Document 01</span><h3>Product Vision</h3>
+        <p>Positioning statement, the core insight (friction beats intelligence), north-star metric, three-horizon vision, the data-flywheel moat, and explicit non-goals.</p>
+        <span class="go">Read →</span>
+      </a>
+      <a class="card" href="https://github.com/Shubham-33/postmeet/blob/main/docs/case-study/02-mrd.md">
+        <span class="t">Document 02</span><h3>MRD — Market Requirements</h3>
+        <p>Market problem &amp; evidence, TAM/SAM/SOM with every assumption labelled, personas, the competitive map, the honest platform-native risk, and 11 numbered market requirements.</p>
+        <span class="go">Read →</span>
+      </a>
+      <a class="card" href="https://github.com/Shubham-33/postmeet/blob/main/docs/case-study/03-prd.md">
+        <span class="t">Document 03</span><h3>PRD — Product Requirements</h3>
+        <p>Goals, metric tree, user stories, 24 functional requirements — plus a full <em>AI requirements</em> section: model, output contract, guardrails, and evaluation criteria.</p>
+        <span class="go">Read →</span>
+      </a>
+      <a class="card" href="https://github.com/Shubham-33/postmeet/blob/main/docs/case-study/04-user-guide.md">
+        <span class="t">Document 04</span><h3>User Guide &amp; Manual</h3>
+        <p>Quick start, all three input modes, distributing, how the no-OAuth trick works, privacy answers, troubleshooting table, FAQ, and honest known limitations.</p>
+        <span class="go">Read →</span>
+      </a>
+    </div>
+  </div>
+</section>
+
+<section class="phase">
+  <div class="wrap">
+    <div class="phead"><span class="pnum">PHASE 02</span><h2>Planning &amp; Strategy</h2></div>
+    <p class="psub">How do we find out if we're right, how will we work, and how does the product reach a market?</p>
+    <div class="cards">
+      <a class="card" href="https://github.com/Shubham-33/postmeet/blob/main/docs/case-study/05-research-plan.md">
+        <span class="t">Document 05</span><h3>Research Plan</h3>
+        <p>Eight research questions ranked by decision risk. JTBD guides with anti-bias rules, diary study, fake doors, the analytics taxonomy, and the golden eval set. Every study bound to a decision.</p>
+        <span class="go">Read →</span>
+      </a>
+      <a class="card" href="https://github.com/Shubham-33/postmeet/blob/main/docs/case-study/06-methodology.md">
+        <span class="t">Document 06</span><h3>Methodology</h3>
+        <p>Dual-track Agile, Lean loops, why Kanban over Scrum <em>here</em>, RICE with a worked table, MoSCoW, OKRs — and eval-driven development, the gate standard Agile lacks.</p>
+        <span class="go">Read →</span>
+      </a>
+      <a class="card" href="https://github.com/Shubham-33/postmeet/blob/main/docs/case-study/07-7p-analysis.md">
+        <span class="t">Document 07</span><h3>7P Analysis</h3>
+        <p>Product · Price · Place · Promotion · People · Process · Physical Evidence — each audited against one strategy, including the pricing model and the untapped recipient loop.</p>
+        <span class="go">Read →</span>
+      </a>
+    </div>
+  </div>
+</section>
+
+<section class="phase">
+  <div class="wrap">
+    <div class="phead"><span class="pnum">PHASE 03</span><h2>Development &amp; Execution</h2></div>
+    <p class="psub">What actually got built, how it was launched, and what the evidence says now.</p>
+    <div class="cards">
+      <a class="card" href="https://github.com/Shubham-33/postmeet/blob/main/docs/case-study/08-development-execution.md">
+        <span class="t">Document 08</span><h3>Development &amp; Execution</h3>
+        <p>Architecture, four ADRs (incl. shipping the <em>smaller</em> model on purpose), the quality strategy, the deployment detour that taught the most, and a candid "what I'd do differently".</p>
+        <span class="go">Read →</span>
+      </a>
+      <a class="card" href="https://github.com/Shubham-33/postmeet/blob/main/docs/case-study/09-launch-plan.md">
+        <span class="t">Document 09</span><h3>Launch Plan</h3>
+        <p>Staged alpha → beta → public → scale, each with an entry gate and a kill criterion. GTM, the launch checklist (with its blockers still marked red), and the trust-incident protocol.</p>
+        <span class="go">Read →</span>
+      </a>
+      <a class="card" href="https://github.com/Shubham-33/postmeet/blob/main/docs/case-study/10-post-launch.md">
+        <span class="t">Document 10</span><h3>Post-Launch</h3>
+        <p>The metric dashboard, the vanity metrics deliberately excluded, the correction flywheel, incident response for trust, the iteration plan — and an honest scorecard with three red rows.</p>
+        <span class="go">Read →</span>
+      </a>
+    </div>
+
+    <p class="pull">"A successful launch is one where we learn — with confidence — whether the thesis is true.
+      An unmeasured launch that looks successful is worse than a measured one that fails."</p>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <p><strong>Shubham Mittal</strong> · Postmeet — built for PromptWars 2026 (3rd prize), then hardened into a
+      portfolio product.<br>
+      <a href="https://postmeet.onrender.com/">Live app</a> ·
+      <a href="../">Pitch deck</a> ·
+      <a href="https://github.com/Shubham-33/postmeet">Source</a> ·
+      <a href="https://github.com/Shubham-33/postmeet/tree/main/docs/case-study">All documents on GitHub</a>
+    </p>
+  </div>
+</footer>
+
+<script>
+  var tb=document.getElementById('themebtn'), root=document.documentElement;
+  tb.onclick=function(){
+    var t=root.getAttribute('data-theme');
+    var next=t==='dark'?'light':'dark';
+    root.setAttribute('data-theme',next);
+    tb.textContent=(next==='dark'?'☾':'☀')+' '+next;
+  };
+</script>
+</body>
+</html>
