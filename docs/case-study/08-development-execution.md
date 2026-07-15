@@ -14,7 +14,7 @@
 | **Stack** | Python · Flask · NVIDIA NIM (Llama 3.1) · Render · GitHub Actions |
 | **Quality** | **69 tests · 100% line + branch coverage** on business logic, gated in CI · ruff clean |
 | **Performance** | Extraction ~2.5s typical (p95 target <5s) |
-| **Origin** | Built for **PromptWars 2026** (vibe-coding hackathon) — **3rd prize** — then hardened for portfolio/production use |
+| **Origin** | Built at **PromptWars Chennai 2026** (Google for Developers × Hack2Skill) — **2nd Runner-Up** ([announcement](https://www.linkedin.com/posts/promptwars-chennai-googlefordevelopers-share-7457292011818209281-mB4X/)) — then hardened for portfolio/production use |
 
 ---
 
@@ -107,7 +107,7 @@
 
 | Phase | Work | Outcome |
 |---|---|---|
-| **Hackathon (PromptWars 2026)** | Core loop: extract → board → distribute. Flask + Gemini. | Working prototype · **3rd prize** |
+| **Hackathon (PromptWars Chennai, May 2026)** | Core loop: extract → board → distribute. Flask + Gemini. Built and pitched in one day. | Working prototype · **2nd Runner-Up** |
 | **Hardening** | Test suite → 100% coverage, gzip, caching, a11y pass, CI | Production-grade backend |
 | **UX revamp** | File upload + drag-drop, inline editing, MoM, editorial UI, local persistence | The product as it is today |
 | **Model migration** | Gemini → NVIDIA NIM. Discovered 3.3-70B dead → 3.1-70B slow → **8B + fallback** (ADR-2) | 46s → **2.5s** |

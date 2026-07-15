@@ -2,6 +2,8 @@
 
 **Paste a meeting transcript → get a clean board of decisions and action items → push each one to Google Calendar / Gmail in one click.** No sign-in, no OAuth.
 
+🏆 **2nd Runner-Up — PromptWars Chennai 2026** · *Google for Developers × Hack2Skill · Build with AI* · [announcement ↗](https://www.linkedin.com/posts/promptwars-chennai-googlefordevelopers-share-7457292011818209281-mB4X/)
+
 > 🔗 **Live demo:** **[postmeet.onrender.com](https://postmeet.onrender.com/)**
 > 📊 **[Pitch deck](https://shubham-33.github.io/postmeet/)** · 📚 **[Full PM case study](https://shubham-33.github.io/postmeet/case-study/)** (Vision · MRD · PRD · Research · 7P · Launch)
 > ⏱️ Try it in 30s: open the demo → **Load sample** → press **Extract** → click **📅 Calendar** on any card.
@@ -94,4 +96,4 @@ Hosted on **Render** via the [`render.yaml`](render.yaml) blueprint — a genuin
 
 ---
 
-<sub>Built during PromptWars 2026 (a vibe-coding hackathon), then hardened for reliability and test coverage. No meeting data is stored — a refresh clears everything.</sub>
+<sub>Built in one day at PromptWars Chennai 2026 (Google for Developers × Hack2Skill) — 2nd Runner-Up — then hardened for reliability and test coverage. No meeting data is stored — a refresh clears everything.</sub>

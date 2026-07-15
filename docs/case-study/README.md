@@ -50,4 +50,4 @@ Postmeet turns any meeting transcript into owned, dated action items and pushes 
 
 ---
 
-*Built for PromptWars 2026 (3rd prize), then hardened into a portfolio product: 69 tests, 100% line + branch coverage, green CI, live on a public URL.*
+*🏆 **2nd Runner-Up at PromptWars Chennai 2026** (Google for Developers × Hack2Skill) — [announcement](https://www.linkedin.com/posts/promptwars-chennai-googlefordevelopers-share-7457292011818209281-mB4X/) — then hardened into a portfolio product: 69 tests, 100% line + branch coverage, green CI, live on a public URL.*

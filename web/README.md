@@ -2,7 +2,7 @@
 
 > Paste a meeting → get a Trello-style board of decisions and action items → distribute to everyone in one click.
 
-Built for **PromptWars 2026** — a vibe-coding hackathon. Optimized for *intent, speed, and execution*, not framework boilerplate.
+🏆 **2nd Runner-Up at [PromptWars Chennai 2026](https://www.linkedin.com/posts/promptwars-chennai-googlefordevelopers-share-7457292011818209281-mB4X/)** — a one-day Google for Developers × Hack2Skill build-and-pitch hackathon. Optimized for *intent, speed, and execution*, not framework boilerplate.
 
 ## The problem
 
