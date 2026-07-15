@@ -5,7 +5,8 @@
 🏆 **Top 10 Finalist → 2nd Runner-Up — PromptWars Chennai 2026** · *Google for Developers × Hack2Skill · Build with AI* · [announcement ↗](https://www.linkedin.com/posts/promptwars-chennai-googlefordevelopers-share-7457292011818209281-mB4X/)
 
 > 🔗 **Live demo:** **[postmeet.onrender.com](https://postmeet.onrender.com/)**
-> 📊 **[Pitch deck](https://shubham-33.github.io/postmeet/)** · 📚 **[Full PM case study](https://shubham-33.github.io/postmeet/case-study/)** (Vision · MRD · PRD · Research · 7P · Launch)
+> 📊 **[Pitch deck](https://shubham-33.github.io/postmeet/)** (or [view the slides](https://shubham-33.github.io/postmeet/slides/) · [.pptx](https://shubham-33.github.io/postmeet/postmeet-pitch.pptx) · [PDF](https://shubham-33.github.io/postmeet/postmeet-pitch.pdf))
+> 📚 **[Full PM case study](https://shubham-33.github.io/postmeet/case-study/)** (Vision · MRD · PRD · Research · 7P · Launch)
 > ⏱️ Try it in 30s: open the demo → **Load sample** → press **Extract** → click **📅 Calendar** on any card.
 > _(Free-tier host — the first load after idle may take ~40s to wake, then it's fast.)_
 

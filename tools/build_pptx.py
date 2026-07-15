@@ -87,12 +87,13 @@ txt(s, 0.9, 1.9, 11.5, 2.2, [
     [("The last mile of meetings.", 40, INK, True, BODY)]], space=1.0)
 txt(s, 0.9, 4.15, 9.6, 1.2, [[("Every meeting produces commitments. Most of them evaporate. Postmeet turns a raw "
     "transcript into distributed, owned action — in about five seconds, with zero setup.", 17, MUTED, False, BODY)]], space=1.14)
-txt(s, 0.9, 5.52, 11.5, 0.4, [[("Shubham Mittal", 15, INK, True, BODY), ("   ·   AI Product Manager", 15, MUTED, False, BODY)]])
+txt(s, 0.9, 5.42, 11.5, 0.4, [[("Shubham Mittal", 15, INK, True, BODY), ("   ·   AI Product Manager", 15, MUTED, False, BODY)]])
 # Award badge — a real, verifiable credential; earns attention before any claim does.
-box(s, 0.9, 6.0, 8.9, 0.44, fill=SOFT, line=ACCENT, lw=1.2, radius=True)
-txt(s, 1.12, 6.06, 8.6, 0.34, [[("🏆  Top 10 Finalist → 2nd Runner-Up", 11.5, ACCENT, True, MONO),
-    ("  ·  PromptWars Chennai 2026  ·  Google for Developers × Hack2Skill", 10, MUTED, False, MONO)]])
-txt(s, 0.9, 6.62, 11.5, 0.4, [[("Live demo: postmeet.onrender.com      Repo: github.com/Shubham-33/postmeet", 12.5, FAINT, False, MONO)]])
+# Two lines on purpose: one line overflowed the box once LibreOffice substituted the mono font.
+box(s, 0.9, 5.85, 5.95, 0.78, fill=SOFT, line=ACCENT, lw=1.2, radius=True)
+txt(s, 1.15, 5.93, 5.5, 0.3, [[("🏆  Top 10 Finalist → 2nd Runner-Up", 11.5, ACCENT, True, MONO)]])
+txt(s, 1.15, 6.24, 5.5, 0.3, [[("PromptWars Chennai 2026 · Google for Developers × Hack2Skill", 8.5, MUTED, False, MONO)]])
+txt(s, 0.9, 6.78, 11.5, 0.4, [[("Live demo: postmeet.onrender.com      Repo: github.com/Shubham-33/postmeet", 12.5, FAINT, False, MONO)]])
 
 # ============ 2 · SEE IT WORK (product first — the visual hook) ============
 s = slide(); eyebrow(s, "—  SEE IT WORK")
