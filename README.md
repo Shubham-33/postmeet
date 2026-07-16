@@ -93,6 +93,8 @@ Hosted on **Render** via the [`render.yaml`](render.yaml) blueprint — a genuin
    ```
 4. Deploy → you get a public `https://<name>.onrender.com` URL. Paste it into the **Live demo** line at the top of this file.
 
+> **Keeping it warm:** Render's free tier sleeps after ~15 min idle (~40s cold start). An external uptime monitor ([UptimeRobot](https://uptimerobot.com)) pings the live URL every 5 min so a recruiter's first click loads instantly. (A GitHub Actions cron was tried first but scheduled workflows are throttled to ~hourly under load — too slow to prevent sleep.)
+
 > The Streamlit app (`web/streamlit_app.py`) also runs locally, but **Streamlit Community Cloud now gates every app behind a mandatory viewer sign-in**, so it isn't used for the public demo.
 
 ---
