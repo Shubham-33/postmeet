@@ -12,8 +12,8 @@ Every team has meetings. Every meeting produces commitments. **70% of those comm
 
 ```
                 ┌─ Paste transcript ─┐
-Two inputs ─────┤                     ├──► NVIDIA Llama 3.1 ─────► structured JSON ──► Trello board
-                └─ Google Doc URL ───┘   (8B + 70B fallback,        │
+Two inputs ─────┤                     ├──► NVIDIA NIM ────────► structured JSON ──► Trello board
+                └─ Google Doc URL ───┘   (gpt-oss-20b + Nemotron fallback,       │
                                           NIM JSON mode)            │
                                                                     │
                                                           ┌─────────┴─────────┐
@@ -37,7 +37,7 @@ Click → opens the user's already-logged-in Google in a new tab with everything
 
 | Service | Used for |
 |---|---|
-| **NVIDIA NIM — Llama 3.1** (build.nvidia.com) | Structured extraction via the OpenAI-compatible endpoint in JSON response mode. Fast 8B primary (~2-3s) with automatic 70B fallback on error. |
+| **NVIDIA NIM** (build.nvidia.com) | Structured extraction via the OpenAI-compatible endpoint in JSON response mode. gpt-oss-20b primary (~8s) with automatic Nemotron-3-Super-120B fallback on error. |
 | **Google Docs** (public export endpoint) | Fetch transcript text from a shared-publicly Doc URL — no OAuth |
 | **Google Calendar** | Per-action prefilled event creation via URL spec |
 | **Gmail** | Per-action prefilled email via Gmail web compose URL |
@@ -45,7 +45,7 @@ Click → opens the user's already-logged-in Google in a new tab with everything
 | **Secret Manager** | NVIDIA API key never appears in plaintext outside Secret Manager |
 | **Cloud Build** | Buildpack-based container build (no Dockerfile maintenance) |
 
-That's **NVIDIA Llama 3.1 + 6 Google Cloud services** in a single ~250-LOC app.
+That's **NVIDIA NIM + 6 Google Cloud services** in a single ~250-LOC app.
 
 ## Run locally
 
@@ -125,7 +125,7 @@ The script enables required APIs, stores the key in Secret Manager, builds via b
 | **Testing** | **69 pytest tests, 100% line + branch coverage** on `app.py` + `links.py` (210/210 statements, 62/62 branches, 0 partial). Coverage is gated in `pyproject.toml` — CI fails if it drops below 100%. All HTTP mocked, suite runs in <150ms |
 | **Accessibility** | Skip-to-content link, semantic HTML (`main`, `section`, `article`, `header`), ARIA labels on all interactive elements, `role="status"` + `aria-live` for status updates, visible focus rings on every focusable element, keyboard shortcut (⌘/Ctrl+Enter), tab toggle uses proper `role="tab"` / `aria-selected`, color contrast meets WCAG AA on the dark theme |
 | **Problem Statement Alignment** | Directly improves coordination, communication, and task visibility — meeting commitments become a shared, distributed plan with one click |
-| **Services usage** | NVIDIA NIM (Llama 3.1, 8B + 70B fallback), Google Docs export, Google Calendar URL spec, Gmail compose URL, Cloud Run, Secret Manager, Cloud Build |
+| **Services usage** | NVIDIA NIM (gpt-oss-20b + Nemotron-3-Super-120B fallback), Google Docs export, Google Calendar URL spec, Gmail compose URL, Cloud Run, Secret Manager, Cloud Build |
 
 ## Known limitations
 

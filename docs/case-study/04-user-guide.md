@@ -184,7 +184,7 @@ Press **?** anywhere to see them.
 
 **Can my teammates see the board?** No — it's local to your browser. What they receive is a normal calendar invite or email.
 
-**What model is it?** NVIDIA NIM running Llama 3.1 (8B primary, 70B fallback). Chosen for consistent ~2.5s responses over a marginally smarter but much slower option — see [the reasoning](03-prd.md#71-model--inference).
+**What model is it?** NVIDIA NIM running gpt-oss-20b (Nemotron-3-Super-120B fallback; originally Llama 3.1 8B/70B until NVIDIA retired them in Aug 2026). Chosen for consistent ~2.5s responses over a marginally smarter but much slower option — see [the reasoning](03-prd.md#71-model--inference).
 
 **Can I use it for something other than meetings?** Any text containing commitments works — a project thread, an email chain. Meetings are just the sharpest case.
 

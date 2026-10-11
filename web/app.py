@@ -1,7 +1,7 @@
 """Postmeet — Flask backend.
 
 Extracts decisions and action items from meeting transcripts (or shared
-Google Doc URLs) using NVIDIA NIM's Llama 3.1 (8B primary + 70B fallback,
+Google Doc URLs) using NVIDIA NIM (gpt-oss-20b primary + nemotron-3-super-120b fallback,
 OpenAI-compatible endpoint, JSON response mode). Renders a single-page UI;
 dispatches per-action Calendar / Gmail prefills client-side via URL specs (no OAuth).
 
@@ -38,8 +38,8 @@ if not API_KEY:
 # Fast primary for low, predictable latency (~2-3s), with a higher-capacity
 # fallback tried only if the primary errors — keeps the app responsive for
 # anyone testing it, even months later. Override with NIM_MODEL to pin one model.
-PRIMARY_MODEL: Final[str] = "meta/llama-3.1-8b-instruct"
-FALLBACK_MODEL: Final[str] = "meta/llama-3.1-70b-instruct"
+PRIMARY_MODEL: Final[str] = "openai/gpt-oss-20b"
+FALLBACK_MODEL: Final[str] = "nvidia/nemotron-3-super-120b-a12b"
 MODEL_NAME: Final[str] = os.environ.get("NIM_MODEL", "").strip() or PRIMARY_MODEL
 # If the user pinned a model, honor only that; otherwise try primary then fallback.
 MODEL_CHAIN: Final[tuple[str, ...]] = (

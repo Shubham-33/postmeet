@@ -5,6 +5,9 @@
 
 ---
 
+
+> **Update (Oct 2026): forced model migration.** NVIDIA retired `meta/llama-3.1-8b-instruct` and `llama-3.1-70b-instruct` (HTTP 410, EOL 2026-08-26), which took the live API down. Production now runs `openai/gpt-oss-20b` (primary, ~8s) with `nvidia/nemotron-3-super-120b-a12b` as fallback. Latency is ~3x the original 8B because both are reasoning models. Lesson: a hosted-model dependency needs an EOL watch and a scheduled health check, not just a fallback chain. The rest of this document records the original Llama decisions as made.
+
 ## 1. What shipped
 
 | | |

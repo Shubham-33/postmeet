@@ -115,6 +115,9 @@
 <p><strong>Owner:</strong> Shubham Mittal · <strong>Status:</strong> v1 shipped · <strong>Phase:</strong> Development &amp; Execution
 <strong>Related:</strong> <a href="03-prd.html">PRD</a> · <a href="06-methodology.html">Methodology</a> · <a href="09-launch-plan.html">Launch Plan</a> · <a href="./">Case study home</a></p>
 <hr />
+<blockquote>
+<p><strong>Update (Oct 2026): forced model migration.</strong> NVIDIA retired <code>meta/llama-3.1-8b-instruct</code> and <code>llama-3.1-70b-instruct</code> (HTTP 410, EOL 2026-08-26), which took the live API down. Production now runs <code>openai/gpt-oss-20b</code> (primary, ~8s) with <code>nvidia/nemotron-3-super-120b-a12b</code> as fallback. Latency is ~3x the original 8B because both are reasoning models. Lesson: a hosted-model dependency needs an EOL watch and a scheduled health check, not just a fallback chain. The rest of this document records the original Llama decisions as made.</p>
+</blockquote>
 <h2 id="1-what-shipped">1. What shipped</h2>
 <div class="tablewrap"><table>
 <thead>
